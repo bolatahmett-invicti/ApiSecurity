@@ -3,114 +3,17 @@
   "info": {
     "title": "API Scan Results: payment-service",
     "version": "1.0",
-    "description": "APIs discovered from payment-service (./test_samples)",
+    "description": "APIs discovered from payment-service (./test-microservices/payment-service)",
     "x-generated-by": "Universal Polyglot API Scanner v3.1",
-    "x-generated-at": "2026-01-31T23:32:47.898244",
+    "x-generated-at": "2026-01-31T23:53:32.981865",
     "x-service-name": "payment-service"
   },
   "paths": {
-    "/add": {
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:130\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: MEDIUM\nAuth Status: PRIVATE",
-        "operationId": "post_add",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 130,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "auth: \\bjwt\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:159\n\nFramework: Spring\nLanguage: Java\nRisk Level: HIGH\nAuth Status: PRIVATE",
-        "operationId": "get_admin",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 159,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ]
-      }
-    },
-    "/admin/database/backup": {
+    "/api/v1/billing/invoices": {
       "get": {
         "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:73\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_admin_database_backup",
+        "description": "Discovered from [main.py]:186\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_billing_invoices",
         "tags": [
           "Flask",
           "Python"
@@ -132,229 +35,23 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 73,
-        "x-risk-level": "CRITICAL",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 186,
+        "x-risk-level": "MEDIUM",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\badmin\\b",
+          "financial: \\bbilling\\b",
           "Shadow API"
         ]
       }
     },
-    "/admin/database/reset": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:159\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_admin_database_reset",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 159,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/logs": {
+    "/api/v1/billing/invoices/{invoice_id}": {
       "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:173\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_admin_logs",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:194\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_billing_invoices_invoice_id",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 173,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/admin/metrics": {
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:166\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_admin_metrics",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 166,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "admin: \\binternal\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/admin/reset": {
-      "get": {
-        "summary": "net/http endpoint",
-        "description": "Discovered from [go_app.go]:31\n\nFramework: net/http\nLanguage: Go\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_admin_reset",
-        "tags": [
-          "net/http",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 31,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/admin/reset-db": {
-      "post": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:67\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "post_admin_resetdb",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 67,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/users/{id}": {
-      "delete": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:91\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "delete_admin_users_id",
-        "tags": [
-          "Custom-Router",
+          "Flask",
           "Python"
         ],
         "responses": {
@@ -374,602 +71,170 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\complex_python_app.py",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 194,
+        "x-risk-level": "MEDIUM",
+        "x-auth-status": "UNKNOWN",
+        "x-risk-reasons": [
+          "financial: \\bbilling\\b",
+          "Shadow API"
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: invoice_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/billing/invoices/{invoice_id}/pay": {
+      "post": {
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:202\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "post_api_v1_billing_invoices_invoice_id_pay",
+        "tags": [
+          "Flask",
+          "Python"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 202,
+        "x-risk-level": "MEDIUM",
+        "x-auth-status": "UNKNOWN",
+        "x-risk-reasons": [
+          "financial: \\bbilling\\b",
+          "Shadow API"
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: invoice_id"
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Dynamic-Route endpoint",
+        "description": "Discovered from [main.py]:202\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_billing_invoices_invoice_id_pay",
+        "tags": [
+          "Dynamic-Route",
+          "Python"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 202,
+        "x-risk-level": "MEDIUM",
+        "x-auth-status": "UNKNOWN",
+        "x-risk-reasons": [
+          "financial: \\bbilling\\b",
+          "Shadow API"
+        ],
+        "parameters": [
+          {
+            "name": "invoice_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: invoice_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/currencies": {
+      "get": {
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:91\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_currencies",
+        "tags": [
+          "Flask",
+          "Python"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-source-file": "test-microservices\\payment-service\\main.py",
         "x-source-line": 91,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "financial: \\bbilling\\b",
-          "admin: \\badmin\\b",
-          "admin: \\binternal\\b",
-          "Mutation: DELETE",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      }
-    },
-    "/admin/users/{user_id}": {
-      "delete": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:66\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "delete_admin_users_user_id",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 66,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\badmin\\b",
-          "Mutation: DELETE",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: user_id"
-          }
-        ]
-      }
-    },
-    "/admin/v2/reset": {
-      "post": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:147\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "post_admin_v2_reset",
-        "tags": [
-          "MinimalAPI",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 147,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/admin/v2/users/{id}": {
-      "delete": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:146\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "delete_admin_v2_users_id",
-        "tags": [
-          "MinimalAPI",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 146,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Mutation: DELETE",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      }
-    },
-    "/api/auth/login": {
-      "post": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:23\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_api_auth_login",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 23,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bpassword\\b",
-          "auth: \\btoken\\b",
-          "auth: \\bauth\\b",
-          "auth: \\bjwt\\b",
-          "pii: \\bemail\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:28\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_api_auth_login",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 28,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bpassword\\b",
-          "auth: \\bauth\\b",
-          "pii: \\bemail\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/auth/register": {
-      "post": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:29\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_api_auth_register",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 29,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bpassword\\b",
-          "auth: \\btoken\\b",
-          "auth: \\bauth\\b",
-          "pii: \\bssn\\b",
-          "pii: \\bemail\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:35\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_api_auth_register",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 35,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bpassword\\b",
-          "auth: \\btoken\\b",
-          "auth: \\bauth\\b",
-          "pii: \\bssn\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/billing/history": {
-      "get": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:57\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_api_billing_history",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 57,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "financial: \\bbilling\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/billing/invoices": {
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:60\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_api_billing_invoices",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 60,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\btoken\\b",
-          "financial: \\bpayment\\b",
-          "financial: \\bbilling\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/cart/add": {
-      "post": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:77\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_api_cart_add",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 77,
         "x-risk-level": "LOW",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
           "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/checkout/complete": {
-      "post": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:81\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_api_checkout_complete",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 81,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bcredit.?card\\b",
-          "financial: \\bpayment\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/email/send": {
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:84\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: PRIVATE",
-        "operationId": "get_api_email_send",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 84,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "pii: \\bemail\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
         ]
       }
     },
-    "/api/internal/users": {
-      "get": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:62\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_api_internal_users",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 62,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\binternal\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/notifications/send": {
+    "/api/v1/payment-methods": {
       "get": {
         "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:79\n\nFramework: Flask\nLanguage: Python\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "get_api_notifications_send",
+        "description": "Discovered from [main.py]:79\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_paymentmethods",
         "tags": [
           "Flask",
           "Python"
@@ -991,2027 +256,24 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\flask_app.py",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
         "x-source-line": 79,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ]
-      }
-    },
-    "/api/orders": {
-      "get": {
-        "summary": "Fiber endpoint",
-        "description": "Discovered from [go_app.go]:176\n\nFramework: Fiber\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_orders",
-        "tags": [
-          "Fiber",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 176,
-        "x-risk-level": "LOW",
+        "x-risk-level": "MEDIUM",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "Shadow API"
-        ]
-      },
-      "post": {
-        "summary": "Fiber endpoint",
-        "description": "Discovered from [go_app.go]:178\n\nFramework: Fiber\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_api_orders",
-        "tags": [
-          "Fiber",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 178,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/orders/{id}": {
-      "get": {
-        "summary": "Fiber endpoint",
-        "description": "Discovered from [go_app.go]:177\n\nFramework: Fiber\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_orders_id",
-        "tags": [
-          "Fiber",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 177,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      },
-      "put": {
-        "summary": "Fiber endpoint",
-        "description": "Discovered from [go_app.go]:179\n\nFramework: Fiber\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "put_api_orders_id",
-        "tags": [
-          "Fiber",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 179,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Mutation: PUT",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Fiber endpoint",
-        "description": "Discovered from [go_app.go]:180\n\nFramework: Fiber\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "delete_api_orders_id",
-        "tags": [
-          "Fiber",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 180,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Mutation: DELETE",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      }
-    },
-    "/api/payments/charge": {
-      "post": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:55\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_api_payments_charge",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 55,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\btoken\\b",
-          "pii: \\bemail\\b",
-          "financial: \\bpayment\\b",
-          "financial: \\bcharge\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/payments/process": {
-      "post": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:51\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_api_payments_process",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 51,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bcredit.?card\\b",
           "financial: \\bpayment\\b",
           "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/products": {
-      "get": {
-        "summary": "Echo endpoint",
-        "description": "Discovered from [go_app.go]:150\n\nFramework: Echo\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_products",
-        "tags": [
-          "Echo",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 150,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
         ]
-      },
-      "post": {
-        "summary": "Echo endpoint",
-        "description": "Discovered from [go_app.go]:152\n\nFramework: Echo\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_api_products",
-        "tags": [
-          "Echo",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 152,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/products/{id}": {
-      "put": {
-        "summary": "Echo endpoint",
-        "description": "Discovered from [go_app.go]:153\n\nFramework: Echo\nLanguage: Go\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "put_api_products_id",
-        "tags": [
-          "Echo",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 153,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Mutation: PUT",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Echo endpoint",
-        "description": "Discovered from [go_app.go]:154\n\nFramework: Echo\nLanguage: Go\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "delete_api_products_id",
-        "tags": [
-          "Echo",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 154,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Mutation: DELETE",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      },
-      "get": {
-        "summary": "Echo endpoint",
-        "description": "Discovered from [go_app.go]:151\n\nFramework: Echo\nLanguage: Go\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_products_id",
-        "tags": [
-          "Echo",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 151,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      }
-    },
-    "/api/public/docs": {
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:23\n\nFramework: Flask\nLanguage: Python\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_public_docs",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 23,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/api/public/info": {
-      "get": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:18\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_public_info",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 18,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/api/public/products": {
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:27\n\nFramework: Flask\nLanguage: Python\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_public_products",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 27,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/api/search/advanced": {
-      "post": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:78\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_api_search_advanced",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 78,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/search/products": {
-      "get": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:73\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_search_products",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 73,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/users": {
-      "get": {
-        "summary": "net/http endpoint",
-        "description": "Discovered from [go_app.go]:27\n\nFramework: net/http\nLanguage: Go\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_api_users",
-        "tags": [
-          "net/http",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 27,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      },
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:40\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "post_api_users",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 40,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/": {
-      "get": {
-        "summary": "net/http endpoint",
-        "description": "Discovered from [go_app.go]:28\n\nFramework: net/http\nLanguage: Go\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_api_users",
-        "tags": [
-          "net/http",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 28,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/users/<int{user_id}>": {
-      "put": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:47\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: PRIVATE",
-        "operationId": "put_api_users_intuser_id",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 47,
-        "x-risk-level": "LOW",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "Mutation: PUT"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: user_id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:52\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: PRIVATE",
-        "operationId": "delete_api_users_intuser_id",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 52,
-        "x-risk-level": "LOW",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "Mutation: DELETE"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: user_id"
-          }
-        ]
-      }
-    },
-    "/api/users/me": {
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:44\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_api_users_me",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 44,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\btoken\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/users/profile": {
-      "get": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:36\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_users_profile",
-        "tags": [
-          "Express",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 36,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/users/search": {
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:33\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_users_search",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 33,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/users/{id}": {
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:26\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_api_users_id",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 26,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bemail\\b",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      },
-      "delete": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:56\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: PRIVATE",
-        "operationId": "delete_api_users_id",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 56,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Mutation: DELETE"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      },
-      "put": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:48\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: PRIVATE",
-        "operationId": "put_api_users_id",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 48,
-        "x-risk-level": "LOW",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "Mutation: PUT"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/users/{user_id}": {
-      "get": {
-        "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:49\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_api_users_user_id",
-        "tags": [
-          "Flask",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 49,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\btoken\\b",
-          "pii: \\bemail\\b",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "user_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: user_id"
-          }
-        ]
-      }
-    },
-    "/api/v1": {
-      "get": {
-        "summary": "FastAPI endpoint",
-        "description": "Discovered from [complex_python_app.py]:33\n\nFramework: FastAPI\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v1",
-        "tags": [
-          "FastAPI",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 33,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/v1/auth": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:89\n\nFramework: Spring\nLanguage: Java\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v1_auth",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 89,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/v1/auth/login": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:73\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: PUBLIC",
-        "operationId": "post_api_v1_auth_login",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 73,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PUBLIC",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Sensitive PUBLIC"
-        ],
-        "security": [],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/logout": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:97\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: MEDIUM\nAuth Status: PRIVATE",
-        "operationId": "post_api_v1_auth_logout",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 97,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/refresh": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:89\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: MEDIUM\nAuth Status: PRIVATE",
-        "operationId": "post_api_v1_auth_refresh",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 89,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/auth/register": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:81\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: PUBLIC",
-        "operationId": "post_api_v1_auth_register",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 81,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PUBLIC",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Sensitive PUBLIC"
-        ],
-        "security": [],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/customers": {
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:273\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "get_api_v1_customers",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 273,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/customers/{customerId}": {
-      "put": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:303\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: PRIVATE",
-        "operationId": "put_api_v1_customers_customerId",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 303,
-        "x-risk-level": "LOW",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "Mutation: PUT"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "customerId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: customerId"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:281\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "get_api_v1_customers_customerId",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 281,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "customerId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: customerId"
-          }
-        ]
-      }
-    },
-    "/api/v1/customers/{customerId}/orders": {
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:295\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "get_api_v1_customers_customerId_orders",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 295,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "customerId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: customerId"
-          }
-        ]
-      }
-    },
-    "/api/v1/health": {
-      "get": {
-        "summary": "Dynamic-Route endpoint",
-        "description": "Discovered from [complex_python_app.py]:116\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_v1_health",
-        "tags": [
-          "Dynamic-Route",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 116,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/api/v1/orders": {
-      "get": {
-        "summary": "Dynamic-Route endpoint",
-        "description": "Discovered from [complex_python_app.py]:110\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v1_orders",
-        "tags": [
-          "Dynamic-Route",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 110,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      },
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:250\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "post_api_v1_orders",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 250,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/orders/{id}": {
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:243\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "get_api_v1_orders_id",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 243,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      }
-    },
-    "/api/v1/orders/{id}/cancel": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:257\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "post_api_v1_orders_id_cancel",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 257,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
       }
     },
     "/api/v1/payments": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:124\n\nFramework: Spring\nLanguage: Java\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v1_payments",
+      "post": {
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:99\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "post_api_v1_payments",
         "tags": [
-          "Spring",
-          "Java"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3030,24 +292,33 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 124,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 99,
         "x-risk-level": "MEDIUM",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "financial: \\bcharge\\b",
+          "financial: \\bpayment\\b",
           "Shadow API"
-        ]
-      }
-    },
-    "/api/v1/payments/balance": {
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
       "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:137\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "get_api_v1_payments_balance",
+        "summary": "Dynamic-Route endpoint",
+        "description": "Discovered from [main.py]:99\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_payments",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
+          "Dynamic-Route",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3066,222 +337,23 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 137,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/payments/charge": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:115\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: PRIVATE",
-        "operationId": "post_api_v1_payments_charge",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 115,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PRIVATE",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 99,
+        "x-risk-level": "MEDIUM",
+        "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
           "financial: \\bpayment\\b",
-          "financial: \\bcharge\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/payments/history": {
-      "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:122\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PRIVATE",
-        "operationId": "get_api_v1_payments_history",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 122,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PRIVATE",
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/payments/refund/{transactionId}": {
-      "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:129\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: PRIVATE",
-        "operationId": "post_api_v1_payments_refund_transactionId",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 129,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "transactionId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: transactionId"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/products": {
-      "get": {
-        "summary": "Dynamic-Route endpoint",
-        "description": "Discovered from [complex_python_app.py]:109\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v1_products",
-        "tags": [
-          "Dynamic-Route",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 109,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
           "Shadow API"
         ]
       }
     },
-    "/api/v1/search": {
+    "/api/v1/payments/{transaction_id}": {
       "get": {
-        "summary": "Dynamic-Route endpoint",
-        "description": "Discovered from [complex_python_app.py]:111\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v1_search",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:118\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_payments_transaction_id",
         "tags": [
-          "Dynamic-Route",
+          "Flask",
           "Python"
         ],
         "responses": {
@@ -3301,157 +373,34 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 111,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/v1/status": {
-      "get": {
-        "summary": "Dynamic-Route endpoint",
-        "description": "Discovered from [complex_python_app.py]:117\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_v1_status",
-        "tags": [
-          "Dynamic-Route",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 117,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/api/v1/users": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:32\n\nFramework: Spring\nLanguage: Java\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v1_users",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 32,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/api/v1/webhooks": {
-      "get": {
-        "summary": "Dynamic-Route endpoint",
-        "description": "Discovered from [complex_python_app.py]:118\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_v1_webhooks",
-        "tags": [
-          "Dynamic-Route",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
         "x-source-line": 118,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/api/v2/health": {
-      "get": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:131\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_v2_health",
-        "tags": [
-          "MinimalAPI",
-          "C#/.NET"
+        "x-risk-level": "LOW",
+        "x-auth-status": "UNKNOWN",
+        "x-risk-reasons": [
+          "Shadow API"
         ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: transaction_id"
           }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 131,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
+        ]
       }
     },
-    "/api/v2/payments/charge": {
+    "/api/v1/payments/{transaction_id}/capture": {
       "post": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:142\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_api_v2_payments_charge",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:142\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "post_api_v1_payments_transaction_id_capture",
         "tags": [
-          "MinimalAPI",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3470,15 +419,125 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Startup.cs",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
         "x-source-line": 142,
-        "x-risk-level": "CRITICAL",
+        "x-risk-level": "LOW",
+        "x-auth-status": "UNKNOWN",
+        "x-risk-reasons": [
+          "Shadow API"
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: transaction_id"
+          }
+        ],
+        "requestBody": {
+          "description": "Request body",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Dynamic-Route endpoint",
+        "description": "Discovered from [main.py]:142\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_payments_transaction_id_capture",
+        "tags": [
+          "Dynamic-Route",
+          "Python"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 142,
+        "x-risk-level": "LOW",
+        "x-auth-status": "UNKNOWN",
+        "x-risk-reasons": [
+          "Shadow API"
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: transaction_id"
+          }
+        ]
+      }
+    },
+    "/api/v1/payments/{transaction_id}/void": {
+      "post": {
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:150\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "post_api_v1_payments_transaction_id_void",
+        "tags": [
+          "Flask",
+          "Python"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 150,
+        "x-risk-level": "MEDIUM",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
           "financial: \\bpayment\\b",
-          "financial: \\bcharge\\b",
-          "admin: \\badmin\\b",
           "Shadow API"
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: transaction_id"
+          }
         ],
         "requestBody": {
           "description": "Request body",
@@ -3491,16 +550,61 @@
             }
           }
         }
+      },
+      "get": {
+        "summary": "Dynamic-Route endpoint",
+        "description": "Discovered from [main.py]:150\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_payments_transaction_id_void",
+        "tags": [
+          "Dynamic-Route",
+          "Python"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        },
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 150,
+        "x-risk-level": "MEDIUM",
+        "x-auth-status": "UNKNOWN",
+        "x-risk-reasons": [
+          "financial: \\bpayment\\b",
+          "Shadow API"
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Path parameter: transaction_id"
+          }
+        ]
       }
     },
-    "/api/v2/products": {
+    "/api/v1/refunds": {
       "post": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:210\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: PRIVATE",
-        "operationId": "post_api_v2_products",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:161\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "post_api_v1_refunds",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3519,20 +623,12 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 210,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PRIVATE",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 161,
+        "x-risk-level": "LOW",
+        "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "admin: \\badmin\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
+          "Shadow API"
         ],
         "requestBody": {
           "description": "Request body",
@@ -3547,12 +643,12 @@
         }
       },
       "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:189\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v2_products",
+        "summary": "Dynamic-Route endpoint",
+        "description": "Discovered from [main.py]:161\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_refunds",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
+          "Dynamic-Route",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3571,8 +667,8 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 189,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 161,
         "x-risk-level": "LOW",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
@@ -3580,78 +676,14 @@
         ]
       }
     },
-    "/api/v2/products/{id}": {
-      "patch": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:218\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: PRIVATE",
-        "operationId": "patch_api_v2_products_id",
-        "tags": [
-          "ASP.NET",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 218,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Mutation: PATCH"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
+    "/api/v1/refunds/{refund_id}": {
       "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:196\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v2_products_id",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:175\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_refunds_refund_id",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3670,8 +702,8 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 196,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 175,
         "x-risk-level": "LOW",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
@@ -3679,25 +711,25 @@
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "refund_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "Path parameter: id"
+            "description": "Path parameter: refund_id"
           }
         ]
       }
     },
-    "/api/v2/products/{id}/reviews": {
+    "/api/v1/subscriptions": {
       "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Controllers.cs]:203\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v2_products_id_reviews",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:213\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_subscriptions",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3716,54 +748,8 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Controllers.cs",
-        "x-source-line": 203,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      }
-    },
-    "/api/v2/users": {
-      "get": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:135\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v2_users",
-        "tags": [
-          "MinimalAPI",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 135,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 213,
         "x-risk-level": "LOW",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
@@ -3771,12 +757,12 @@
         ]
       },
       "post": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:137\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_api_v2_users",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:221\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "post_api_v1_subscriptions",
         "tags": [
-          "MinimalAPI",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3795,8 +781,8 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 137,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 221,
         "x-risk-level": "LOW",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
@@ -3815,14 +801,14 @@
         }
       }
     },
-    "/api/v2/users/{id}": {
+    "/api/v1/subscriptions/{subscription_id}": {
       "delete": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:139\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "delete_api_v2_users_id",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:228\n\nFramework: Flask\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "delete_api_v1_subscriptions_subscription_id",
         "tags": [
-          "MinimalAPI",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3841,92 +827,33 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 139,
-        "x-risk-level": "CRITICAL",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 228,
+        "x-risk-level": "LOW",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "financial: \\bpayment\\b",
-          "financial: \\bcharge\\b",
           "Mutation: DELETE",
           "Shadow API"
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "subscription_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "Path parameter: id"
+            "description": "Path parameter: subscription_id"
           }
         ]
       },
-      "put": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:138\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "put_api_v2_users_id",
-        "tags": [
-          "MinimalAPI",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 138,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "financial: \\bpayment\\b",
-          "Mutation: PUT",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
       "get": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:136\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_api_v2_users_id",
+        "summary": "Dynamic-Route endpoint",
+        "description": "Discovered from [main.py]:228\n\nFramework: Dynamic-Route\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
+        "operationId": "get_api_v1_subscriptions_subscription_id",
         "tags": [
-          "MinimalAPI",
-          "C#/.NET"
+          "Dynamic-Route",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -3945,8 +872,8 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 136,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 228,
         "x-risk-level": "LOW",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
@@ -3954,751 +881,25 @@
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "subscription_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "Path parameter: id"
+            "description": "Path parameter: subscription_id"
           }
-        ]
-      }
-    },
-    "/api/v2/version": {
-      "get": {
-        "summary": "MinimalAPI endpoint",
-        "description": "Discovered from [Startup.cs]:132\n\nFramework: MinimalAPI\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_api_v2_version",
-        "tags": [
-          "MinimalAPI",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 132,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/auth/login": {
-      "post": {
-        "summary": "Echo endpoint",
-        "description": "Discovered from [go_app.go]:157\n\nFramework: Echo\nLanguage: Go\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "post_auth_login",
-        "tags": [
-          "Echo",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 157,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/register": {
-      "post": {
-        "summary": "Echo endpoint",
-        "description": "Discovered from [go_app.go]:158\n\nFramework: Echo\nLanguage: Go\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "post_auth_register",
-        "tags": [
-          "Echo",
-          "Go"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\go_app.go",
-        "x-source-line": 158,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/balance": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:148\n\nFramework: Spring\nLanguage: Java\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_balance",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 148,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/billing/invoices": {
-      "get": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:88\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_billing_invoices",
-        "tags": [
-          "Custom-Router",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 88,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "financial: \\bpayment\\b",
-          "financial: \\bbilling\\b",
-          "financial: \\bcharge\\b",
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/calculate_sum": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:77\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_calculate_sum",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 77,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/call_tool": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:58\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_call_tool",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 58,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/charge": {
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:88\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: PRIVATE",
-        "operationId": "post_charge",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 88,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "auth: \\bjwt\\b",
-          "pii: \\bcredit.?card\\b",
-          "financial: \\bpayment\\b",
-          "financial: \\bcharge\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:128\n\nFramework: Spring\nLanguage: Java\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_charge",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 128,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bcredit.?card\\b",
-          "financial: \\bcharge\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/checkout": {
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:136\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: PRIVATE",
-        "operationId": "post_checkout",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 136,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "auth: \\bjwt\\b",
-          "pii: \\bcredit.?card\\b",
-          "financial: \\bpayment\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/database/reset": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:169\n\nFramework: Spring\nLanguage: Java\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_database_reset",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 169,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      },
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:114\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_database_reset",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 114,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/db://users/schema": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:111\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_db__users_schema",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 111,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/execute_sql": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:44\n\nFramework: MCP\nLanguage: Python\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_execute_sql",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 44,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/fetch_user_data": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:82\n\nFramework: MCP\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_fetch_user_data",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 82,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bssn\\b",
-          "pii: \\bemail\\b",
-          "pii: \\bphone\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/file:///config/settings.json": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:105\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_file___config_settingsjson",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 105,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/forgot-password": {
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:50\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_forgotpassword",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 50,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bpassword\\b",
-          "pii: \\bemail\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/get_weather": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:21\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_get_weather",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 21,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
         ]
       }
     },
     "/health": {
       "get": {
-        "summary": "Express endpoint",
-        "description": "Discovered from [express_app.js]:14\n\nFramework: Express\nLanguage: JavaScript\nRisk Level: HIGH\nAuth Status: PUBLIC",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:61\n\nFramework: Flask\nLanguage: Python\nRisk Level: HIGH\nAuth Status: PUBLIC",
         "operationId": "get_health",
         "tags": [
-          "Express",
-          "JavaScript"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -4717,12 +918,12 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\express_app.js",
-        "x-source-line": 14,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 61,
         "x-risk-level": "HIGH",
         "x-auth-status": "PUBLIC",
         "x-risk-reasons": [
-          "admin: \\badmin\\b",
+          "financial: \\bpayment\\b",
           "Sensitive PUBLIC"
         ],
         "security": []
@@ -4730,12 +931,12 @@
     },
     "/health/live": {
       "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Startup.cs]:93\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PUBLIC",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:66\n\nFramework: Flask\nLanguage: Python\nRisk Level: HIGH\nAuth Status: PUBLIC",
         "operationId": "get_health_live",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -4754,21 +955,25 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 93,
-        "x-risk-level": "INFO",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 66,
+        "x-risk-level": "HIGH",
         "x-auth-status": "PUBLIC",
+        "x-risk-reasons": [
+          "financial: \\bpayment\\b",
+          "Sensitive PUBLIC"
+        ],
         "security": []
       }
     },
     "/health/ready": {
       "get": {
-        "summary": "ASP.NET endpoint",
-        "description": "Discovered from [Startup.cs]:92\n\nFramework: ASP.NET\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PUBLIC",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:71\n\nFramework: Flask\nLanguage: Python\nRisk Level: INFO\nAuth Status: PUBLIC",
         "operationId": "get_health_ready",
         "tags": [
-          "ASP.NET",
-          "C#/.NET"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -4787,122 +992,18 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 92,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 71,
         "x-risk-level": "INFO",
         "x-auth-status": "PUBLIC",
         "security": []
       }
     },
-    "/history": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:135\n\nFramework: Spring\nLanguage: Java\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_history",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 135,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "financial: \\btransaction\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/hubs/chat": {
-      "get": {
-        "summary": "SignalR endpoint",
-        "description": "Discovered from [Startup.cs]:96\n\nFramework: SignalR\nLanguage: C#/.NET\nRisk Level: INFO\nAuth Status: PUBLIC",
-        "operationId": "get_hubs_chat",
-        "tags": [
-          "SignalR",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 96,
-        "x-risk-level": "INFO",
-        "x-auth-status": "PUBLIC",
-        "security": []
-      }
-    },
-    "/hubs/notifications": {
-      "get": {
-        "summary": "SignalR endpoint",
-        "description": "Discovered from [Startup.cs]:97\n\nFramework: SignalR\nLanguage: C#/.NET\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_hubs_notifications",
-        "tags": [
-          "SignalR",
-          "C#/.NET"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\Startup.cs",
-        "x-source-line": 97,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/internal/debug/reset": {
+    "/internal/admin/database/reset": {
       "post": {
         "summary": "Flask endpoint",
-        "description": "Discovered from [fastapi_app.py]:71\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_internal_debug_reset",
+        "description": "Discovered from [main.py]:261\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
+        "operationId": "post_internal_admin_database_reset",
         "tags": [
           "Flask",
           "Python"
@@ -4924,97 +1025,12 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\fastapi_app.py",
-        "x-source-line": 71,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 261,
         "x-risk-level": "CRITICAL",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\binternal\\b",
-          "admin: \\bdebug\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/internal/metrics": {
-      "get": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:120\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_internal_metrics",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 120,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "admin: \\binternal\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/internal/reset": {
-      "post": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:92\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_internal_reset",
-        "tags": [
-          "Custom-Router",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 92,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
+          "financial: \\btransaction\\b",
           "admin: \\badmin\\b",
           "admin: \\binternal\\b",
           "Shadow API"
@@ -5032,11 +1048,11 @@
         }
       }
     },
-    "/internal/users/export": {
-      "get": {
+    "/internal/admin/refund-batch": {
+      "post": {
         "summary": "Flask endpoint",
-        "description": "Discovered from [flask_app.py]:68\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_internal_users_export",
+        "description": "Discovered from [main.py]:246\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
+        "operationId": "post_internal_admin_refundbatch",
         "tags": [
           "Flask",
           "Python"
@@ -5058,122 +1074,13 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\flask_app.py",
-        "x-source-line": 68,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 246,
         "x-risk-level": "CRITICAL",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "auth: \\bauth\\b",
+          "admin: \\badmin\\b",
           "admin: \\binternal\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/list_resources": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:101\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_list_resources",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 101,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/list_tools": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:17\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_list_tools",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 17,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/login": {
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:38\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_login",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 38,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bpassword\\b",
-          "auth: \\btoken\\b",
-          "auth: \\bauth\\b",
-          "pii: \\bemail\\b",
           "Shadow API"
         ],
         "requestBody": {
@@ -5187,165 +1094,15 @@
             }
           }
         }
-      },
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:93\n\nFramework: Spring\nLanguage: Java\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_login",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 93,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bpassword\\b",
-          "auth: \\bauth\\b",
-          "Shadow API"
-        ]
       }
     },
-    "/logout": {
+    "/internal/admin/transactions": {
       "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:113\n\nFramework: Spring\nLanguage: Java\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_logout",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:239\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
+        "operationId": "get_internal_admin_transactions",
         "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 113,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/logs": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:186\n\nFramework: Spring\nLanguage: Java\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_logs",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 186,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/me": {
-      "get": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:60\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: MEDIUM\nAuth Status: PRIVATE",
-        "operationId": "get_me",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 60,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "auth: \\bjwt\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ]
-      }
-    },
-    "/memory://cache/{key}": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:138\n\nFramework: MCP\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_memory__cache_key",
-        "tags": [
-          "MCP",
+          "Flask",
           "Python"
         ],
         "responses": {
@@ -5365,54 +1122,8 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 138,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "key",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: key"
-          }
-        ]
-      }
-    },
-    "/metrics": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:177\n\nFramework: Spring\nLanguage: Java\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_metrics",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 177,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 239,
         "x-risk-level": "CRITICAL",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
@@ -5422,589 +1133,13 @@
         ]
       }
     },
-    "/new": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:210\n\nFramework: Spring\nLanguage: Java\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_new",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 210,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/payments/charge": {
-      "post": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:87\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_payments_charge",
-        "tags": [
-          "Custom-Router",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 87,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "financial: \\bpayment\\b",
-          "financial: \\bbilling\\b",
-          "financial: \\bcharge\\b",
-          "admin: \\badmin\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/process_payment": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:92\n\nFramework: MCP\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_process_payment",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 92,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bssn\\b",
-          "pii: \\bcredit.?card\\b",
-          "financial: \\bpayment\\b",
-          "financial: \\btransaction\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/products": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:197\n\nFramework: Spring\nLanguage: Java\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_products",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 197,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/refresh": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:107\n\nFramework: Spring\nLanguage: Java\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_refresh",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 107,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\btoken\\b",
-          "auth: \\bauth\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/refund/{id}": {
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:99\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_refund_id",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 99,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/refund/{transactionId}": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:141\n\nFramework: Spring\nLanguage: Java\nRisk Level: HIGH\nAuth Status: PRIVATE",
-        "operationId": "get_refund_transactionId",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 141,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "PRIVATE",
-        "x-risk-reasons": [
-          "admin: \\badmin\\b"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          },
-          {
-            "apiKeyAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "transactionId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: transactionId"
-          }
-        ]
-      }
-    },
-    "/register": {
-      "post": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:44\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "post_register",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 44,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\btoken\\b",
-          "pii: \\bssn\\b",
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:100\n\nFramework: Spring\nLanguage: Java\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_register",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 100,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bauth\\b",
-          "pii: \\bssn\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/search": {
-      "get": {
-        "summary": "Spring endpoint",
-        "description": "Discovered from [SpringApp.java]:53\n\nFramework: Spring\nLanguage: Java\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_search",
-        "tags": [
-          "Spring",
-          "Java"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\SpringApp.java",
-        "x-source-line": 53,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/search_database": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:32\n\nFramework: MCP\nLanguage: Python\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "get_search_database",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 32,
-        "x-risk-level": "HIGH",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "admin: \\binternal\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/secret://api-keys": {
-      "get": {
-        "summary": "MCP endpoint",
-        "description": "Discovered from [mcp_server_python.py]:117\n\nFramework: MCP\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_secret__apikeys",
-        "tags": [
-          "MCP",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\mcp_server_python.py",
-        "x-source-line": 117,
-        "x-risk-level": "MEDIUM",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "auth: \\bsecret\\b",
-          "Shadow API"
-        ]
-      }
-    },
-    "/users": {
-      "get": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:81\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_users",
-        "tags": [
-          "Custom-Router",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 81,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      },
-      "post": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:82\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "post_users",
-        "tags": [
-          "Custom-Router",
-          "Python"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 82,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ],
-        "requestBody": {
-          "description": "Request body",
-          "required": false,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object"
-              }
-            }
-          }
-        }
-      }
-    },
-    "/users/{id}": {
+    "/internal/admin/transactions/{transaction_id}": {
       "delete": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:84\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "delete_users_id",
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:253\n\nFramework: Flask\nLanguage: Python\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
+        "operationId": "delete_internal_admin_transactions_transaction_id",
         "tags": [
-          "Custom-Router",
+          "Flask",
           "Python"
         ],
         "responses": {
@@ -6024,34 +1159,36 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 84,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 253,
         "x-risk-level": "CRITICAL",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "financial: \\bpayment\\b",
-          "financial: \\bcharge\\b",
+          "admin: \\badmin\\b",
+          "admin: \\binternal\\b",
           "Mutation: DELETE",
           "Shadow API"
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "transaction_id",
             "in": "path",
             "required": true,
             "schema": {
               "type": "string"
             },
-            "description": "Path parameter: id"
+            "description": "Path parameter: transaction_id"
           }
         ]
-      },
-      "get": {
-        "summary": "Custom-Router endpoint",
-        "description": "Discovered from [complex_python_app.py]:83\n\nFramework: Custom-Router\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
-        "operationId": "get_users_id",
+      }
+    },
+    "/webhooks/paypal": {
+      "post": {
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:276\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "post_webhooks_paypal",
         "tags": [
-          "Custom-Router",
+          "Flask",
           "Python"
         ],
         "responses": {
@@ -6071,154 +1208,13 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\complex_python_app.py",
-        "x-source-line": 83,
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 276,
         "x-risk-level": "MEDIUM",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
           "financial: \\bpayment\\b",
           "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      }
-    },
-    "/version": {
-      "get": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:29\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: LOW\nAuth Status: UNKNOWN",
-        "operationId": "get_version",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 29,
-        "x-risk-level": "LOW",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "Shadow API"
-        ]
-      }
-    },
-    "/{id}": {
-      "get": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:65\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "get_id",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 65,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bemail\\b",
-          "pii: \\bphone\\b",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
-        ]
-      },
-      "put": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:71\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: CRITICAL\nAuth Status: UNKNOWN",
-        "operationId": "put_id",
-        "tags": [
-          "NestJS",
-          "JavaScript"
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful response"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 71,
-        "x-risk-level": "CRITICAL",
-        "x-auth-status": "UNKNOWN",
-        "x-risk-reasons": [
-          "pii: \\bemail\\b",
-          "pii: \\bphone\\b",
-          "Mutation: PUT",
-          "Shadow API"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
-          }
         ],
         "requestBody": {
           "description": "Request body",
@@ -6231,14 +1227,16 @@
             }
           }
         }
-      },
-      "delete": {
-        "summary": "NestJS endpoint",
-        "description": "Discovered from [nestjs_app.ts]:76\n\nFramework: NestJS\nLanguage: JavaScript\nRisk Level: HIGH\nAuth Status: UNKNOWN",
-        "operationId": "delete_id",
+      }
+    },
+    "/webhooks/stripe": {
+      "post": {
+        "summary": "Flask endpoint",
+        "description": "Discovered from [main.py]:271\n\nFramework: Flask\nLanguage: Python\nRisk Level: MEDIUM\nAuth Status: UNKNOWN",
+        "operationId": "post_webhooks_stripe",
         "tags": [
-          "NestJS",
-          "JavaScript"
+          "Flask",
+          "Python"
         ],
         "responses": {
           "200": {
@@ -6257,26 +1255,25 @@
             "description": "Internal server error"
           }
         },
-        "x-source-file": "test_samples\\nestjs_app.ts",
-        "x-source-line": 76,
-        "x-risk-level": "HIGH",
+        "x-source-file": "test-microservices\\payment-service\\main.py",
+        "x-source-line": 271,
+        "x-risk-level": "MEDIUM",
         "x-auth-status": "UNKNOWN",
         "x-risk-reasons": [
-          "admin: \\badmin\\b",
-          "Mutation: DELETE",
+          "financial: \\bpayment\\b",
           "Shadow API"
         ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Path parameter: id"
+        "requestBody": {
+          "description": "Request body",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
           }
-        ]
+        }
       }
     }
   },
