@@ -1,0 +1,23 @@
+# =============================================================================
+# Universal Polyglot API Scanner - Python Dependencies
+# =============================================================================
+# Install with: pip install -r requirements.txt
+# =============================================================================
+
+# Core Dependencies
+# -----------------
+
+# Rich - Beautiful terminal output with colors, tables, progress bars
+rich>=13.7.0
+
+# GitPython - Git repository operations for branch/commit detection
+gitpython>=3.1.40
+
+# Python-dotenv - Environment variable management from .env files
+python-dotenv>=1.0.0
+
+# Requests - HTTP client for Invicti API integration
+requests>=2.31.0
+
+# YAML parsing (optional, for config files)
+pyyaml>=6.0.1

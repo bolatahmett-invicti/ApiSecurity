@@ -1,0 +1,3408 @@
+{
+  "timestamp": "2026-01-31T23:02:37.465433",
+  "target": "test_samples",
+  "summary": {
+    "total": 191,
+    "files_scanned": 11,
+    "files_skipped": 0,
+    "by_language": {
+      "Python": 77,
+      "C#/.NET": 48,
+      "JavaScript": 36,
+      "Go": 19,
+      "Java": 28
+    },
+    "by_risk": {
+      "LOW": 65,
+      "HIGH": 32,
+      "MEDIUM": 19,
+      "CRITICAL": 46,
+      "INFO": 29
+    },
+    "by_auth": {
+      "UNKNOWN": 132,
+      "PUBLIC": 22,
+      "PRIVATE": 37
+    },
+    "by_framework": {
+      "FastAPI": 1,
+      "Gevent-WSGI": 2,
+      "OpenAPI-Custom": 1,
+      "Custom-Router": 8,
+      "Worker-CLI": 3,
+      "Custom-Class": 1,
+      "Dynamic-Route": 6,
+      "ASP.NET": 34,
+      "Express": 13,
+      "Flask": 24,
+      "Health": 1,
+      "net/http": 4,
+      "Gin": 1,
+      "Echo": 8,
+      "Fiber": 6,
+      "MCP": 13,
+      "NestJS": 23,
+      "Spring": 28,
+      "MinimalAPI": 10,
+      "SignalR": 2,
+      "gRPC": 2
+    },
+    "by_kind": {
+      "Endpoint": 162,
+      "Entry": 2,
+      "Worker": 3,
+      "Handler": 1,
+      "Tool": 8,
+      "Resource": 5,
+      "Config": 10
+    },
+    "shadow_apis": 132,
+    "critical": 78
+  },
+  "endpoints": [
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 84,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/users/{id}",
+      "raw_match": ".add_route(\"DELETE\", \"/users/{id}\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 87,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/payments/charge",
+      "raw_match": ".add_route(\"POST\", \"/payments/charge\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "financial: \\bbilling\\b",
+        "financial: \\bcharge\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 88,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/billing/invoices",
+      "raw_match": ".add_route(\"GET\", \"/billing/invoices\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "financial: \\bbilling\\b",
+        "financial: \\bcharge\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 91,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/admin/users/{id}",
+      "raw_match": ".add_route(\"DELETE\", \"/admin/users/{id}\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bbilling\\b",
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 92,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/internal/reset",
+      "raw_match": ".add_route(\"POST\", \"/internal/reset\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 166,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/admin/metrics",
+      "raw_match": "[HttpGet(\"metrics\")]",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "AdminController",
+        "action": "GetMetrics",
+        "base_route": "admin",
+        "method_route": "metrics"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 159,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/admin/database/reset",
+      "raw_match": "[HttpPost(\"database/reset\")]",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "AdminController",
+        "action": "ResetDatabase",
+        "base_route": "admin",
+        "method_route": "database/reset"
+      }
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 23,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/auth/login",
+      "raw_match": "router.post('/api/auth/login'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "auth: \\bjwt\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 29,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/auth/register",
+      "raw_match": "router.post('/api/auth/register'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bssn\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 51,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/payments/process",
+      "raw_match": "app.post('/api/payments/process'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bcredit.?card\\b",
+        "financial: \\bpayment\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 62,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/internal/users",
+      "raw_match": "app.get('/api/internal/users'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 38,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/auth/register",
+      "raw_match": "@app.post(\"/api/auth/register\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bssn\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 49,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/users/{user_id}",
+      "raw_match": "@app.get(\"/api/users/{user_id}\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 55,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/payments/charge",
+      "raw_match": "@app.post(\"/api/payments/charge\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "pii: \\bemail\\b",
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 60,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/billing/invoices",
+      "raw_match": "@app.get(\"/api/billing/invoices\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "financial: \\bpayment\\b",
+        "financial: \\bbilling\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 66,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/admin/users/{user_id}",
+      "raw_match": "@app.delete(\"/admin/users/{user_id}\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 71,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/internal/debug/reset",
+      "raw_match": "@app.post(\"/internal/debug/reset\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\binternal\\b",
+        "admin: \\bdebug\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 81,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/checkout/complete",
+      "raw_match": "@app.post(\"/api/checkout/complete\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bcredit.?card\\b",
+        "financial: \\bpayment\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 28,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "'POST'",
+      "route": "/api/auth/login",
+      "raw_match": "@app.route('/api/auth/login', methods=['POST']",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 35,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "'POST'",
+      "route": "/api/auth/register",
+      "raw_match": "@app.route('/api/auth/register', methods=['POST']",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bssn\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 68,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/internal/users/export",
+      "raw_match": "@app.route('/internal/users/export'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 73,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "'POST'",
+      "route": "/admin/database/backup",
+      "raw_match": "@app.route('/admin/database/backup', methods=['POST']",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 59,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/payments/charge",
+      "raw_match": "@app.post('/api/payments/charge'",
+      "risk_level": "CRITICAL",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "pii: \\bcredit.?card\\b",
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 27,
+      "language": "Go",
+      "framework": "net/http",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/users",
+      "raw_match": "http.HandleFunc(\"/api/users\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 28,
+      "language": "Go",
+      "framework": "net/http",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/users/",
+      "raw_match": "http.HandleFunc(\"/api/users/\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 31,
+      "language": "Go",
+      "framework": "net/http",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/admin/reset",
+      "raw_match": "http.HandleFunc(\"/admin/reset\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 82,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "fetch_user_data",
+      "raw_match": "@server.tool()\nasync def fetch_user_data",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bssn\\b",
+        "pii: \\bemail\\b",
+        "pii: \\bphone\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 92,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "process_payment",
+      "raw_match": "@server.tool()\nasync def process_payment",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bssn\\b",
+        "pii: \\bcredit.?card\\b",
+        "financial: \\bpayment\\b",
+        "financial: \\btransaction\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 38,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "login",
+      "raw_match": "@Post('login')",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 44,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "register",
+      "raw_match": "@Post('register')",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "pii: \\bssn\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 50,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "forgot-password",
+      "raw_match": "@Post('forgot-password')",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 65,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": ":id",
+      "raw_match": "@Get(':id')",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bemail\\b",
+        "pii: \\bphone\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 71,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": ":id",
+      "raw_match": "@Put(':id')",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bemail\\b",
+        "pii: \\bphone\\b",
+        "Mutation: PUT",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 88,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "charge",
+      "raw_match": "@Post('charge')",
+      "risk_level": "CRITICAL",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bjwt\\b",
+        "pii: \\bcredit.?card\\b",
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 108,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "users/:id",
+      "raw_match": "@Delete('users/:id')",
+      "risk_level": "CRITICAL",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "Mutation: DELETE"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 120,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "internal/metrics",
+      "raw_match": "@Get('internal/metrics')",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 136,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "checkout",
+      "raw_match": "@Post('checkout')",
+      "risk_level": "CRITICAL",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bjwt\\b",
+        "pii: \\bcredit.?card\\b",
+        "financial: \\bpayment\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 36,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "api/auth",
+      "raw_match": "@Controller('api/auth')",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 85,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "api/payments",
+      "raw_match": "@Controller('api/payments')",
+      "risk_level": "CRITICAL",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bjwt\\b",
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 106,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "admin",
+      "raw_match": "@Controller('admin')",
+      "risk_level": "CRITICAL",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 42,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/{id}",
+      "raw_match": "@GetMapping(\"/{id}\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bssn\\b",
+        "pii: \\bemail\\b",
+        "pii: \\bphone\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 177,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/metrics",
+      "raw_match": "@GetMapping(\"/metrics\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 100,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/register",
+      "raw_match": "@PostMapping(\"/register\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "pii: \\bssn\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 128,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/charge",
+      "raw_match": "@PostMapping(\"/charge\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bcredit.?card\\b",
+        "financial: \\bcharge\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 139,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/v2/users/{id}",
+      "raw_match": "app.MapDelete(\"/api/v2/users/{id}\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 142,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v2/payments/charge",
+      "raw_match": "app.MapPost(\"/api/v2/payments/charge\"",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b",
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 5,
+      "language": "Python",
+      "framework": "Gevent-WSGI",
+      "kind": "Entry",
+      "method": "ANY",
+      "route": "WSGI Server Entry",
+      "raw_match": "from gevent.pywsgi import WSGIServer",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "auth: \\bjwt\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 26,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/users/{id}",
+      "raw_match": "[HttpGet(\"{id}\")]",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "UsersController",
+        "action": "GetById",
+        "base_route": "api/users",
+        "method_route": "{id}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 56,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/users/{id}",
+      "raw_match": "[HttpDelete(\"{id}\")]",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Mutation: DELETE"
+      ],
+      "metadata": {
+        "controller": "UsersController",
+        "action": "Delete",
+        "base_route": "api/users",
+        "method_route": "{id}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 73,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/login",
+      "raw_match": "[HttpPost(\"login\")]",
+      "risk_level": "HIGH",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Sensitive PUBLIC"
+      ],
+      "metadata": {
+        "controller": "AuthController",
+        "action": "Login",
+        "base_route": "api/v1/auth",
+        "method_route": "login"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 81,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/register",
+      "raw_match": "[HttpPost(\"register\")]",
+      "risk_level": "HIGH",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Sensitive PUBLIC"
+      ],
+      "metadata": {
+        "controller": "AuthController",
+        "action": "Register",
+        "base_route": "api/v1/auth",
+        "method_route": "register"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 115,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/payments/charge",
+      "raw_match": "[HttpPost(\"charge\")]",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "financial: \\bcharge\\b"
+      ],
+      "metadata": {
+        "controller": "PaymentsController",
+        "action": "Charge",
+        "base_route": "api/v1/payments",
+        "method_route": "charge"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 129,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/payments/refund/{transactionId}",
+      "raw_match": "[HttpPost(\"refund/{transactionId}\")]",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "admin: \\badmin\\b"
+      ],
+      "metadata": {
+        "controller": "PaymentsController",
+        "action": "Refund",
+        "base_route": "api/v1/payments",
+        "method_route": "refund/{transactionId}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 173,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/admin/logs",
+      "raw_match": "[HttpGet(\"logs\")]",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "AdminController",
+        "action": "GetLogs",
+        "base_route": "admin",
+        "method_route": "logs"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 152,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/admin/users/{id}",
+      "raw_match": "[HttpDelete(\"users/{id}\")]",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Mutation: DELETE"
+      ],
+      "metadata": {
+        "controller": "AdminController",
+        "action": "DeleteUser",
+        "base_route": "admin",
+        "method_route": "users/{id}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 210,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v2/products",
+      "raw_match": "[HttpPost]",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "admin: \\badmin\\b"
+      ],
+      "metadata": {
+        "controller": "ProductsController",
+        "action": "Create",
+        "base_route": "api/v2/products",
+        "method_route": ""
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 218,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "PATCH",
+      "route": "/api/v2/products/{id}",
+      "raw_match": "[HttpPatch(\"{id}\")]",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Mutation: PATCH"
+      ],
+      "metadata": {
+        "controller": "ProductsController",
+        "action": "PartialUpdate",
+        "base_route": "api/v2/products",
+        "method_route": "{id}"
+      }
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 14,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health",
+      "raw_match": "app.get('/health'",
+      "risk_level": "HIGH",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Sensitive PUBLIC"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 45,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/users/:id",
+      "raw_match": "router.delete('/api/users/:id'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 67,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/admin/reset-db",
+      "raw_match": "app.post('/admin/reset-db'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 22,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health",
+      "raw_match": "@app.get(\"/health\"",
+      "risk_level": "HIGH",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Sensitive PUBLIC"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 33,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/auth/login",
+      "raw_match": "@app.post(\"/api/auth/login\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 22,
+      "language": "Python",
+      "framework": "Health",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/health",
+      "raw_match": "\"/health\"",
+      "risk_level": "HIGH",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Sensitive PUBLIC"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 153,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": "/api/products/:id",
+      "raw_match": "e.PUT(\"/api/products/:id\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Mutation: PUT",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 154,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/products/:id",
+      "raw_match": "e.DELETE(\"/api/products/:id\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 32,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "search_database",
+      "raw_match": "Tool(\n            name=\"search_database\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 44,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "execute_sql",
+      "raw_match": "Tool(\n            name=\"execute_sql\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 76,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": ":id",
+      "raw_match": "@Delete(':id')",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 158,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "@RestController",
+      "raw_match": "@RestController",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 159,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/admin",
+      "raw_match": "@RequestMapping(\"/admin\"",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "admin: \\badmin\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 186,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/logs",
+      "raw_match": "@GetMapping(\"/logs\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 93,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/login",
+      "raw_match": "@PostMapping(\"/login\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 107,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/refresh",
+      "raw_match": "@PostMapping(\"/refresh\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 141,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/refund/{transactionId}",
+      "raw_match": "@PostMapping(\"/refund/{transactionId}\"",
+      "risk_level": "HIGH",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "admin: \\badmin\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 169,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/database/reset",
+      "raw_match": "@PostMapping(\"/database/reset\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 138,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": "/api/v2/users/{id}",
+      "raw_match": "app.MapPut(\"/api/v2/users/{id}\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "Mutation: PUT",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 146,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/admin/v2/users/{id}",
+      "raw_match": "app.MapDelete(\"/admin/v2/users/{id}\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 147,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/admin/v2/reset",
+      "raw_match": "app.MapPost(\"/admin/v2/reset\"",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 83,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/users/{id}",
+      "raw_match": ".add_route(\"GET\", \"/users/{id}\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 89,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/refresh",
+      "raw_match": "[HttpPost(\"refresh\")]",
+      "risk_level": "MEDIUM",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bauth\\b"
+      ],
+      "metadata": {
+        "controller": "AuthController",
+        "action": "RefreshToken",
+        "base_route": "api/v1/auth",
+        "method_route": "refresh"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 97,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/logout",
+      "raw_match": "[HttpPost(\"logout\")]",
+      "risk_level": "MEDIUM",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bauth\\b"
+      ],
+      "metadata": {
+        "controller": "AuthController",
+        "action": "Logout",
+        "base_route": "api/v1/auth",
+        "method_route": "logout"
+      }
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 57,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/billing/history",
+      "raw_match": "app.get('/api/billing/history'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bbilling\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 44,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/users/me",
+      "raw_match": "@app.get(\"/api/users/me\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 84,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "'POST'",
+      "route": "/api/email/send",
+      "raw_match": "@app.route('/api/email/send', methods=['POST']",
+      "risk_level": "MEDIUM",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "pii: \\bemail\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 157,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/auth/login",
+      "raw_match": "e.POST(\"/auth/login\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 158,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/auth/register",
+      "raw_match": "e.POST(\"/auth/register\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 117,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Resource",
+      "method": "ANY",
+      "route": "secret://api-keys",
+      "raw_match": "Resource(\n            uri=\"secret://api-keys\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bsecret\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 60,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "me",
+      "raw_match": "@Get('me')",
+      "risk_level": "MEDIUM",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bjwt\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 130,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "add",
+      "raw_match": "@Post('add')",
+      "risk_level": "MEDIUM",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bjwt\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 57,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "api/users",
+      "raw_match": "@Controller('api/users')",
+      "risk_level": "MEDIUM",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bjwt\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 128,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "api/cart",
+      "raw_match": "@Controller('api/cart')",
+      "risk_level": "MEDIUM",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "auth: \\bjwt\\b"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 88,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "@RestController",
+      "raw_match": "@RestController",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 123,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "@RestController",
+      "raw_match": "@RestController",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bpayment\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 89,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/auth",
+      "raw_match": "@RequestMapping(\"/api/v1/auth\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 124,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/payments",
+      "raw_match": "@RequestMapping(\"/api/v1/payments\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\bcharge\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 135,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/history",
+      "raw_match": "@GetMapping(\"/history\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "financial: \\btransaction\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 113,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/logout",
+      "raw_match": "@PostMapping(\"/logout\"",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 33,
+      "language": "Python",
+      "framework": "FastAPI",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1",
+      "raw_match": "APIRouter(prefix=\"/api/v1\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 172,
+      "language": "Python",
+      "framework": "Gevent-WSGI",
+      "kind": "Entry",
+      "method": "ANY",
+      "route": "0.0.0.0",
+      "raw_match": "WSGIServer((\"0.0.0.0\", 8080)",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 33,
+      "language": "Python",
+      "framework": "OpenAPI-Custom",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "OpenAPIRouter",
+      "raw_match": "OpenAPIRouter(",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 81,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/users",
+      "raw_match": ".add_route(\"GET\", \"/users\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 82,
+      "language": "Python",
+      "framework": "Custom-Router",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/users",
+      "raw_match": ".add_route(\"POST\", \"/users\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 154,
+      "language": "Python",
+      "framework": "Worker-CLI",
+      "kind": "Worker",
+      "method": "ANY",
+      "route": "Worker --kind",
+      "raw_match": "add_argument(\"--kind\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 155,
+      "language": "Python",
+      "framework": "Worker-CLI",
+      "kind": "Worker",
+      "method": "ANY",
+      "route": "Worker --conf",
+      "raw_match": "add_argument(\"--conf\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 156,
+      "language": "Python",
+      "framework": "Worker-CLI",
+      "kind": "Worker",
+      "method": "ANY",
+      "route": "Worker --worker",
+      "raw_match": "add_argument(\"--worker\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 13,
+      "language": "Python",
+      "framework": "Custom-Class",
+      "kind": "Handler",
+      "method": "CLASS",
+      "route": "OpenAPIRouter",
+      "raw_match": "class OpenAPIRouter:",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "heuristic": "router_class"
+      }
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 109,
+      "language": "Python",
+      "framework": "Dynamic-Route",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/products",
+      "raw_match": "\"/api/v1/products\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "heuristic": "api_path"
+      }
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 110,
+      "language": "Python",
+      "framework": "Dynamic-Route",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/orders",
+      "raw_match": "\"/api/v1/orders\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "heuristic": "api_path"
+      }
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 111,
+      "language": "Python",
+      "framework": "Dynamic-Route",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/search",
+      "raw_match": "\"/api/v1/search\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "heuristic": "api_path"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 19,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/users",
+      "raw_match": "[HttpGet]",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "UsersController",
+        "action": "GetAll",
+        "base_route": "api/users",
+        "method_route": ""
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 33,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/users/search",
+      "raw_match": "[HttpGet(\"search\")]",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "UsersController",
+        "action": "Search",
+        "base_route": "api/users",
+        "method_route": "search"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 48,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": "/api/users/{id}",
+      "raw_match": "[HttpPut(\"{id}\")]",
+      "risk_level": "LOW",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "Mutation: PUT"
+      ],
+      "metadata": {
+        "controller": "UsersController",
+        "action": "Update",
+        "base_route": "api/users",
+        "method_route": "{id}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 189,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v2/products",
+      "raw_match": "[HttpGet]",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "ProductsController",
+        "action": "GetAll",
+        "base_route": "api/v2/products",
+        "method_route": ""
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 196,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v2/products/{id}",
+      "raw_match": "[HttpGet(\"{id}\")]",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "ProductsController",
+        "action": "GetById",
+        "base_route": "api/v2/products",
+        "method_route": "{id}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 203,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v2/products/{id}/reviews",
+      "raw_match": "[HttpGet(\"{id}/reviews\")]",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {
+        "controller": "ProductsController",
+        "action": "GetReviews",
+        "base_route": "api/v2/products",
+        "method_route": "{id}/reviews"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 303,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": "/api/v1/customers/{customerId}",
+      "raw_match": "[HttpPut(\"{customerId}\")]",
+      "risk_level": "LOW",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "Mutation: PUT"
+      ],
+      "metadata": {
+        "controller": "CustomersController",
+        "action": "UpdateCustomer",
+        "base_route": "api/v1/customers",
+        "method_route": "{customerId}"
+      }
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 36,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/users/profile",
+      "raw_match": "router.get('/api/users/profile'",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 40,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": "/api/users/:id",
+      "raw_match": "router.put('/api/users/:id'",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Mutation: PUT",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 73,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/search/products",
+      "raw_match": "router.get('/api/search/products'",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 78,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/search/advanced",
+      "raw_match": "router.post('/api/search/advanced'",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 77,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/cart/add",
+      "raw_match": "@app.post(\"/api/cart/add\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 47,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": "/api/users/<int:user_id>",
+      "raw_match": "@app.put('/api/users/<int:user_id>'",
+      "risk_level": "LOW",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "Mutation: PUT"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 52,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/users/<int:user_id>",
+      "raw_match": "@app.delete('/api/users/<int:user_id>'",
+      "risk_level": "LOW",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [
+        "Mutation: DELETE"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 150,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/products",
+      "raw_match": "e.GET(\"/api/products\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 151,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/products/:id",
+      "raw_match": "e.GET(\"/api/products/:id\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 152,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/products",
+      "raw_match": "e.POST(\"/api/products\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 176,
+      "language": "Go",
+      "framework": "Fiber",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/orders",
+      "raw_match": "app.Get(\"/api/orders\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 177,
+      "language": "Go",
+      "framework": "Fiber",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/orders/:id",
+      "raw_match": "app.Get(\"/api/orders/:id\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 178,
+      "language": "Go",
+      "framework": "Fiber",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/orders",
+      "raw_match": "app.Post(\"/api/orders\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 179,
+      "language": "Go",
+      "framework": "Fiber",
+      "kind": "Endpoint",
+      "method": "PUT",
+      "route": "/api/orders/:id",
+      "raw_match": "app.Put(\"/api/orders/:id\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Mutation: PUT",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 180,
+      "language": "Go",
+      "framework": "Fiber",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/orders/:id",
+      "raw_match": "app.Delete(\"/api/orders/:id\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 77,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "calculate_sum",
+      "raw_match": "@server.tool()\nasync def calculate_sum",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 17,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "list_tools",
+      "raw_match": "@server.list_tools()",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 58,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "call_tool",
+      "raw_match": "@server.call_tool()",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 21,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Tool",
+      "method": "ANY",
+      "route": "get_weather",
+      "raw_match": "Tool(\n            name=\"get_weather\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 138,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Resource",
+      "method": "ANY",
+      "route": "memory://cache/{key}",
+      "raw_match": "@server.resource(\"memory://cache/{key}\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 101,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Resource",
+      "method": "ANY",
+      "route": "list_resources",
+      "raw_match": "@server.list_resources()",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 105,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Resource",
+      "method": "ANY",
+      "route": "file:///config/settings.json",
+      "raw_match": "Resource(\n            uri=\"file:///config/settings.json\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\mcp_server_python.py",
+      "line_number": 111,
+      "language": "Python",
+      "framework": "MCP",
+      "kind": "Resource",
+      "method": "ANY",
+      "route": "db://users/schema",
+      "raw_match": "Resource(\n            uri=\"db://users/schema\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 24,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "health",
+      "raw_match": "@Get('health')",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 29,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "version",
+      "raw_match": "@Get('version')",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 94,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "history",
+      "raw_match": "@Get('history')",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 99,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "refund/:id",
+      "raw_match": "@Post('refund/:id')",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 114,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "database/reset",
+      "raw_match": "@Post('database/reset')",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\nestjs_app.ts",
+      "line_number": 22,
+      "language": "JavaScript",
+      "framework": "NestJS",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "public",
+      "raw_match": "@Controller('public')",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 31,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Config",
+      "method": "ANY",
+      "route": "@RestController",
+      "raw_match": "@RestController",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 32,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/users",
+      "raw_match": "@RequestMapping(\"/api/v1/users\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 197,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/products",
+      "raw_match": "@RequestMapping(\"/products\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 36,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "GET",
+      "raw_match": "@GetMapping\n    ",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 53,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/search",
+      "raw_match": "@GetMapping(\"/search\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 148,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/balance",
+      "raw_match": "@GetMapping(\"/balance\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 200,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "GET",
+      "raw_match": "@GetMapping\n    ",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 205,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/{id}",
+      "raw_match": "@GetMapping(\"/{id}\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 210,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/new",
+      "raw_match": "@GetMapping(\"/new\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 59,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "POST",
+      "raw_match": "@PostMapping\n    ",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\SpringApp.java",
+      "line_number": 215,
+      "language": "Java",
+      "framework": "Spring",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "POST",
+      "raw_match": "@PostMapping\n    ",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 135,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v2/users",
+      "raw_match": "app.MapGet(\"/api/v2/users\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 136,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v2/users/{id}",
+      "raw_match": "app.MapGet(\"/api/v2/users/{id}\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 137,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v2/users",
+      "raw_match": "app.MapPost(\"/api/v2/users\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 97,
+      "language": "C#/.NET",
+      "framework": "SignalR",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/hubs/notifications",
+      "raw_match": ".MapHub<NotificationHub>(\"/hubs/notifications\"",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 100,
+      "language": "C#/.NET",
+      "framework": "gRPC",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "GreeterService",
+      "raw_match": ".MapGrpcService<GreeterService>",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 101,
+      "language": "C#/.NET",
+      "framework": "gRPC",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "OrderService",
+      "raw_match": ".MapGrpcService<OrderService>",
+      "risk_level": "LOW",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 116,
+      "language": "Python",
+      "framework": "Dynamic-Route",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/health",
+      "raw_match": "\"/api/v1/health\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {
+        "heuristic": "api_path"
+      }
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 117,
+      "language": "Python",
+      "framework": "Dynamic-Route",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/status",
+      "raw_match": "\"/api/v1/status\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {
+        "heuristic": "api_path"
+      }
+    },
+    {
+      "file_path": "test_samples\\complex_python_app.py",
+      "line_number": 118,
+      "language": "Python",
+      "framework": "Dynamic-Route",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/v1/webhooks",
+      "raw_match": "\"/api/v2/webhooks\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {
+        "heuristic": "api_path"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 40,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/users",
+      "raw_match": "[HttpPost]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "UsersController",
+        "action": "Create",
+        "base_route": "api/users",
+        "method_route": ""
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 122,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/payments/history",
+      "raw_match": "[HttpGet(\"history\")]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "PaymentsController",
+        "action": "GetHistory",
+        "base_route": "api/v1/payments",
+        "method_route": "history"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 137,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/payments/balance",
+      "raw_match": "[HttpGet(\"balance\")]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "PaymentsController",
+        "action": "GetBalance",
+        "base_route": "api/v1/payments",
+        "method_route": "balance"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 236,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/orders",
+      "raw_match": "[HttpGet]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "OrdersController",
+        "action": "GetMyOrders",
+        "base_route": "api/v1/orders",
+        "method_route": ""
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 243,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/orders/{id}",
+      "raw_match": "[HttpGet(\"{id}\")]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "OrdersController",
+        "action": "GetOrder",
+        "base_route": "api/v1/orders",
+        "method_route": "{id}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 250,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/orders",
+      "raw_match": "[HttpPost]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "OrdersController",
+        "action": "CreateOrder",
+        "base_route": "api/v1/orders",
+        "method_route": ""
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 257,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/orders/{id}/cancel",
+      "raw_match": "[HttpPost(\"{id}/cancel\")]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "OrdersController",
+        "action": "CancelOrder",
+        "base_route": "api/v1/orders",
+        "method_route": "{id}/cancel"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 273,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/customers",
+      "raw_match": "[HttpGet]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "CustomersController",
+        "action": "GetAll",
+        "base_route": "api/v1/customers",
+        "method_route": ""
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 281,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/customers/{customerId}",
+      "raw_match": "[HttpGet(\"{customerId}\")]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "CustomersController",
+        "action": "GetById",
+        "base_route": "api/v1/customers",
+        "method_route": "{customerId}"
+      }
+    },
+    {
+      "file_path": "test_samples\\Controllers.cs",
+      "line_number": 295,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/customers/{customerId}/orders",
+      "raw_match": "[HttpGet(\"{customerId}/orders\")]",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {
+        "controller": "CustomersController",
+        "action": "GetCustomerOrders",
+        "base_route": "api/v1/customers",
+        "method_route": "{customerId}/orders"
+      }
+    },
+    {
+      "file_path": "test_samples\\express_app.js",
+      "line_number": 18,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/public/info",
+      "raw_match": "app.get('/api/public/info'",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\fastapi_app.py",
+      "line_number": 27,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/public/products",
+      "raw_match": "@app.get(\"/api/public/products\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 19,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/health",
+      "raw_match": "@app.route('/health'",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 23,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/api/public/docs",
+      "raw_match": "@app.route('/api/public/docs'",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 79,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "'POST'",
+      "route": "/api/notifications/send",
+      "raw_match": "@app.route('/api/notifications/send', methods=['POST']",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\flask_app.py",
+      "line_number": 42,
+      "language": "Python",
+      "framework": "Flask",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/users/me",
+      "raw_match": "@app.get('/api/users/me'",
+      "risk_level": "INFO",
+      "auth_status": "PRIVATE",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 22,
+      "language": "Go",
+      "framework": "net/http",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/health",
+      "raw_match": "http.HandleFunc(\"/health\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 64,
+      "language": "Go",
+      "framework": "Gin",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health",
+      "raw_match": "router.GET(\"/health\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 145,
+      "language": "Go",
+      "framework": "Echo",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health",
+      "raw_match": "e.GET(\"/health\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\go_app.go",
+      "line_number": 171,
+      "language": "Go",
+      "framework": "Fiber",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health",
+      "raw_match": "app.Get(\"/health\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 131,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v2/health",
+      "raw_match": "app.MapGet(\"/api/v2/health\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 132,
+      "language": "C#/.NET",
+      "framework": "MinimalAPI",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v2/version",
+      "raw_match": "app.MapGet(\"/api/v2/version\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 91,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/health",
+      "raw_match": ".MapHealthChecks(\"/health\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 92,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/health/ready",
+      "raw_match": ".MapHealthChecks(\"/health/ready\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 93,
+      "language": "C#/.NET",
+      "framework": "ASP.NET",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/health/live",
+      "raw_match": ".MapHealthChecks(\"/health/live\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    },
+    {
+      "file_path": "test_samples\\Startup.cs",
+      "line_number": 96,
+      "language": "C#/.NET",
+      "framework": "SignalR",
+      "kind": "Endpoint",
+      "method": "ANY",
+      "route": "/hubs/chat",
+      "raw_match": ".MapHub<ChatHub>(\"/hubs/chat\"",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    }
+  ]
+}

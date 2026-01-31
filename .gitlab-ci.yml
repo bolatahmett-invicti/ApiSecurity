@@ -1,0 +1,159 @@
+# =============================================================================
+# GitLab CI/CD Configuration for API Security Scanner
+# =============================================================================
+# This pipeline automatically:
+#   1. Scans your codebase for API endpoints
+#   2. Generates OpenAPI specification
+#   3. Uploads to Invicti DAST for security testing
+#
+# Required CI/CD Variables (Settings > CI/CD > Variables):
+#   - INVICTI_URL: Your Invicti instance URL
+#   - INVICTI_USER: API User ID
+#   - INVICTI_TOKEN: API Token (masked)
+#   - INVICTI_WEBSITE_ID: Target Website ID
+#
+# Usage: Place this file at .gitlab-ci.yml in your repository root
+# =============================================================================
+
+stages:
+  - scan
+  - security
+  - report
+
+variables:
+  # Scanner configuration
+  SCANNER_IMAGE: "api-scanner:latest"
+  OPENAPI_OUTPUT: "openapi.json"
+  SCAN_OUTPUT: "api-scan-result.json"
+
+# =============================================================================
+# Stage 1: API Discovery Scan
+# =============================================================================
+api-discovery:
+  stage: scan
+  image: $SCANNER_IMAGE
+  variables:
+    TARGET_DIR: /code
+    OUTPUT_DIR: /output
+    INVICTI_SYNC: "false"  # Don't sync in scan stage
+  script:
+    - echo "🔍 Starting API Discovery Scan..."
+    - /app/entrypoint.sh
+  artifacts:
+    paths:
+      - output/openapi.json
+      - output/api-scan-result.json
+    expire_in: 1 week
+    reports:
+      # GitLab will display this in the Security tab
+      api_fuzzing: output/openapi.json
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+# =============================================================================
+# Stage 2: Upload to Invicti DAST
+# =============================================================================
+invicti-sync:
+  stage: security
+  image: $SCANNER_IMAGE
+  needs:
+    - job: api-discovery
+      artifacts: true
+  variables:
+    INVICTI_URL: $INVICTI_URL
+    INVICTI_USER: $INVICTI_USER
+    INVICTI_TOKEN: $INVICTI_TOKEN
+    INVICTI_WEBSITE_ID: $INVICTI_WEBSITE_ID
+  script:
+    - echo "📤 Uploading APIs to Invicti DAST..."
+    - |
+      python /app/invicti_sync.py \
+        --file output/openapi.json \
+        ${PREVIOUS_OPENAPI:+--diff $PREVIOUS_OPENAPI}
+  rules:
+    # Only run on main branch or when explicitly triggered
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: '$INVICTI_SYNC == "true"'
+  allow_failure: true  # Don't block pipeline if upload fails
+
+# =============================================================================
+# Stage 3: Generate Security Report
+# =============================================================================
+security-report:
+  stage: report
+  image: python:3.11-slim
+  needs:
+    - job: api-discovery
+      artifacts: true
+  script:
+    - echo "📊 Generating Security Report..."
+    - |
+      python << 'EOF'
+      import json
+      from pathlib import Path
+
+      # Load scan results
+      with open('output/openapi.json', 'r') as f:
+          spec = json.load(f)
+
+      paths = spec.get('paths', {})
+      
+      # Count by risk level
+      risk_counts = {}
+      for path, methods in paths.items():
+          for method, details in methods.items():
+              if isinstance(details, dict):
+                  risk = details.get('x-risk-level', 'UNKNOWN')
+                  risk_counts[risk] = risk_counts.get(risk, 0) + 1
+
+      print("=" * 60)
+      print("API SECURITY SCAN REPORT")
+      print("=" * 60)
+      print(f"Total Paths Discovered: {len(paths)}")
+      print(f"Total Operations: {sum(risk_counts.values())}")
+      print()
+      print("Risk Distribution:")
+      for risk, count in sorted(risk_counts.items()):
+          print(f"  • {risk}: {count}")
+      print("=" * 60)
+      
+      # Fail if critical/high risks found
+      critical = risk_counts.get('CRITICAL', 0) + risk_counts.get('HIGH', 0)
+      if critical > 0:
+          print(f"⚠️ Found {critical} CRITICAL/HIGH risk endpoints!")
+      EOF
+  artifacts:
+    reports:
+      dotenv: security.env
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# =============================================================================
+# Optional: Diff on Merge Requests
+# =============================================================================
+api-diff:
+  stage: scan
+  image: $SCANNER_IMAGE
+  variables:
+    INVICTI_SYNC: "false"
+    DRY_RUN: "true"
+  script:
+    - echo "🔄 Comparing API changes..."
+    # Download previous spec from main branch
+    - |
+      if git show origin/$CI_DEFAULT_BRANCH:openapi.json > previous.json 2>/dev/null; then
+        echo "Found previous spec - computing diff"
+        python /app/invicti_sync.py \
+          --file output/openapi.json \
+          --diff previous.json \
+          --dry-run
+      else
+        echo "No previous spec found - skipping diff"
+      fi
+  needs:
+    - job: api-discovery
+      artifacts: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  allow_failure: true

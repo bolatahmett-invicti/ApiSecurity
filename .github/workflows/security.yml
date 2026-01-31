@@ -1,0 +1,302 @@
+# =============================================================================
+# GitHub Actions Workflow for API Security Scanner
+# =============================================================================
+# This workflow automatically:
+#   1. Scans your codebase for API endpoints
+#   2. Generates OpenAPI specification
+#   3. Uploads to Invicti DAST for security testing
+#   4. Comments on PRs with API changes
+#
+# Required Secrets (Settings > Secrets and variables > Actions):
+#   - INVICTI_URL: Your Invicti instance URL
+#   - INVICTI_USER: API User ID
+#   - INVICTI_TOKEN: API Token
+#   - INVICTI_WEBSITE_ID: Target Website ID
+#
+# Usage: Place this file at .github/workflows/security.yml
+# =============================================================================
+
+name: API Security Scanner
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      invicti_sync:
+        description: 'Upload to Invicti DAST'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  SCANNER_IMAGE: api-scanner:latest
+
+jobs:
+  # ===========================================================================
+  # Job 1: Build Scanner Image (cached)
+  # ===========================================================================
+  build-scanner:
+    name: Build Scanner Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and cache image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: ${{ env.SCANNER_IMAGE }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Save image
+        run: docker save ${{ env.SCANNER_IMAGE }} > /tmp/scanner-image.tar
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scanner-image
+          path: /tmp/scanner-image.tar
+          retention-days: 1
+
+  # ===========================================================================
+  # Job 2: API Discovery Scan
+  # ===========================================================================
+  api-scan:
+    name: API Discovery Scan
+    runs-on: ubuntu-latest
+    needs: build-scanner
+    outputs:
+      endpoint_count: ${{ steps.scan.outputs.endpoint_count }}
+      critical_count: ${{ steps.scan.outputs.critical_count }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download scanner image
+        uses: actions/download-artifact@v4
+        with:
+          name: scanner-image
+          path: /tmp
+
+      - name: Load scanner image
+        run: docker load < /tmp/scanner-image.tar
+
+      - name: Create output directory
+        run: mkdir -p ${{ github.workspace }}/output
+
+      - name: Run API Scanner
+        id: scan
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/code:ro \
+            -v ${{ github.workspace }}/output:/output \
+            -e TARGET_DIR=/code \
+            -e INVICTI_SYNC=false \
+            ${{ env.SCANNER_IMAGE }}
+          
+          # Extract metrics
+          ENDPOINT_COUNT=$(python3 -c "import json; f=open('output/openapi.json'); d=json.load(f); print(len(d.get('paths', {})))")
+          echo "endpoint_count=$ENDPOINT_COUNT" >> $GITHUB_OUTPUT
+          
+          # Count critical/high risks
+          CRITICAL_COUNT=$(python3 -c "
+          import json
+          with open('output/openapi.json') as f:
+              spec = json.load(f)
+          count = 0
+          for path, methods in spec.get('paths', {}).items():
+              for method, details in methods.items():
+                  if isinstance(details, dict) and details.get('x-risk-level') in ['CRITICAL', 'HIGH']:
+                      count += 1
+          print(count)
+          ")
+          echo "critical_count=$CRITICAL_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Upload OpenAPI Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: output/openapi.json
+          retention-days: 30
+
+      - name: Upload Full Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-report
+          path: output/
+          retention-days: 30
+
+  # ===========================================================================
+  # Job 3: API Diff on Pull Requests
+  # ===========================================================================
+  api-diff:
+    name: API Change Detection
+    runs-on: ubuntu-latest
+    needs: [build-scanner, api-scan]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download scanner image
+        uses: actions/download-artifact@v4
+        with:
+          name: scanner-image
+          path: /tmp
+
+      - name: Load scanner image
+        run: docker load < /tmp/scanner-image.tar
+
+      - name: Download current spec
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: output/
+
+      - name: Get previous spec from base branch
+        id: previous
+        run: |
+          git checkout origin/${{ github.base_ref }} -- openapi.json 2>/dev/null && \
+            mv openapi.json output/previous.json && \
+            echo "has_previous=true" >> $GITHUB_OUTPUT || \
+            echo "has_previous=false" >> $GITHUB_OUTPUT
+
+      - name: Compute API Diff
+        id: diff
+        if: steps.previous.outputs.has_previous == 'true'
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/output:/output \
+            -e INVICTI_SYNC=false \
+            --entrypoint python \
+            ${{ env.SCANNER_IMAGE }} \
+            /app/invicti_sync.py \
+              --file /output/openapi.json \
+              --diff /output/previous.json \
+              --dry-run 2>&1 | tee diff_output.txt
+          
+          # Extract diff summary for PR comment
+          echo "diff_summary<<EOF" >> $GITHUB_OUTPUT
+          cat diff_output.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Comment on PR
+        if: steps.previous.outputs.has_previous == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const diffSummary = `${{ steps.diff.outputs.diff_summary }}`;
+            const endpointCount = '${{ needs.api-scan.outputs.endpoint_count }}';
+            const criticalCount = '${{ needs.api-scan.outputs.critical_count }}';
+            
+            const body = `## 🔍 API Security Scan Results
+            
+            | Metric | Value |
+            |--------|-------|
+            | Total Endpoints | ${endpointCount} |
+            | Critical/High Risk | ${criticalCount} |
+            
+            <details>
+            <summary>📊 API Diff Details</summary>
+            
+            \`\`\`
+            ${diffSummary}
+            \`\`\`
+            
+            </details>
+            
+            ---
+            *Generated by Universal Polyglot API Scanner v3.1*
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  # ===========================================================================
+  # Job 4: Invicti DAST Upload
+  # ===========================================================================
+  invicti-upload:
+    name: Upload to Invicti DAST
+    runs-on: ubuntu-latest
+    needs: [build-scanner, api-scan]
+    if: |
+      (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') ||
+      github.event.inputs.invicti_sync == 'true'
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download scanner image
+        uses: actions/download-artifact@v4
+        with:
+          name: scanner-image
+          path: /tmp
+
+      - name: Load scanner image
+        run: docker load < /tmp/scanner-image.tar
+
+      - name: Download OpenAPI spec
+        uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: output/
+
+      - name: Upload to Invicti
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/output:/output \
+            -e INVICTI_URL=${{ secrets.INVICTI_URL }} \
+            -e INVICTI_USER=${{ secrets.INVICTI_USER }} \
+            -e INVICTI_TOKEN=${{ secrets.INVICTI_TOKEN }} \
+            -e INVICTI_WEBSITE_ID=${{ secrets.INVICTI_WEBSITE_ID }} \
+            --entrypoint python \
+            ${{ env.SCANNER_IMAGE }} \
+            /app/invicti_sync.py --file /output/openapi.json
+
+      - name: Summary
+        run: |
+          echo "## 🛡️ Invicti DAST Upload Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Endpoints: ${{ needs.api-scan.outputs.endpoint_count }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The discovered APIs have been uploaded to Invicti for DAST scanning." >> $GITHUB_STEP_SUMMARY
+
+  # ===========================================================================
+  # Job 5: Security Gate (Block on Critical)
+  # ===========================================================================
+  security-gate:
+    name: Security Gate
+    runs-on: ubuntu-latest
+    needs: api-scan
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check for Critical Issues
+        run: |
+          CRITICAL=${{ needs.api-scan.outputs.critical_count }}
+          echo "Critical/High risk endpoints: $CRITICAL"
+          
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "::warning::Found $CRITICAL critical/high risk API endpoints"
+            # Uncomment to block PRs with critical issues:
+            # exit 1
+          else
+            echo "✅ No critical security issues found"
+          fi
