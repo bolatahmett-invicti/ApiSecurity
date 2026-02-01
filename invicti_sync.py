@@ -20,6 +20,11 @@ Environment Variables (Required):
   - INVICTI_TOKEN: API Token
   - INVICTI_TEAM_ID: Team ID (optional, for multi-tenant environments)
 
+Environment Variables (Optional):
+  - GITHUB_REPOSITORY: GitHub repository name (auto-detected)
+  - CI_PROJECT_NAME: GitLab project name (auto-detected)
+  - SERVICE_NAME: Service name override
+
 Usage:
   python invicti_sync.py --file openapi.json --service-name payment-service
   python invicti_sync.py --file openapi.json --service-name user-api --diff previous.json
@@ -689,6 +694,11 @@ Environment Variables (Required):
   INVICTI_USER        API User ID
   INVICTI_TOKEN       API Token
   INVICTI_TEAM_ID     Team ID (optional, for multi-tenant)
+
+Environment Variables (Optional):
+  GITHUB_REPOSITORY   GitHub repository name (auto-detected)
+  CI_PROJECT_NAME     GitLab project name (auto-detected)
+  SERVICE_NAME        Service name override
         """
     )
     
@@ -701,9 +711,8 @@ Environment Variables (Required):
     
     parser.add_argument(
         "--service-name", "-s",
-        required=True,
         metavar="NAME",
-        help="API service name for inventory tracking (e.g., 'payment-service') - REQUIRED"
+        help="API service name for inventory tracking (e.g., 'payment-service'). If not provided, attempts to auto-detect from CI environment."
     )
     
     parser.add_argument(
@@ -733,10 +742,24 @@ Environment Variables (Required):
     
     args = parser.parse_args()
     
+    # Auto-detect service name from environment if not provided
+    service_name = args.service_name
+    if not service_name:
+        # Try various CI/CD environment variables
+        service_name = (
+            os.getenv("SERVICE_NAME") or  # Explicit override
+            os.getenv("GITHUB_REPOSITORY", "").split("/")[-1] or  # GitHub Actions
+            os.getenv("CI_PROJECT_NAME") or  # GitLab CI
+            os.getenv("REPO_NAME") or  # Generic
+            os.getenv("PROJECT_NAME") or  # Generic
+            f"api-{datetime.now().strftime('%Y%m%d-%H%M%S')}"  # Fallback with timestamp
+        )
+        Console.info(f"Auto-detected service name: {service_name}")
+    
     # Print banner
     Console.header("🛡️ Invicti API Inventory Sync v2.0")
     print(f"Timestamp:     {datetime.now().isoformat()}")
-    print(f"Service:       {args.service_name}")
+    print(f"Service:       {service_name}")
     print(f"File:          {args.file}")
     print(f"Diff:          {args.diff or '(none)'}")
     print(f"Dry-Run:       {args.dry_run}")
@@ -789,23 +812,23 @@ Environment Variables (Required):
     # Step 6: Upload to API Inventory
     success = client.upload_to_api_inventory(
         args.file,
-        args.service_name,
+        service_name,
         tags
     )
     
     if success:
         Console.header("✅ Sync Complete")
         stats = diff_engine.get_stats()
-        print(f"Service: {args.service_name}")
+        print(f"Service: {service_name}")
         print(f"Total endpoints: {stats['total_current']}")
         if stats["added"] > 0:
             print(f"New endpoints in this scan: {stats['added']}")
-        Console.success(f"'{args.service_name}' is now tracked in Invicti API Inventory")
+        Console.success(f"'{service_name}' is now tracked in Invicti API Inventory")
         Console.info("You can view it in the Invicti Platform UI under API Inventory")
         sys.exit(0)
     else:
         Console.header("❌ Sync Failed")
-        Console.error(f"Failed to upload '{args.service_name}' to Invicti API Inventory")
+        Console.error(f"Failed to upload '{service_name}' to Invicti API Inventory")
         Console.error("Check the error details above and verify your configuration")
         sys.exit(1)
 
