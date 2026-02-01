@@ -93,7 +93,9 @@ jobs:
         run: docker load < /tmp/scanner-image.tar
 
       - name: Create output directory
-        run: mkdir -p ${{ github.workspace }}/output
+        run: |
+          mkdir -p ${{ github.workspace }}/output
+          chmod 777 ${{ github.workspace }}/output
 
       - name: Run API Scanner
         id: scan
@@ -103,6 +105,7 @@ jobs:
             -v ${{ github.workspace }}/output:/output \
             -e TARGET_DIR=/code \
             -e INVICTI_SYNC=false \
+            --user $(id -u):$(id -g) \
             ${{ env.SCANNER_IMAGE }}
           
           # Extract metrics
