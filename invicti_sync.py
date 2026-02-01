@@ -16,8 +16,7 @@ Features:
 
 Environment Variables (Required):
   - INVICTI_URL: Base URL (e.g., https://platform.invicti.com or https://api.invicti.com)
-  - INVICTI_USER: API User ID
-  - INVICTI_TOKEN: API Token
+  - INVICTI_TOKEN: API Token (for X-Auth header)
   - INVICTI_TEAM_ID: Team ID (optional, for multi-tenant environments)
 
 Environment Variables (Optional):
@@ -129,15 +128,12 @@ class Config:
     
     Required Environment Variables:
       - INVICTI_URL: Base URL of Invicti Platform instance
-      - INVICTI_USER: API User ID
-      - INVICTI_TOKEN: API Token
-      - INVICTI_TEAM_ID: Team ID (optional)
+      - INVICTI_TOKEN: API Token (for X-Auth header)
     """
     
     REQUIRED_VARS = [
         ("INVICTI_URL", "Base URL (e.g., https://platform.invicti.com)"),
-        ("INVICTI_USER", "API User ID"),
-        ("INVICTI_TOKEN", "API Token"),
+        ("INVICTI_TOKEN", "API Token (X-Auth)"),
     ]
     
     OPTIONAL_VARS = [
@@ -146,7 +142,6 @@ class Config:
     
     def __init__(self):
         self.url: str = ""
-        self.user: str = ""
         self.token: str = ""
         self.team_id: Optional[str] = None
         self._load()
@@ -166,24 +161,16 @@ class Config:
                 print(m)
             print("\nPlease set these variables in your CI/CD pipeline or shell:")
             print("  export INVICTI_URL='https://platform.invicti.com'")
-            print("  export INVICTI_USER='your-api-user-id'")
             print("  export INVICTI_TOKEN='your-api-token'")
             print("  export INVICTI_TEAM_ID='your-team-id'  # Optional")
             sys.exit(1)
         
         self.url = os.getenv("INVICTI_URL", "").rstrip("/")
-        self.user = os.getenv("INVICTI_USER", "")
         self.token = os.getenv("INVICTI_TOKEN", "")
         self.team_id = os.getenv("INVICTI_TEAM_ID", "").strip() or None
     
-    def get_basic_auth_header(self) -> str:
-        """Get Base64 encoded Basic Auth header value."""
-        credentials = f"{self.user}:{self.token}"
-        encoded = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
-        return f"Basic {encoded}"
-    
     def __repr__(self) -> str:
-        return f"Config(url={self.url}, user={self.user[:4]}***, team_id={self.team_id})"
+        return f"Config(url={self.url}, token={self.token[:8]}***, team_id={self.team_id})"
 
 
 # =============================================================================
@@ -325,31 +312,29 @@ class OpenAPIDiff:
 # =============================================================================
 class InvictiClient:
     """
-    Invicti Platform API Inventory Client.
+    Invicti Platform API Hub Client.
     
     Handles authentication and API interactions for uploading
     discovered endpoints to the API Inventory feature.
     """
     
-    # Invicti Platform API Inventory endpoints
+    # Invicti Platform API Hub endpoints
     ENDPOINTS = {
+        # List API targets (for verification and search)
+        "list_api_targets": "/api/apihub/v1/inventory/api-targets",
+        # Get specific API target
+        "get_api_target": "/api/apihub/v1/inventory/api-targets/{apiTargetId}",
         # Import API definition file
-        "import_api": "/api/v1/api-inventory/definitions/import",
-        # List APIs in inventory
-        "list_apis": "/api/v1/api-inventory/definitions",
-        # Get specific API definition
-        "get_api": "/api/v1/api-inventory/definitions/{id}",
-        # Update existing API definition
-        "update_api": "/api/v1/api-inventory/definitions/{id}",
-        # Health check
-        "health": "/api/v1/health",
+        "import_api": "/api/apihub/v1/inventory/api-targets/import",
+        # Update existing API target
+        "update_api": "/api/apihub/v1/inventory/api-targets/{apiTargetId}",
     }
     
     def __init__(self, config: Config):
         self.config = config
         self.session = requests.Session()
         self.session.headers.update({
-            "Authorization": config.get_basic_auth_header(),
+            "X-Auth": config.token,
             "Accept": "application/json",
             "User-Agent": "UniversalPolyglotScanner/3.1 InvictiAPIInventorySync/2.0",
         })
@@ -361,25 +346,47 @@ class InvictiClient:
     def verify_connection(self) -> bool:
         """Verify API connection and credentials."""
         try:
-            # Try to list APIs to verify authentication
-            url = f"{self.config.url}{self.ENDPOINTS['list_apis']}"
+            # Try to list API targets to verify authentication
+            url = f"{self.config.url}{self.ENDPOINTS['list_api_targets']}"
             Console.info(f"Verifying connection to: {self.config.url}")
             
-            response = self.session.get(url, timeout=30, params={"limit": 1})
+            params = {
+                "limit": 1,
+                "cursor": 0,
+                "sort": "modifiedAt",
+                "sortDir": "desc",
+                "scanDate": "All"
+            }
+            
+            response = self.session.get(url, timeout=30, params=params)
             
             if response.status_code == 200:
-                Console.success("Connected to Invicti Platform API Inventory")
+                Console.success("Connected to Invicti Platform API Hub")
+                
+                # Try to show some stats
+                try:
+                    data = response.json()
+                    if isinstance(data, dict):
+                        total = data.get("total", data.get("totalCount", "unknown"))
+                        Console.info(f"API Inventory has {total} API target(s)")
+                except (json.JSONDecodeError, KeyError):
+                    pass
+                
                 if self.config.team_id:
                     Console.info(f"Using Team ID: {self.config.team_id}")
+                
                 return True
+                
             elif response.status_code == 401:
-                Console.error("Authentication failed: Invalid credentials")
-                Console.error("Check your INVICTI_USER and INVICTI_TOKEN")
+                Console.error("Authentication failed: Invalid token")
+                Console.error("Check your INVICTI_TOKEN")
                 return False
+                
             elif response.status_code == 403:
                 Console.error("Authorization failed: Insufficient permissions")
-                Console.error("Your API user needs 'API Inventory' permissions")
+                Console.error("Your API token needs 'API Inventory' permissions")
                 return False
+                
             else:
                 Console.error(f"Connection failed: HTTP {response.status_code}")
                 self._print_error_details(response)
@@ -462,21 +469,26 @@ class InvictiClient:
     def _find_existing_api(self, service_name: str) -> Optional[str]:
         """Check if an API with this name already exists in the inventory."""
         try:
-            url = f"{self.config.url}{self.ENDPOINTS['list_apis']}"
-            response = self.session.get(
-                url,
-                timeout=30,
-                params={"search": service_name, "limit": 100}
-            )
+            url = f"{self.config.url}{self.ENDPOINTS['list_api_targets']}"
+            
+            params = {
+                "limit": 100,
+                "cursor": 0,
+                "sort": "modifiedAt",
+                "sortDir": "desc",
+                "scanDate": "All"
+            }
+            
+            response = self.session.get(url, timeout=30, params=params)
             
             if response.status_code == 200:
                 data = response.json()
-                items = data.get("items", []) if isinstance(data, dict) else data
+                items = data.get("items", []) if isinstance(data, dict) else []
                 
                 # Look for exact name match
                 for api in items:
                     if api.get("name", "").lower() == service_name.lower():
-                        return api.get("id")
+                        return api.get("id", api.get("apiTargetId"))
             
             return None
             
@@ -508,8 +520,8 @@ class InvictiClient:
             # Prepare form data
             data = {
                 "name": service_name,
-                "importerType": spec_type,
-                "tags": ",".join(tags),  # Some APIs expect comma-separated tags
+                "specType": spec_type,
+                "tags": ",".join(tags),
                 "description": f"Auto-discovered API from CI/CD pipeline - {datetime.now().isoformat()}",
             }
             
@@ -554,7 +566,7 @@ class InvictiClient:
         tags: Optional[List[str]] = None
     ) -> bool:
         """Update an existing API definition in the inventory."""
-        url = f"{self.config.url}{self.ENDPOINTS['update_api'].format(id=api_id)}"
+        url = f"{self.config.url}{self.ENDPOINTS['update_api'].format(apiTargetId=api_id)}"
         
         try:
             # Default tags
@@ -569,7 +581,7 @@ class InvictiClient:
             # Prepare form data
             data = {
                 "name": service_name,
-                "importerType": spec_type,
+                "specType": spec_type,
                 "tags": ",".join(tags),
                 "description": f"Auto-updated API from CI/CD pipeline - {datetime.now().isoformat()}",
             }
@@ -691,8 +703,7 @@ Examples:
 
 Environment Variables (Required):
   INVICTI_URL         Base URL (e.g., https://platform.invicti.com)
-  INVICTI_USER        API User ID
-  INVICTI_TOKEN       API Token
+  INVICTI_TOKEN       API Token (X-Auth header)
   INVICTI_TEAM_ID     Team ID (optional, for multi-tenant)
 
 Environment Variables (Optional):
@@ -792,7 +803,7 @@ Environment Variables (Optional):
     Console.header("🔐 Loading Configuration")
     config = Config()
     print(f"Invicti URL:    {config.url}")
-    print(f"API User:       {config.user[:8]}...")
+    print(f"API Token:      {config.token[:8]}...")
     if config.team_id:
         print(f"Team ID:        {config.team_id}")
     print()
