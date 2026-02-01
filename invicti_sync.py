@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Invicti (Netsparker) DAST Sync - CI/CD Integration Bridge
-==========================================================
-Uploads auto-discovered API endpoints to Invicti DAST platform.
+Invicti Platform API Inventory Sync - CI/CD Integration Bridge
+===============================================================
+Uploads auto-discovered API endpoints to Invicti Platform API Inventory.
 
 This script is designed to run in CI/CD pipelines (GitLab CI, Jenkins, GitHub Actions)
 immediately after the Universal Polyglot API Scanner generates an OpenAPI spec.
@@ -12,17 +12,18 @@ Features:
   - Secure: All credentials via environment variables
   - CI-Friendly: Clear console output for pipeline logs
   - Dry-Run Mode: Test without uploading
+  - API Inventory Integration: Track APIs as assets across organization
 
 Environment Variables (Required):
-  - INVICTI_URL: Base URL (e.g., https://www.netsparkercloud.com)
+  - INVICTI_URL: Base URL (e.g., https://platform.invicti.com or https://api.invicti.com)
   - INVICTI_USER: API User ID
   - INVICTI_TOKEN: API Token
-  - INVICTI_WEBSITE_ID: Target Website ID in Invicti
+  - INVICTI_TEAM_ID: Team ID (optional, for multi-tenant environments)
 
 Usage:
-  python invicti_sync.py --file openapi.json
-  python invicti_sync.py --file openapi.json --diff previous_openapi.json
-  python invicti_sync.py --file openapi.json --diff previous_openapi.json --dry-run
+  python invicti_sync.py --file openapi.json --service-name payment-service
+  python invicti_sync.py --file openapi.json --service-name user-api --diff previous.json
+  python invicti_sync.py --file openapi.json --service-name gateway --dry-run
 
 Author: Principal Security Engineer
 """
@@ -31,6 +32,7 @@ import os
 import sys
 import json
 import argparse
+import base64
 from pathlib import Path
 from typing import Dict, List, Set, Tuple, Optional, Any
 from datetime import datetime
@@ -40,7 +42,6 @@ from datetime import datetime
 # =============================================================================
 try:
     import requests
-    from requests.auth import HTTPBasicAuth
 except ImportError:
     print("\n❌ Missing dependency: pip install requests\n")
     sys.exit(1)
@@ -122,24 +123,27 @@ class Config:
     Configuration manager - reads from environment variables.
     
     Required Environment Variables:
-      - INVICTI_URL: Base URL of Invicti instance
+      - INVICTI_URL: Base URL of Invicti Platform instance
       - INVICTI_USER: API User ID
       - INVICTI_TOKEN: API Token
-      - INVICTI_WEBSITE_ID: Target Website ID
+      - INVICTI_TEAM_ID: Team ID (optional)
     """
     
     REQUIRED_VARS = [
-        ("INVICTI_URL", "Base URL (e.g., https://www.netsparkercloud.com)"),
+        ("INVICTI_URL", "Base URL (e.g., https://platform.invicti.com)"),
         ("INVICTI_USER", "API User ID"),
         ("INVICTI_TOKEN", "API Token"),
-        ("INVICTI_WEBSITE_ID", "Target Website ID in Invicti"),
+    ]
+    
+    OPTIONAL_VARS = [
+        ("INVICTI_TEAM_ID", "Team ID for multi-tenant environments"),
     ]
     
     def __init__(self):
         self.url: str = ""
         self.user: str = ""
         self.token: str = ""
-        self.website_id: str = ""
+        self.team_id: Optional[str] = None
         self._load()
     
     def _load(self) -> None:
@@ -156,23 +160,25 @@ class Config:
             for m in missing:
                 print(m)
             print("\nPlease set these variables in your CI/CD pipeline or shell:")
-            print("  export INVICTI_URL='https://www.netsparkercloud.com'")
+            print("  export INVICTI_URL='https://platform.invicti.com'")
             print("  export INVICTI_USER='your-api-user-id'")
             print("  export INVICTI_TOKEN='your-api-token'")
-            print("  export INVICTI_WEBSITE_ID='your-website-id'")
+            print("  export INVICTI_TEAM_ID='your-team-id'  # Optional")
             sys.exit(1)
         
         self.url = os.getenv("INVICTI_URL", "").rstrip("/")
         self.user = os.getenv("INVICTI_USER", "")
         self.token = os.getenv("INVICTI_TOKEN", "")
-        self.website_id = os.getenv("INVICTI_WEBSITE_ID", "")
+        self.team_id = os.getenv("INVICTI_TEAM_ID", "").strip() or None
     
-    def get_auth(self) -> HTTPBasicAuth:
-        """Get HTTP Basic Auth object."""
-        return HTTPBasicAuth(self.user, self.token)
+    def get_basic_auth_header(self) -> str:
+        """Get Base64 encoded Basic Auth header value."""
+        credentials = f"{self.user}:{self.token}"
+        encoded = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+        return f"Basic {encoded}"
     
     def __repr__(self) -> str:
-        return f"Config(url={self.url}, user={self.user[:4]}***, website_id={self.website_id})"
+        return f"Config(url={self.url}, user={self.user[:4]}***, team_id={self.team_id})"
 
 
 # =============================================================================
@@ -310,55 +316,68 @@ class OpenAPIDiff:
 
 
 # =============================================================================
-# INVICTI API CLIENT
+# INVICTI API INVENTORY CLIENT
 # =============================================================================
 class InvictiClient:
     """
-    Invicti (Netsparker) API Client.
+    Invicti Platform API Inventory Client.
     
     Handles authentication and API interactions for uploading
-    discovered endpoints to the DAST platform.
+    discovered endpoints to the API Inventory feature.
     """
     
-    # Known Invicti API endpoints for different operations
+    # Invicti Platform API Inventory endpoints
     ENDPOINTS = {
-        # Primary: Import links/URLs for scanning
-        "import_links": "/api/1.0/website/importedlinks",
-        # Alternative: Import OpenAPI/Swagger definition
-        "import_definition": "/api/1.0/website/importdefinition",
-        # Get website info
-        "website": "/api/1.0/websites/get",
-        # Verify API access
-        "me": "/api/1.0/account/me",
+        # Import API definition file
+        "import_api": "/api/v1/api-inventory/definitions/import",
+        # List APIs in inventory
+        "list_apis": "/api/v1/api-inventory/definitions",
+        # Get specific API definition
+        "get_api": "/api/v1/api-inventory/definitions/{id}",
+        # Update existing API definition
+        "update_api": "/api/v1/api-inventory/definitions/{id}",
+        # Health check
+        "health": "/api/v1/health",
     }
     
     def __init__(self, config: Config):
         self.config = config
         self.session = requests.Session()
-        self.session.auth = config.get_auth()
         self.session.headers.update({
+            "Authorization": config.get_basic_auth_header(),
             "Accept": "application/json",
-            "User-Agent": "UniversalPolyglotScanner/3.1 InvictiSync/1.0",
+            "User-Agent": "UniversalPolyglotScanner/3.1 InvictiAPIInventorySync/2.0",
         })
+        
+        # Add team ID header if provided
+        if config.team_id:
+            self.session.headers["X-Team-Id"] = config.team_id
     
     def verify_connection(self) -> bool:
         """Verify API connection and credentials."""
         try:
-            url = f"{self.config.url}{self.ENDPOINTS['me']}"
-            response = self.session.get(url, timeout=30)
+            # Try to list APIs to verify authentication
+            url = f"{self.config.url}{self.ENDPOINTS['list_apis']}"
+            Console.info(f"Verifying connection to: {self.config.url}")
+            
+            response = self.session.get(url, timeout=30, params={"limit": 1})
             
             if response.status_code == 200:
-                data = response.json()
-                Console.success(f"Connected to Invicti as: {data.get('Email', 'Unknown')}")
+                Console.success("Connected to Invicti Platform API Inventory")
+                if self.config.team_id:
+                    Console.info(f"Using Team ID: {self.config.team_id}")
                 return True
             elif response.status_code == 401:
                 Console.error("Authentication failed: Invalid credentials")
+                Console.error("Check your INVICTI_USER and INVICTI_TOKEN")
                 return False
             elif response.status_code == 403:
                 Console.error("Authorization failed: Insufficient permissions")
+                Console.error("Your API user needs 'API Inventory' permissions")
                 return False
             else:
                 Console.error(f"Connection failed: HTTP {response.status_code}")
+                self._print_error_details(response)
                 return False
                 
         except requests.exceptions.Timeout:
@@ -366,18 +385,30 @@ class InvictiClient:
             return False
         except requests.exceptions.ConnectionError as e:
             Console.error(f"Connection error: {e}")
+            Console.error("Verify the INVICTI_URL is correct")
             return False
         except Exception as e:
             Console.error(f"Unexpected error: {e}")
             return False
     
-    def upload_openapi_spec(self, file_path: str) -> bool:
+    def upload_to_api_inventory(
+        self, 
+        file_path: str, 
+        service_name: str,
+        tags: Optional[List[str]] = None
+    ) -> bool:
         """
-        Upload OpenAPI specification to Invicti.
+        Upload OpenAPI specification to Invicti API Inventory.
         
-        This imports the discovered API endpoints so Invicti can scan them.
+        Args:
+            file_path: Path to the OpenAPI spec file
+            service_name: Name of the API in the inventory
+            tags: Optional list of tags for categorization
+        
+        Returns:
+            True if upload was successful, False otherwise
         """
-        Console.header("📤 Uploading to Invicti DAST Platform")
+        Console.header("📤 Uploading to Invicti API Inventory")
         
         # Verify file exists
         if not Path(file_path).exists():
@@ -386,48 +417,120 @@ class InvictiClient:
         
         # Read the file
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
-                spec_content = f.read()
-            spec_data = json.loads(spec_content)
+            with open(file_path, 'rb') as f:
+                file_content = f.read()
+            
+            # Validate it's valid JSON
+            spec_data = json.loads(file_content.decode('utf-8'))
+            
+            # Determine the spec type
+            spec_type = self._detect_spec_type(spec_data)
+            
         except Exception as e:
             Console.error(f"Failed to read spec file: {e}")
             return False
         
-        # Method 1: Try importing as OpenAPI definition
-        success = self._upload_as_definition(file_path, spec_content)
+        # Check if API already exists
+        existing_api_id = self._find_existing_api(service_name)
         
-        if not success:
-            # Method 2: Fallback to importing individual links
-            Console.info("Trying alternative upload method...")
-            success = self._upload_as_links(spec_data)
-        
-        return success
+        if existing_api_id:
+            Console.warning(f"API '{service_name}' already exists in inventory")
+            Console.info(f"Updating existing API (ID: {existing_api_id})")
+            return self._update_api(existing_api_id, file_path, file_content, service_name, spec_type, tags)
+        else:
+            Console.info(f"Creating new API inventory entry: {service_name}")
+            return self._import_new_api(file_path, file_content, service_name, spec_type, tags)
     
-    def _upload_as_definition(self, file_path: str, content: str) -> bool:
-        """Upload as OpenAPI/Swagger definition file."""
-        url = f"{self.config.url}{self.ENDPOINTS['import_definition']}"
+    def _detect_spec_type(self, spec_data: Dict[str, Any]) -> str:
+        """Detect if the spec is OpenAPI 3.x or Swagger 2.x."""
+        if "openapi" in spec_data:
+            version = spec_data["openapi"]
+            if version.startswith("3"):
+                return "OpenApi3"
+            return "OpenApi"
+        elif "swagger" in spec_data:
+            return "Swagger"
+        else:
+            # Default to OpenAPI
+            return "OpenApi3"
+    
+    def _find_existing_api(self, service_name: str) -> Optional[str]:
+        """Check if an API with this name already exists in the inventory."""
+        try:
+            url = f"{self.config.url}{self.ENDPOINTS['list_apis']}"
+            response = self.session.get(
+                url,
+                timeout=30,
+                params={"search": service_name, "limit": 100}
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                items = data.get("items", []) if isinstance(data, dict) else data
+                
+                # Look for exact name match
+                for api in items:
+                    if api.get("name", "").lower() == service_name.lower():
+                        return api.get("id")
+            
+            return None
+            
+        except Exception as e:
+            Console.warning(f"Could not check for existing API: {e}")
+            return None
+    
+    def _import_new_api(
+        self,
+        file_path: str,
+        file_content: bytes,
+        service_name: str,
+        spec_type: str,
+        tags: Optional[List[str]] = None
+    ) -> bool:
+        """Import a new API definition into the inventory."""
+        url = f"{self.config.url}{self.ENDPOINTS['import_api']}"
         
         try:
+            # Default tags
+            if tags is None:
+                tags = ["auto-discovered", "ci-cd"]
+            
             # Prepare multipart form data
             files = {
-                "file": (Path(file_path).name, content, "application/json"),
-            }
-            data = {
-                "WebsiteId": self.config.website_id,
-                "ImportType": "OpenApi",  # or "Swagger"
+                "file": (Path(file_path).name, file_content, "application/json"),
             }
             
+            # Prepare form data
+            data = {
+                "name": service_name,
+                "importerType": spec_type,
+                "tags": ",".join(tags),  # Some APIs expect comma-separated tags
+                "description": f"Auto-discovered API from CI/CD pipeline - {datetime.now().isoformat()}",
+            }
+            
+            # Add team ID if configured
+            if self.config.team_id:
+                data["teamId"] = self.config.team_id
+            
             Console.info(f"Uploading to: {url}")
-            Console.info(f"Website ID: {self.config.website_id}")
+            Console.info(f"Service Name: {service_name}")
+            Console.info(f"Spec Type: {spec_type}")
+            Console.info(f"Tags: {', '.join(tags)}")
+            
+            # Remove Content-Type header to let requests set it with boundary
+            headers = dict(self.session.headers)
+            if "Content-Type" in headers:
+                del headers["Content-Type"]
             
             response = self.session.post(
                 url,
                 files=files,
                 data=data,
+                headers=headers,
                 timeout=120,
             )
             
-            return self._handle_response(response, "Definition Import")
+            return self._handle_response(response, f"Import API '{service_name}'")
             
         except requests.exceptions.Timeout:
             Console.error("Upload timeout - file may be too large")
@@ -436,42 +539,58 @@ class InvictiClient:
             Console.error(f"Upload failed: {e}")
             return False
     
-    def _upload_as_links(self, spec_data: Dict[str, Any]) -> bool:
-        """Upload individual endpoint links."""
-        url = f"{self.config.url}{self.ENDPOINTS['import_links']}"
-        
-        # Extract all URLs from the spec
-        paths = spec_data.get("paths", {})
-        if not paths:
-            Console.warning("No paths found in spec to upload")
-            return True
-        
-        # Build links list
-        links = []
-        for path in paths.keys():
-            # Ensure path starts with /
-            if not path.startswith("/"):
-                path = "/" + path
-            links.append(path)
+    def _update_api(
+        self,
+        api_id: str,
+        file_path: str,
+        file_content: bytes,
+        service_name: str,
+        spec_type: str,
+        tags: Optional[List[str]] = None
+    ) -> bool:
+        """Update an existing API definition in the inventory."""
+        url = f"{self.config.url}{self.ENDPOINTS['update_api'].format(id=api_id)}"
         
         try:
-            payload = {
-                "WebsiteId": self.config.website_id,
-                "Links": links,
+            # Default tags
+            if tags is None:
+                tags = ["auto-discovered", "ci-cd", "updated"]
+            
+            # Prepare multipart form data
+            files = {
+                "file": (Path(file_path).name, file_content, "application/json"),
             }
             
-            Console.info(f"Uploading {len(links)} endpoint links...")
+            # Prepare form data
+            data = {
+                "name": service_name,
+                "importerType": spec_type,
+                "tags": ",".join(tags),
+                "description": f"Auto-updated API from CI/CD pipeline - {datetime.now().isoformat()}",
+            }
             
-            response = self.session.post(
+            Console.info(f"Updating at: {url}")
+            
+            # Remove Content-Type header to let requests set it with boundary
+            headers = dict(self.session.headers)
+            if "Content-Type" in headers:
+                del headers["Content-Type"]
+            
+            response = self.session.put(
                 url,
-                json=payload,
+                files=files,
+                data=data,
+                headers=headers,
                 timeout=120,
             )
             
-            return self._handle_response(response, "Links Import")
+            return self._handle_response(response, f"Update API '{service_name}'")
             
+        except requests.exceptions.Timeout:
+            Console.error("Update timeout - file may be too large")
+            return False
         except requests.exceptions.RequestException as e:
-            Console.error(f"Upload failed: {e}")
+            Console.error(f"Update failed: {e}")
             return False
     
     def _handle_response(self, response: requests.Response, operation: str) -> bool:
@@ -485,12 +604,16 @@ class InvictiClient:
             try:
                 data = response.json()
                 if isinstance(data, dict):
-                    if "ImportedLinksCount" in data:
-                        print(f"   • Imported Links: {data['ImportedLinksCount']}")
-                    if "Id" in data:
-                        print(f"   • Import ID: {data['Id']}")
-                    if "Message" in data:
-                        print(f"   • Message: {data['Message']}")
+                    if "id" in data:
+                        print(f"   • API ID: {data['id']}")
+                    if "name" in data:
+                        print(f"   • Name: {data['name']}")
+                    if "endpointsCount" in data:
+                        print(f"   • Endpoints: {data['endpointsCount']}")
+                    if "version" in data:
+                        print(f"   • Version: {data['version']}")
+                    if "message" in data:
+                        print(f"   • Message: {data['message']}")
             except json.JSONDecodeError:
                 pass
             
@@ -498,6 +621,7 @@ class InvictiClient:
         
         elif status == 400:
             Console.error(f"{operation} failed: Bad Request (HTTP 400)")
+            Console.error("The OpenAPI file may be invalid or missing required fields")
             self._print_error_details(response)
             return False
         
@@ -508,18 +632,24 @@ class InvictiClient:
         
         elif status == 403:
             Console.error(f"{operation} failed: Forbidden (HTTP 403)")
-            Console.error("Your API user may not have permission for this operation")
+            Console.error("Your API user needs 'API Inventory' permissions")
             self._print_error_details(response)
             return False
         
         elif status == 404:
             Console.error(f"{operation} failed: Not Found (HTTP 404)")
-            Console.error("Check your INVICTI_URL and INVICTI_WEBSITE_ID")
+            Console.error("Check your INVICTI_URL or the API may not exist")
+            return False
+        
+        elif status == 409:
+            Console.warning(f"{operation}: Conflict (HTTP 409)")
+            Console.warning("API definition already exists with this name")
+            self._print_error_details(response)
             return False
         
         elif status >= 500:
             Console.error(f"{operation} failed: Server Error (HTTP {status})")
-            Console.error("Invicti server may be experiencing issues")
+            Console.error("Invicti Platform may be experiencing issues")
             self._print_error_details(response)
             return False
         
@@ -535,7 +665,8 @@ class InvictiClient:
             data = response.json()
             print(json.dumps(data, indent=2))
         except json.JSONDecodeError:
-            print(response.text[:500] if response.text else "(empty response)")
+            text = response.text[:500] if response.text else "(empty response)"
+            print(text)
         print("---------------------\n")
 
 
@@ -545,19 +676,19 @@ class InvictiClient:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Invicti DAST Sync - Upload discovered APIs to Invicti",
+        description="Invicti API Inventory Sync - Upload discovered APIs to Invicti Platform",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  %(prog)s --file openapi.json
-  %(prog)s --file openapi.json --diff previous.json
-  %(prog)s --file openapi.json --diff previous.json --dry-run
+  %(prog)s --file openapi.json --service-name payment-service
+  %(prog)s --file openapi.json --service-name user-api --diff previous.json
+  %(prog)s --file openapi.json --service-name gateway --dry-run
 
 Environment Variables (Required):
-  INVICTI_URL         Base URL (e.g., https://www.netsparkercloud.com)
+  INVICTI_URL         Base URL (e.g., https://platform.invicti.com)
   INVICTI_USER        API User ID
   INVICTI_TOKEN       API Token
-  INVICTI_WEBSITE_ID  Target Website ID
+  INVICTI_TEAM_ID     Team ID (optional, for multi-tenant)
         """
     )
     
@@ -566,6 +697,13 @@ Environment Variables (Required):
         required=True,
         metavar="PATH",
         help="Path to the current OpenAPI spec file (required)"
+    )
+    
+    parser.add_argument(
+        "--service-name", "-s",
+        required=True,
+        metavar="NAME",
+        help="API service name for inventory tracking (e.g., 'payment-service') - REQUIRED"
     )
     
     parser.add_argument(
@@ -587,21 +725,23 @@ Environment Variables (Required):
     )
     
     parser.add_argument(
-        "--service-name", "-s",
-        metavar="NAME",
-        help="Microservice identifier for logging (e.g., 'payment-service')"
+        "--tags", "-t",
+        metavar="TAG",
+        nargs="+",
+        help="Custom tags for the API (e.g., --tags production payment critical)"
     )
     
     args = parser.parse_args()
     
     # Print banner
-    Console.header("🛡️ Invicti DAST Sync v1.0")
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    if args.service_name:
-        print(f"Service:   {args.service_name}")
-    print(f"File:      {args.file}")
-    print(f"Diff:      {args.diff or '(none)'}")
-    print(f"Dry-Run:   {args.dry_run}")
+    Console.header("🛡️ Invicti API Inventory Sync v2.0")
+    print(f"Timestamp:     {datetime.now().isoformat()}")
+    print(f"Service:       {args.service_name}")
+    print(f"File:          {args.file}")
+    print(f"Diff:          {args.diff or '(none)'}")
+    print(f"Dry-Run:       {args.dry_run}")
+    if args.tags:
+        print(f"Custom Tags:   {', '.join(args.tags)}")
     print()
     
     # Step 1: Compute diff (always)
@@ -615,7 +755,7 @@ Environment Variables (Required):
     
     # Step 2: If dry-run, stop here
     if args.dry_run:
-        Console.info("Dry-run mode: Skipping upload to Invicti")
+        Console.info("Dry-run mode: Skipping upload to Invicti API Inventory")
         
         # Exit with appropriate code based on new endpoints
         stats = diff_engine.get_stats()
@@ -629,37 +769,43 @@ Environment Variables (Required):
     Console.header("🔐 Loading Configuration")
     config = Config()
     print(f"Invicti URL:    {config.url}")
-    print(f"Website ID:     {config.website_id}")
     print(f"API User:       {config.user[:8]}...")
+    if config.team_id:
+        print(f"Team ID:        {config.team_id}")
     print()
-    
-    # Log service context for microservices environments
-    if args.service_name:
-        Console.info(f"Syncing [{args.service_name}] to Invicti...")
     
     # Step 4: Initialize client and verify connection
     client = InvictiClient(config)
     
     if not client.verify_connection():
-        Console.error("Failed to connect to Invicti API")
+        Console.error("Failed to connect to Invicti Platform API")
         sys.exit(1)
     
-    # Step 5: Upload the spec
-    success = client.upload_openapi_spec(args.file)
+    # Step 5: Prepare tags
+    tags = ["auto-discovered", "ci-cd"]
+    if args.tags:
+        tags.extend(args.tags)
+    
+    # Step 6: Upload to API Inventory
+    success = client.upload_to_api_inventory(
+        args.file,
+        args.service_name,
+        tags
+    )
     
     if success:
         Console.header("✅ Sync Complete")
         stats = diff_engine.get_stats()
-        if args.service_name:
-            print(f"Service: {args.service_name}")
-        print(f"Total endpoints uploaded: {stats['total_current']}")
+        print(f"Service: {args.service_name}")
+        print(f"Total endpoints: {stats['total_current']}")
         if stats["added"] > 0:
             print(f"New endpoints in this scan: {stats['added']}")
-        Console.success("Invicti DAST can now scan the discovered APIs")
+        Console.success(f"'{args.service_name}' is now tracked in Invicti API Inventory")
+        Console.info("You can view it in the Invicti Platform UI under API Inventory")
         sys.exit(0)
     else:
         Console.header("❌ Sync Failed")
-        Console.error("Failed to upload OpenAPI spec to Invicti")
+        Console.error(f"Failed to upload '{args.service_name}' to Invicti API Inventory")
         Console.error("Check the error details above and verify your configuration")
         sys.exit(1)
 
