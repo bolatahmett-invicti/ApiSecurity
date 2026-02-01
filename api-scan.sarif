@@ -1,0 +1,5558 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Universal Polyglot API Scanner",
+          "version": "4.0.0",
+          "informationUri": "https://github.com/your-org/api-scanner",
+          "rules": [
+            {
+              "id": "API001",
+              "name": "ShadowAPI",
+              "shortDescription": {
+                "text": "Shadow API detected without authentication info"
+              },
+              "fullDescription": {
+                "text": "An API endpoint was discovered that lacks explicit authentication configuration."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "helpUri": "https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/"
+            },
+            {
+              "id": "API002",
+              "name": "HighRiskEndpoint",
+              "shortDescription": {
+                "text": "High risk endpoint detected"
+              },
+              "fullDescription": {
+                "text": "An API endpoint with critical or high risk characteristics was detected."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://owasp.org/API-Security/"
+            },
+            {
+              "id": "API003",
+              "name": "PublicSensitiveEndpoint",
+              "shortDescription": {
+                "text": "Sensitive endpoint is publicly accessible"
+              },
+              "fullDescription": {
+                "text": "An endpoint handling sensitive data is marked as public."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+            },
+            {
+              "id": "API004",
+              "name": "PolicyViolation",
+              "shortDescription": {
+                "text": "Security policy violation"
+              },
+              "fullDescription": {
+                "text": "The endpoint violates a defined security policy."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://owasp.org/API-Security/"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/auth/register. Reasons: auth: \\btoken\\b, auth: \\bauth\\b, pii: \\bssn\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "auth: \\bauth\\b",
+              "pii: \\bssn\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/auth/register has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET /api/users/{user_id}. Reasons: auth: \\btoken\\b, pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/users/{user_id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/payments/charge. Reasons: auth: \\btoken\\b, pii: \\bemail\\b, financial: \\bpayment\\b, financial: \\bcharge\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 55
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "pii: \\bemail\\b",
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/payments/charge has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 55
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET /api/billing/invoices. Reasons: auth: \\btoken\\b, financial: \\bpayment\\b, financial: \\bbilling\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "financial: \\bpayment\\b",
+              "financial: \\bbilling\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/billing/invoices has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 60
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: DELETE /admin/users/{user_id}. Reasons: auth: \\bauth\\b, admin: \\badmin\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 66
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /admin/users/{user_id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 66
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /internal/debug/reset. Reasons: auth: \\bauth\\b, admin: \\binternal\\b, admin: \\bdebug\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\binternal\\b",
+              "admin: \\bdebug\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /internal/debug/reset has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/checkout/complete. Reasons: pii: \\bcredit.?card\\b, financial: \\bpayment\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 81
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bcredit.?card\\b",
+              "financial: \\bpayment\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/checkout/complete has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 81
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET /admin/metrics. Reasons: admin: \\badmin\\b, admin: \\binternal\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 166
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "admin: \\binternal\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /admin/metrics has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 166
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /admin/database/reset. Reasons: auth: \\bauth\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 159
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /admin/database/reset has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 159
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/auth/login. Reasons: auth: \\bpassword\\b, auth: \\btoken\\b, auth: \\bauth\\b, auth: \\bjwt\\b, pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 23
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Express",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "auth: \\btoken\\b",
+              "auth: \\bauth\\b",
+              "auth: \\bjwt\\b",
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/auth/login has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 23
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/auth/register. Reasons: auth: \\bpassword\\b, auth: \\btoken\\b, auth: \\bauth\\b, pii: \\bssn\\b, pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Express",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "auth: \\btoken\\b",
+              "auth: \\bauth\\b",
+              "pii: \\bssn\\b",
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/auth/register has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/payments/process. Reasons: pii: \\bcredit.?card\\b, financial: \\bpayment\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 51
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Express",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bcredit.?card\\b",
+              "financial: \\bpayment\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/payments/process has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 51
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET /api/internal/users. Reasons: auth: \\bauth\\b, admin: \\binternal\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 62
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Express",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\binternal\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/internal/users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 62
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: DELETE /users/{id}. Reasons: financial: \\bpayment\\b, financial: \\bcharge\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 84
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Custom-Router",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 84
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /payments/charge. Reasons: financial: \\bpayment\\b, financial: \\bbilling\\b, financial: \\bcharge\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 87
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Custom-Router",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "financial: \\bpayment\\b",
+              "financial: \\bbilling\\b",
+              "financial: \\bcharge\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /payments/charge has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 87
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET /billing/invoices. Reasons: financial: \\bpayment\\b, financial: \\bbilling\\b, financial: \\bcharge\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Custom-Router",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "financial: \\bpayment\\b",
+              "financial: \\bbilling\\b",
+              "financial: \\bcharge\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /billing/invoices has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: DELETE /admin/users/{id}. Reasons: financial: \\bbilling\\b, admin: \\badmin\\b, admin: \\binternal\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 91
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Custom-Router",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "financial: \\bbilling\\b",
+              "admin: \\badmin\\b",
+              "admin: \\binternal\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /admin/users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 91
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /internal/reset. Reasons: admin: \\badmin\\b, admin: \\binternal\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Custom-Router",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "admin: \\binternal\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /internal/reset has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: 'POST' /api/auth/login. Reasons: auth: \\bpassword\\b, auth: \\bauth\\b, pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "auth: \\bauth\\b",
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: 'POST' /api/auth/login has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: 'POST' /api/auth/register. Reasons: auth: \\bpassword\\b, auth: \\btoken\\b, auth: \\bauth\\b, pii: \\bssn\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "auth: \\btoken\\b",
+              "auth: \\bauth\\b",
+              "pii: \\bssn\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: 'POST' /api/auth/register has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 35
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /internal/users/export. Reasons: auth: \\bauth\\b, admin: \\binternal\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 68
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\binternal\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /internal/users/export has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 68
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: 'POST' /admin/database/backup. Reasons: auth: \\bauth\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 73
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: 'POST' /admin/database/backup has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 73
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/payments/charge. Reasons: pii: \\bcredit.?card\\b, financial: \\bpayment\\b, financial: \\bcharge\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/flask_app.py"
+                },
+                "region": {
+                  "startLine": 59
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "pii: \\bcredit.?card\\b",
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY fetch_user_data. Reasons: pii: \\bssn\\b, pii: \\bemail\\b, pii: \\bphone\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 82
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MCP",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bssn\\b",
+              "pii: \\bemail\\b",
+              "pii: \\bphone\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY fetch_user_data has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 82
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY process_payment. Reasons: pii: \\bssn\\b, pii: \\bcredit.?card\\b, financial: \\bpayment\\b, financial: \\btransaction\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MCP",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bssn\\b",
+              "pii: \\bcredit.?card\\b",
+              "financial: \\bpayment\\b",
+              "financial: \\btransaction\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY process_payment has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /api/users. Reasons: auth: \\bauth\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "net/http",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 27
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /api/users/. Reasons: auth: \\bauth\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "net/http",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/users/ has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /admin/reset. Reasons: auth: \\bauth\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "net/http",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /admin/reset has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 31
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST login. Reasons: auth: \\bpassword\\b, auth: \\btoken\\b, auth: \\bauth\\b, pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 38
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "auth: \\btoken\\b",
+              "auth: \\bauth\\b",
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST login has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST register. Reasons: auth: \\btoken\\b, pii: \\bssn\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "pii: \\bssn\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST register has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST forgot-password. Reasons: auth: \\bpassword\\b, pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 50
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST forgot-password has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 50
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET :id. Reasons: pii: \\bemail\\b, pii: \\bphone\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 65
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bemail\\b",
+              "pii: \\bphone\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET :id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 65
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: PUT :id. Reasons: pii: \\bemail\\b, pii: \\bphone\\b, Mutation: PUT, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bemail\\b",
+              "pii: \\bphone\\b",
+              "Mutation: PUT",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT :id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST charge. Reasons: auth: \\bjwt\\b, pii: \\bcredit.?card\\b, financial: \\bpayment\\b, financial: \\bcharge\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "auth: \\bjwt\\b",
+              "pii: \\bcredit.?card\\b",
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: DELETE users/:id. Reasons: auth: \\bauth\\b, admin: \\badmin\\b, Mutation: DELETE"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 108
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b",
+              "Mutation: DELETE"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET internal/metrics. Reasons: auth: \\bauth\\b, admin: \\binternal\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 120
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\binternal\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET internal/metrics has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 120
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST checkout. Reasons: auth: \\bjwt\\b, pii: \\bcredit.?card\\b, financial: \\bpayment\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 136
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "auth: \\bjwt\\b",
+              "pii: \\bcredit.?card\\b",
+              "financial: \\bpayment\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY api/auth. Reasons: auth: \\bpassword\\b, auth: \\bauth\\b, pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "auth: \\bauth\\b",
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY api/auth has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY api/payments. Reasons: auth: \\bjwt\\b, financial: \\bpayment\\b, financial: \\bcharge\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "auth: \\bjwt\\b",
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY admin. Reasons: auth: \\bauth\\b, admin: \\badmin\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 106
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "admin: \\badmin\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /{id}. Reasons: pii: \\bssn\\b, pii: \\bemail\\b, pii: \\bphone\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bssn\\b",
+              "pii: \\bemail\\b",
+              "pii: \\bphone\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 42
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /metrics. Reasons: admin: \\badmin\\b, admin: \\binternal\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 177
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "admin: \\binternal\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /metrics has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 177
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /register. Reasons: auth: \\bauth\\b, pii: \\bssn\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 100
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "pii: \\bssn\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /register has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 100
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: ANY /charge. Reasons: pii: \\bcredit.?card\\b, financial: \\bcharge\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 128
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bcredit.?card\\b",
+              "financial: \\bcharge\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /charge has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 128
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: DELETE /api/v2/users/{id}. Reasons: financial: \\bpayment\\b, financial: \\bcharge\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 139
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MinimalAPI",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/v2/users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 139
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: POST /api/v2/payments/charge. Reasons: financial: \\bpayment\\b, financial: \\bcharge\\b, admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 142
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MinimalAPI",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b",
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/v2/payments/charge has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 142
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: GET /health. Reasons: auth: \\bauth\\b, Sensitive PUBLIC"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "PUBLIC",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "Sensitive PUBLIC"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /api/auth/login. Reasons: auth: \\btoken\\b, auth: \\bauth\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Flask",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "auth: \\bauth\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/auth/login has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY /health. Reasons: auth: \\bauth\\b, Sensitive PUBLIC"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Health",
+            "authStatus": "PUBLIC",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "Sensitive PUBLIC"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: GET /api/users/{id}. Reasons: pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 26
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: DELETE /api/users/{id}. Reasons: admin: \\badmin\\b, Mutation: DELETE"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 56
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Mutation: DELETE"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /api/v1/auth/login. Reasons: auth: \\bauth\\b, Sensitive PUBLIC"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 73
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PUBLIC",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "Sensitive PUBLIC"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /api/v1/auth/register. Reasons: auth: \\bauth\\b, Sensitive PUBLIC"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 81
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PUBLIC",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "Sensitive PUBLIC"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /api/v1/payments/charge. Reasons: financial: \\bpayment\\b, financial: \\bcharge\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 115
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "financial: \\bpayment\\b",
+              "financial: \\bcharge\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /api/v1/payments/refund/{transactionId}. Reasons: admin: \\badmin\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 129
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\badmin\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: GET /admin/logs. Reasons: admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 173
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /admin/logs has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 173
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: DELETE /admin/users/{id}. Reasons: admin: \\badmin\\b, Mutation: DELETE"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 152
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Mutation: DELETE"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /api/v2/products. Reasons: admin: \\badmin\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 210
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\badmin\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: PATCH /api/v2/products/{id}. Reasons: admin: \\badmin\\b, Mutation: PATCH"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 218
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Mutation: PATCH"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: GET /health. Reasons: admin: \\badmin\\b, Sensitive PUBLIC"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 14
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Express",
+            "authStatus": "PUBLIC",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Sensitive PUBLIC"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: DELETE /api/users/:id. Reasons: admin: \\badmin\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 45
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Express",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/users/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 45
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /admin/reset-db. Reasons: admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 67
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Express",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /admin/reset-db has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 67
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY WSGI Server Entry. Reasons: auth: \\bauth\\b, auth: \\bjwt\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 5
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Gevent-WSGI",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "auth: \\bjwt\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY WSGI Server Entry has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY search_database. Reasons: admin: \\binternal\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 32
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MCP",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\binternal\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY search_database has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 32
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY execute_sql. Reasons: admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MCP",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY execute_sql has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: PUT /api/products/:id. Reasons: auth: \\bauth\\b, Mutation: PUT, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 153
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Echo",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "Mutation: PUT",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/products/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 153
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: DELETE /api/products/:id. Reasons: auth: \\bauth\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 154
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Echo",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bauth\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/products/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 154
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: DELETE :id. Reasons: admin: \\badmin\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 76
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "NestJS",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE :id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 76
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY @RestController. Reasons: admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 158
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY @RestController has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 158
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY /admin. Reasons: admin: \\badmin\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 159
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\badmin\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY /logs. Reasons: admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 186
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /logs has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 186
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY /login. Reasons: auth: \\bpassword\\b, auth: \\bauth\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 93
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\bpassword\\b",
+              "auth: \\bauth\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /login has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 93
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY /refresh. Reasons: auth: \\btoken\\b, auth: \\bauth\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 107
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "auth: \\bauth\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /refresh has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 107
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY /refund/{transactionId}. Reasons: admin: \\badmin\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 141
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\badmin\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: ANY /database/reset. Reasons: admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 169
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "Spring",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /database/reset has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 169
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: PUT /api/v2/users/{id}. Reasons: financial: \\bpayment\\b, Mutation: PUT, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 138
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MinimalAPI",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "financial: \\bpayment\\b",
+              "Mutation: PUT",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/v2/users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 138
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: DELETE /admin/v2/users/{id}. Reasons: admin: \\badmin\\b, Mutation: DELETE, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 146
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MinimalAPI",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Mutation: DELETE",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /admin/v2/users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 146
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /admin/v2/reset. Reasons: admin: \\badmin\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 147
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "MinimalAPI",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "admin: \\badmin\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /admin/v2/reset has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 147
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/users/me has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/billing/history has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 57
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 83
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY secret://api-keys has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 117
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /auth/login has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 157
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /auth/register has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 158
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY @RestController has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY @RestController has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 123
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/v1/auth has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 89
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/v1/payments has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 124
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /history has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 135
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /logout has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 113
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/cart/add has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 19
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/users/search has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/v2/products has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 189
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/v2/products/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 196
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/v2/products/{id}/reviews has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 203
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/users/profile has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/users/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 40
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/search/products has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 73
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/search/advanced has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 78
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/v1 has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY 0.0.0.0 has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 172
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY OpenAPIRouter has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 81
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 82
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY Worker --kind has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 154
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY Worker --conf has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 155
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY Worker --worker has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 156
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: CLASS OpenAPIRouter has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 13
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/v1/products has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 109
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/v1/orders has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 110
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/v1/search has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 111
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY calculate_sum has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY list_tools has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 17
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY call_tool has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 58
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY get_weather has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 21
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY memory://cache/{key} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 138
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY list_resources has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 101
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY file:///config/settings.json has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 105
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY db://users/schema has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/mcp_server_python.py"
+                },
+                "region": {
+                  "startLine": 111
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/products has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 150
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/products/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 151
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/products has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 152
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/orders has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 176
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/orders/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 177
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/orders has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 178
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/orders/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 179
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/orders/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 180
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET health has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 24
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET version has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET history has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 94
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST refund/:id has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 99
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST database/reset has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 114
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY public has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 22
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY @RestController has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 31
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /api/v1/users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 32
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /products has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 197
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY GET has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 36
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /search has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 53
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /balance has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 148
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY GET has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 200
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 205
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /new has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 210
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY POST has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 59
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY POST has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/SpringApp.java"
+                },
+                "region": {
+                  "startLine": 215
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/v2/users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 135
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/v2/users/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 136
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/v2/users has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 137
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY /hubs/notifications has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 97
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY GreeterService has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 100
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: ANY OrderService has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 101
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 33
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 55
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 66
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/fastapi_app.py"
+                },
+                "region": {
+                  "startLine": 81
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Controllers.cs"
+                },
+                "region": {
+                  "startLine": 159
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 23
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 40
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 45
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 51
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 67
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/express_app.js"
+                },
+                "region": {
+                  "startLine": 78
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 82
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 84
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 87
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 91
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/complex_python_app.py"
+                },
+                "region": {
+                  "startLine": 92
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 152
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 153
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 154
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 157
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 158
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 178
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 179
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/go_app.go"
+                },
+                "region": {
+                  "startLine": 180
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 38
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 44
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 50
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 71
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 76
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 99
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/nestjs_app.ts"
+                },
+                "region": {
+                  "startLine": 114
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 137
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 138
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 139
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 142
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 146
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "test_samples/Startup.cs"
+                },
+                "region": {
+                  "startLine": 147
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "endTimeUtc": "2026-02-01T22:12:52.182429Z"
+        }
+      ]
+    }
+  ]
+}

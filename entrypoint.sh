@@ -1,23 +1,35 @@
 #!/bin/bash
 # =============================================================================
-# Universal Polyglot API Scanner - Docker Entrypoint
+# Universal Polyglot API Scanner v4.0 - Docker Entrypoint
 # =============================================================================
 # Orchestrates the scan-to-upload workflow:
-#   1. Run API Scanner on target directory
+#   1. Run API Scanner on target directory (with v4.0 features)
 #   2. Generate OpenAPI 3.0 specification
-#   3. Optionally upload to Invicti DAST platform
+#   3. Export SARIF/JUnit for CI/CD
+#   4. Optionally upload to Invicti DAST platform
 #
 # Environment Variables:
-#   TARGET_DIR        - Directory to scan (default: /code)
-#   OUTPUT_FILE       - JSON output file (default: /output/result.json)
-#   OPENAPI_FILE      - OpenAPI spec file (default: /output/openapi.json)
-#   INVICTI_SYNC      - Enable Invicti upload (true/false)
-#   INVICTI_URL       - Invicti base URL
-#   INVICTI_USER      - Invicti API user
-#   INVICTI_TOKEN     - Invicti API token
-#   INVICTI_WEBSITE_ID - Invicti target website ID
-#   PREVIOUS_SPEC     - Previous OpenAPI spec for diff (optional)
-#   DRY_RUN           - Skip actual upload (true/false)
+#   TARGET_DIR          - Directory to scan (default: /code)
+#   OUTPUT_FILE         - JSON output file (default: /output/result.json)
+#   OPENAPI_FILE        - OpenAPI spec file (default: /output/openapi.json)
+#   INVICTI_SYNC        - Enable Invicti upload (true/false)
+#   INVICTI_URL         - Invicti base URL
+#   INVICTI_USER        - Invicti API user
+#   INVICTI_TOKEN       - Invicti API token
+#   INVICTI_WEBSITE_ID  - Invicti target website ID
+#   PREVIOUS_SPEC       - Previous OpenAPI spec for diff (optional)
+#   DRY_RUN             - Skip actual upload (true/false)
+#   
+# v4.0 Configuration:
+#   SCANNER_PARALLEL    - Enable parallel scanning (true/false)
+#   SCANNER_WORKERS     - Number of parallel workers (default: 4)
+#   SCANNER_INCREMENTAL - Enable incremental scanning (true/false)
+#   SCANNER_FAIL_ON_CRITICAL - Fail if critical findings (true/false)
+#   SCANNER_SARIF_FILE  - SARIF output file (optional)
+#   SCANNER_JUNIT_FILE  - JUnit output file (optional)
+#   SCANNER_POLICY_FILE - Policy file path (optional)
+#   SCANNER_AUDIT_LOG   - Audit log file (optional)
+#   SCANNER_METRICS     - Metrics output file (optional)
 #
 # Author: Principal Security Engineer
 # =============================================================================
@@ -69,6 +81,17 @@ DRY_RUN="${DRY_RUN:-false}"
 PREVIOUS_SPEC="${PREVIOUS_SPEC:-}"
 EXIT_CODE=0
 
+# v4.0 Configuration
+SCANNER_PARALLEL="${SCANNER_PARALLEL:-false}"
+SCANNER_WORKERS="${SCANNER_WORKERS:-4}"
+SCANNER_INCREMENTAL="${SCANNER_INCREMENTAL:-false}"
+SCANNER_FAIL_ON_CRITICAL="${SCANNER_FAIL_ON_CRITICAL:-false}"
+SCANNER_SARIF_FILE="${SCANNER_SARIF_FILE:-}"
+SCANNER_JUNIT_FILE="${SCANNER_JUNIT_FILE:-}"
+SCANNER_POLICY_FILE="${SCANNER_POLICY_FILE:-}"
+SCANNER_AUDIT_LOG="${SCANNER_AUDIT_LOG:-}"
+SCANNER_METRICS="${SCANNER_METRICS:-}"
+
 # =============================================================================
 # BANNER
 # =============================================================================
@@ -80,7 +103,7 @@ cat << 'EOF'
  | |_| | | | | |\ V /  __/ |  \__ \ (_| | | |  _  |  __/  | |  
   \___/|_| |_|_| \_/ \___|_|  |___/\__,_|_| \_| |_|_|     \_/  
                                                                 
-  API Scanner + DAST Integration  v3.1
+  API Scanner + DAST Integration  v4.0.0 - Production Ready
 EOF
 echo -e "${NC}"
 
@@ -115,15 +138,68 @@ if [ "$INVICTI_SYNC" = "true" ]; then
     fi
 fi
 
+# Log v4.0 options
+if [ "$SCANNER_PARALLEL" = "true" ]; then
+    log_info "Parallel Mode:    Enabled (${SCANNER_WORKERS} workers)"
+fi
+if [ "$SCANNER_INCREMENTAL" = "true" ]; then
+    log_info "Incremental:      Enabled"
+fi
+if [ "$SCANNER_FAIL_ON_CRITICAL" = "true" ]; then
+    log_info "Fail on Critical: Enabled"
+fi
+if [ -n "$SCANNER_SARIF_FILE" ]; then
+    log_info "SARIF Output:     $SCANNER_SARIF_FILE"
+fi
+if [ -n "$SCANNER_JUNIT_FILE" ]; then
+    log_info "JUnit Output:     $SCANNER_JUNIT_FILE"
+fi
+if [ -n "$SCANNER_POLICY_FILE" ]; then
+    log_info "Policy File:      $SCANNER_POLICY_FILE"
+fi
+
 # =============================================================================
 # STEP 1: RUN API SCANNER
 # =============================================================================
-log_step "Step 1: Running Universal Polyglot API Scanner"
+log_step "Step 1: Running Universal Polyglot API Scanner v4.0"
 
 SCANNER_CMD="python /app/main.py \"$TARGET_DIR\" --export-openapi \"$OPENAPI_FILE\""
 
 if [ -n "$OUTPUT_FILE" ]; then
     SCANNER_CMD="$SCANNER_CMD -o \"$OUTPUT_FILE\""
+fi
+
+# Add v4.0 options
+if [ "$SCANNER_PARALLEL" = "true" ]; then
+    SCANNER_CMD="$SCANNER_CMD --parallel --workers $SCANNER_WORKERS"
+fi
+
+if [ "$SCANNER_INCREMENTAL" = "true" ]; then
+    SCANNER_CMD="$SCANNER_CMD --incremental"
+fi
+
+if [ "$SCANNER_FAIL_ON_CRITICAL" = "true" ]; then
+    SCANNER_CMD="$SCANNER_CMD --fail-on-critical"
+fi
+
+if [ -n "$SCANNER_SARIF_FILE" ]; then
+    SCANNER_CMD="$SCANNER_CMD --export-sarif \"$SCANNER_SARIF_FILE\""
+fi
+
+if [ -n "$SCANNER_JUNIT_FILE" ]; then
+    SCANNER_CMD="$SCANNER_CMD --export-junit \"$SCANNER_JUNIT_FILE\""
+fi
+
+if [ -n "$SCANNER_POLICY_FILE" ]; then
+    SCANNER_CMD="$SCANNER_CMD --policy \"$SCANNER_POLICY_FILE\""
+fi
+
+if [ -n "$SCANNER_AUDIT_LOG" ]; then
+    SCANNER_CMD="$SCANNER_CMD --audit-log \"$SCANNER_AUDIT_LOG\""
+fi
+
+if [ -n "$SCANNER_METRICS" ]; then
+    SCANNER_CMD="$SCANNER_CMD --metrics \"$SCANNER_METRICS\""
 fi
 
 log_info "Executing: $SCANNER_CMD"

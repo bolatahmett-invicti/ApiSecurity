@@ -1,0 +1,477 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="API Security Scan" tests="191" failures="119" timestamp="2026-02-01T23:12:52.186828">
+  <testsuite name="Endpoint Risk Analysis" tests="191" failures="78">
+    <testcase name="POST /api/auth/register" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \btoken\b, auth: \bauth\b, pii: \bssn\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET /api/users/{user_id}" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \btoken\b, pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /api/payments/charge" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \btoken\b, pii: \bemail\b, financial: \bpayment\b, financial: \bcharge\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET /api/billing/invoices" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \btoken\b, financial: \bpayment\b, financial: \bbilling\b, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /admin/users/{user_id}" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /internal/debug/reset" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \binternal\b, admin: \bdebug\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /api/checkout/complete" classname="Flask">
+      <failure message="Risk Level: CRITICAL">pii: \bcredit.?card\b, financial: \bpayment\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET /admin/metrics" classname="ASP.NET">
+      <failure message="Risk Level: CRITICAL">admin: \badmin\b, admin: \binternal\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /admin/database/reset" classname="ASP.NET">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /api/auth/login" classname="Express">
+      <failure message="Risk Level: CRITICAL">auth: \bpassword\b, auth: \btoken\b, auth: \bauth\b, auth: \bjwt\b, pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /api/auth/register" classname="Express">
+      <failure message="Risk Level: CRITICAL">auth: \bpassword\b, auth: \btoken\b, auth: \bauth\b, pii: \bssn\b, pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /api/payments/process" classname="Express">
+      <failure message="Risk Level: CRITICAL">pii: \bcredit.?card\b, financial: \bpayment\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET /api/internal/users" classname="Express">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \binternal\b, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /users/{id}" classname="Custom-Router">
+      <failure message="Risk Level: CRITICAL">financial: \bpayment\b, financial: \bcharge\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /payments/charge" classname="Custom-Router">
+      <failure message="Risk Level: CRITICAL">financial: \bpayment\b, financial: \bbilling\b, financial: \bcharge\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET /billing/invoices" classname="Custom-Router">
+      <failure message="Risk Level: CRITICAL">financial: \bpayment\b, financial: \bbilling\b, financial: \bcharge\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /admin/users/{id}" classname="Custom-Router">
+      <failure message="Risk Level: CRITICAL">financial: \bbilling\b, admin: \badmin\b, admin: \binternal\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /internal/reset" classname="Custom-Router">
+      <failure message="Risk Level: CRITICAL">admin: \badmin\b, admin: \binternal\b, Shadow API</failure>
+    </testcase>
+    <testcase name="'POST' /api/auth/login" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \bpassword\b, auth: \bauth\b, pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="'POST' /api/auth/register" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \bpassword\b, auth: \btoken\b, auth: \bauth\b, pii: \bssn\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /internal/users/export" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \binternal\b, Shadow API</failure>
+    </testcase>
+    <testcase name="'POST' /admin/database/backup" classname="Flask">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /api/payments/charge" classname="Flask">
+      <failure message="Risk Level: CRITICAL">pii: \bcredit.?card\b, financial: \bpayment\b, financial: \bcharge\b</failure>
+    </testcase>
+    <testcase name="ANY fetch_user_data" classname="MCP">
+      <failure message="Risk Level: CRITICAL">pii: \bssn\b, pii: \bemail\b, pii: \bphone\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY process_payment" classname="MCP">
+      <failure message="Risk Level: CRITICAL">pii: \bssn\b, pii: \bcredit.?card\b, financial: \bpayment\b, financial: \btransaction\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /api/users" classname="net/http">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /api/users/" classname="net/http">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /admin/reset" classname="net/http">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST login" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bpassword\b, auth: \btoken\b, auth: \bauth\b, pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST register" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \btoken\b, pii: \bssn\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST forgot-password" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bpassword\b, pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET :id" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">pii: \bemail\b, pii: \bphone\b, Shadow API</failure>
+    </testcase>
+    <testcase name="PUT :id" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">pii: \bemail\b, pii: \bphone\b, Mutation: PUT, Shadow API</failure>
+    </testcase>
+    <testcase name="POST charge" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bjwt\b, pii: \bcredit.?card\b, financial: \bpayment\b, financial: \bcharge\b</failure>
+    </testcase>
+    <testcase name="DELETE users/:id" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b, Mutation: DELETE</failure>
+    </testcase>
+    <testcase name="GET internal/metrics" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \binternal\b, Shadow API</failure>
+    </testcase>
+    <testcase name="POST checkout" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bjwt\b, pii: \bcredit.?card\b, financial: \bpayment\b</failure>
+    </testcase>
+    <testcase name="ANY api/auth" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bpassword\b, auth: \bauth\b, pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY api/payments" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bjwt\b, financial: \bpayment\b, financial: \bcharge\b</failure>
+    </testcase>
+    <testcase name="ANY admin" classname="NestJS">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, admin: \badmin\b</failure>
+    </testcase>
+    <testcase name="ANY /{id}" classname="Spring">
+      <failure message="Risk Level: CRITICAL">pii: \bssn\b, pii: \bemail\b, pii: \bphone\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /metrics" classname="Spring">
+      <failure message="Risk Level: CRITICAL">admin: \badmin\b, admin: \binternal\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /register" classname="Spring">
+      <failure message="Risk Level: CRITICAL">auth: \bauth\b, pii: \bssn\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /charge" classname="Spring">
+      <failure message="Risk Level: CRITICAL">pii: \bcredit.?card\b, financial: \bcharge\b, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /api/v2/users/{id}" classname="MinimalAPI">
+      <failure message="Risk Level: CRITICAL">financial: \bpayment\b, financial: \bcharge\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /api/v2/payments/charge" classname="MinimalAPI">
+      <failure message="Risk Level: CRITICAL">financial: \bpayment\b, financial: \bcharge\b, admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET /health" classname="Flask">
+      <failure message="Risk Level: HIGH">auth: \bauth\b, Sensitive PUBLIC</failure>
+    </testcase>
+    <testcase name="POST /api/auth/login" classname="Flask">
+      <failure message="Risk Level: HIGH">auth: \btoken\b, auth: \bauth\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /health" classname="Health">
+      <failure message="Risk Level: HIGH">auth: \bauth\b, Sensitive PUBLIC</failure>
+    </testcase>
+    <testcase name="GET /api/users/{id}" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">pii: \bemail\b, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /api/users/{id}" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Mutation: DELETE</failure>
+    </testcase>
+    <testcase name="POST /api/v1/auth/login" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">auth: \bauth\b, Sensitive PUBLIC</failure>
+    </testcase>
+    <testcase name="POST /api/v1/auth/register" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">auth: \bauth\b, Sensitive PUBLIC</failure>
+    </testcase>
+    <testcase name="POST /api/v1/payments/charge" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">financial: \bpayment\b, financial: \bcharge\b</failure>
+    </testcase>
+    <testcase name="POST /api/v1/payments/refund/{transactionId}" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">admin: \badmin\b</failure>
+    </testcase>
+    <testcase name="GET /admin/logs" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /admin/users/{id}" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Mutation: DELETE</failure>
+    </testcase>
+    <testcase name="POST /api/v2/products" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">admin: \badmin\b</failure>
+    </testcase>
+    <testcase name="PATCH /api/v2/products/{id}" classname="ASP.NET">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Mutation: PATCH</failure>
+    </testcase>
+    <testcase name="GET /health" classname="Express">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Sensitive PUBLIC</failure>
+    </testcase>
+    <testcase name="DELETE /api/users/:id" classname="Express">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /admin/reset-db" classname="Express">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY WSGI Server Entry" classname="Gevent-WSGI">
+      <failure message="Risk Level: HIGH">auth: \bauth\b, auth: \bjwt\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY search_database" classname="MCP">
+      <failure message="Risk Level: HIGH">admin: \binternal\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY execute_sql" classname="MCP">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="PUT /api/products/:id" classname="Echo">
+      <failure message="Risk Level: HIGH">auth: \bauth\b, Mutation: PUT, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /api/products/:id" classname="Echo">
+      <failure message="Risk Level: HIGH">auth: \bauth\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE :id" classname="NestJS">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY @RestController" classname="Spring">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /admin" classname="Spring">
+      <failure message="Risk Level: HIGH">admin: \badmin\b</failure>
+    </testcase>
+    <testcase name="ANY /logs" classname="Spring">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /login" classname="Spring">
+      <failure message="Risk Level: HIGH">auth: \bpassword\b, auth: \bauth\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /refresh" classname="Spring">
+      <failure message="Risk Level: HIGH">auth: \btoken\b, auth: \bauth\b, Shadow API</failure>
+    </testcase>
+    <testcase name="ANY /refund/{transactionId}" classname="Spring">
+      <failure message="Risk Level: HIGH">admin: \badmin\b</failure>
+    </testcase>
+    <testcase name="ANY /database/reset" classname="Spring">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="PUT /api/v2/users/{id}" classname="MinimalAPI">
+      <failure message="Risk Level: HIGH">financial: \bpayment\b, Mutation: PUT, Shadow API</failure>
+    </testcase>
+    <testcase name="DELETE /admin/v2/users/{id}" classname="MinimalAPI">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Mutation: DELETE, Shadow API</failure>
+    </testcase>
+    <testcase name="POST /admin/v2/reset" classname="MinimalAPI">
+      <failure message="Risk Level: HIGH">admin: \badmin\b, Shadow API</failure>
+    </testcase>
+    <testcase name="GET /api/users/me" classname="Flask" />
+    <testcase name="POST /api/v1/auth/refresh" classname="ASP.NET" />
+    <testcase name="POST /api/v1/auth/logout" classname="ASP.NET" />
+    <testcase name="GET /api/billing/history" classname="Express" />
+    <testcase name="GET /users/{id}" classname="Custom-Router" />
+    <testcase name="'POST' /api/email/send" classname="Flask" />
+    <testcase name="ANY secret://api-keys" classname="MCP" />
+    <testcase name="POST /auth/login" classname="Echo" />
+    <testcase name="POST /auth/register" classname="Echo" />
+    <testcase name="GET me" classname="NestJS" />
+    <testcase name="POST add" classname="NestJS" />
+    <testcase name="ANY api/users" classname="NestJS" />
+    <testcase name="ANY api/cart" classname="NestJS" />
+    <testcase name="ANY @RestController" classname="Spring" />
+    <testcase name="ANY @RestController" classname="Spring" />
+    <testcase name="ANY /api/v1/auth" classname="Spring" />
+    <testcase name="ANY /api/v1/payments" classname="Spring" />
+    <testcase name="ANY /history" classname="Spring" />
+    <testcase name="ANY /logout" classname="Spring" />
+    <testcase name="POST /api/cart/add" classname="Flask" />
+    <testcase name="GET /api/users" classname="ASP.NET" />
+    <testcase name="GET /api/users/search" classname="ASP.NET" />
+    <testcase name="PUT /api/users/{id}" classname="ASP.NET" />
+    <testcase name="GET /api/v2/products" classname="ASP.NET" />
+    <testcase name="GET /api/v2/products/{id}" classname="ASP.NET" />
+    <testcase name="GET /api/v2/products/{id}/reviews" classname="ASP.NET" />
+    <testcase name="PUT /api/v1/customers/{customerId}" classname="ASP.NET" />
+    <testcase name="GET /api/users/profile" classname="Express" />
+    <testcase name="PUT /api/users/:id" classname="Express" />
+    <testcase name="GET /api/search/products" classname="Express" />
+    <testcase name="POST /api/search/advanced" classname="Express" />
+    <testcase name="ANY /api/v1" classname="FastAPI" />
+    <testcase name="ANY 0.0.0.0" classname="Gevent-WSGI" />
+    <testcase name="ANY OpenAPIRouter" classname="OpenAPI-Custom" />
+    <testcase name="GET /users" classname="Custom-Router" />
+    <testcase name="POST /users" classname="Custom-Router" />
+    <testcase name="ANY Worker --kind" classname="Worker-CLI" />
+    <testcase name="ANY Worker --conf" classname="Worker-CLI" />
+    <testcase name="ANY Worker --worker" classname="Worker-CLI" />
+    <testcase name="CLASS OpenAPIRouter" classname="Custom-Class" />
+    <testcase name="ANY /api/v1/products" classname="Dynamic-Route" />
+    <testcase name="ANY /api/v1/orders" classname="Dynamic-Route" />
+    <testcase name="ANY /api/v1/search" classname="Dynamic-Route" />
+    <testcase name="PUT /api/users/&lt;int:user_id&gt;" classname="Flask" />
+    <testcase name="DELETE /api/users/&lt;int:user_id&gt;" classname="Flask" />
+    <testcase name="ANY calculate_sum" classname="MCP" />
+    <testcase name="ANY list_tools" classname="MCP" />
+    <testcase name="ANY call_tool" classname="MCP" />
+    <testcase name="ANY get_weather" classname="MCP" />
+    <testcase name="ANY memory://cache/{key}" classname="MCP" />
+    <testcase name="ANY list_resources" classname="MCP" />
+    <testcase name="ANY file:///config/settings.json" classname="MCP" />
+    <testcase name="ANY db://users/schema" classname="MCP" />
+    <testcase name="GET /api/products" classname="Echo" />
+    <testcase name="GET /api/products/:id" classname="Echo" />
+    <testcase name="POST /api/products" classname="Echo" />
+    <testcase name="GET /api/orders" classname="Fiber" />
+    <testcase name="GET /api/orders/:id" classname="Fiber" />
+    <testcase name="POST /api/orders" classname="Fiber" />
+    <testcase name="PUT /api/orders/:id" classname="Fiber" />
+    <testcase name="DELETE /api/orders/:id" classname="Fiber" />
+    <testcase name="GET health" classname="NestJS" />
+    <testcase name="GET version" classname="NestJS" />
+    <testcase name="GET history" classname="NestJS" />
+    <testcase name="POST refund/:id" classname="NestJS" />
+    <testcase name="POST database/reset" classname="NestJS" />
+    <testcase name="ANY public" classname="NestJS" />
+    <testcase name="ANY @RestController" classname="Spring" />
+    <testcase name="ANY /api/v1/users" classname="Spring" />
+    <testcase name="ANY /products" classname="Spring" />
+    <testcase name="ANY GET" classname="Spring" />
+    <testcase name="ANY /search" classname="Spring" />
+    <testcase name="ANY /balance" classname="Spring" />
+    <testcase name="ANY GET" classname="Spring" />
+    <testcase name="ANY /{id}" classname="Spring" />
+    <testcase name="ANY /new" classname="Spring" />
+    <testcase name="ANY POST" classname="Spring" />
+    <testcase name="ANY POST" classname="Spring" />
+    <testcase name="GET /api/v2/users" classname="MinimalAPI" />
+    <testcase name="GET /api/v2/users/{id}" classname="MinimalAPI" />
+    <testcase name="POST /api/v2/users" classname="MinimalAPI" />
+    <testcase name="ANY /hubs/notifications" classname="SignalR" />
+    <testcase name="ANY GreeterService" classname="gRPC" />
+    <testcase name="ANY OrderService" classname="gRPC" />
+    <testcase name="GET /api/public/products" classname="Flask" />
+    <testcase name="POST /api/users" classname="ASP.NET" />
+    <testcase name="GET /api/v1/payments/history" classname="ASP.NET" />
+    <testcase name="GET /api/v1/payments/balance" classname="ASP.NET" />
+    <testcase name="GET /api/v1/orders" classname="ASP.NET" />
+    <testcase name="GET /api/v1/orders/{id}" classname="ASP.NET" />
+    <testcase name="POST /api/v1/orders" classname="ASP.NET" />
+    <testcase name="POST /api/v1/orders/{id}/cancel" classname="ASP.NET" />
+    <testcase name="GET /api/v1/customers" classname="ASP.NET" />
+    <testcase name="GET /api/v1/customers/{customerId}" classname="ASP.NET" />
+    <testcase name="GET /api/v1/customers/{customerId}/orders" classname="ASP.NET" />
+    <testcase name="GET /api/public/info" classname="Express" />
+    <testcase name="ANY /api/v1/health" classname="Dynamic-Route" />
+    <testcase name="ANY /api/v1/status" classname="Dynamic-Route" />
+    <testcase name="ANY /api/v1/webhooks" classname="Dynamic-Route" />
+    <testcase name="ANY /health" classname="Flask" />
+    <testcase name="ANY /api/public/docs" classname="Flask" />
+    <testcase name="'POST' /api/notifications/send" classname="Flask" />
+    <testcase name="GET /api/users/me" classname="Flask" />
+    <testcase name="ANY /health" classname="net/http" />
+    <testcase name="GET /health" classname="Gin" />
+    <testcase name="GET /health" classname="Echo" />
+    <testcase name="GET /health" classname="Fiber" />
+    <testcase name="GET /api/v2/health" classname="MinimalAPI" />
+    <testcase name="GET /api/v2/version" classname="MinimalAPI" />
+    <testcase name="ANY /health" classname="ASP.NET" />
+    <testcase name="ANY /health/ready" classname="ASP.NET" />
+    <testcase name="ANY /health/live" classname="ASP.NET" />
+    <testcase name="ANY /hubs/chat" classname="SignalR" />
+  </testsuite>
+  <testsuite name="Policy Compliance" tests="41" failures="41">
+    <testcase name="no-shadow-mutation: /api/auth/login" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/auth/register" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/payments/charge" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /admin/users/{user_id}" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /internal/debug/reset" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/cart/add" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/checkout/complete" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /admin/database/reset" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/auth/login" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/auth/register" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/users/:id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/users/:id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/payments/process" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /admin/reset-db" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/search/advanced" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /users" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /users/{id}" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /payments/charge" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /admin/users/{id}" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /internal/reset" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/products" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/products/:id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/products/:id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /auth/login" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /auth/register" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/orders" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/orders/:id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/orders/:id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: login" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: register" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: forgot-password" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: :id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: :id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: refund/:id" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: database/reset" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/v2/users" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/v2/users/{id}" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/v2/users/{id}" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /api/v2/payments/charge" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /admin/v2/users/{id}" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+    <testcase name="no-shadow-mutation: /admin/v2/reset" classname="SecurityPolicy">
+      <failure message="HIGH">Mutation endpoints must have explicit authentication</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

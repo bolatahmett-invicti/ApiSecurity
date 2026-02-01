@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 """
-Universal Polyglot API Scanner v3.1 - WITH SPEC SCANNING
-==========================================================
-A unified, pattern-based API discovery tool supporting multiple languages,
-frameworks, and now STATIC SPECIFICATION FILES.
+Universal Polyglot API Scanner v4.0 - PRODUCTION READY
+=======================================================
+Enterprise-grade, pattern-based API discovery tool supporting multiple languages,
+frameworks, and static specification files.
 
-Supported Languages:
-  - Python (Legacy/Custom + Modern Frameworks + MCP)
-  - .NET/C# (Controllers + Minimal API + Config)
-  - Go/Golang (Standard lib + Gin + Echo + Fiber)
-  - Java (Spring Boot annotations)
-  - JavaScript/TypeScript (Express + Fastify + NestJS + MCP)
-  - OpenAPI/Swagger (.json, .yaml, .yml)
-  - GraphQL Schema (.graphql, .gql)
+Features:
+  - Multi-language support (Python, C#, Go, Java, JS/TS)
+  - Static spec parsing (OpenAPI, GraphQL)
+  - Parallel processing for large codebases
+  - Incremental scanning with baseline support
+  - Policy engine for compliance rules
+  - Multiple output formats (JSON, SARIF, JUnit)
+  - Audit logging and metrics
+  - CI/CD integration ready
 
 Author: Principal Security Engineer
 Usage: python main.py [OPTIONS] <path>
@@ -25,12 +26,23 @@ import json
 import argparse
 import tempfile
 import shutil
+import logging
+import hashlib
+import time
+import uuid
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Dict, Any, Set, Tuple, Optional, NamedTuple
+from typing import List, Dict, Any, Set, Tuple, Optional, NamedTuple, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from threading import Lock
+
+# =============================================================================
+# VERSION
+# =============================================================================
+__version__ = "4.0.0"
 
 # =============================================================================
 # DEPENDENCY CHECK
@@ -62,9 +74,138 @@ load_dotenv()
 console = Console()
 
 # =============================================================================
+# LOGGING CONFIGURATION
+# =============================================================================
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
+    """Configure structured logging for the scanner."""
+    logger = logging.getLogger("api_scanner")
+    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+    
+    # Clear existing handlers
+    logger.handlers.clear()
+    
+    # Console handler with structured format
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.WARNING)  # Only warnings and errors to console
+    console_formatter = logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    
+    # File handler if specified
+    if log_file:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter(
+            '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "message": "%(message)s"}',
+            datefmt='%Y-%m-%dT%H:%M:%S'
+        )
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+    
+    return logger
+
+logger = setup_logging()
+
+# =============================================================================
+# CONFIGURATION SYSTEM
+# =============================================================================
+@dataclass
+class ScannerConfig:
+    """
+    Scanner configuration with sensible defaults.
+    Can be loaded from environment variables, config file, or CLI args.
+    """
+    # Scanning options
+    ignore_dirs: Set[str] = field(default_factory=set)
+    max_file_size_mb: int = 10
+    timeout_seconds: int = 300
+    parallel_workers: int = 4
+    enable_heuristics: bool = True
+    
+    # Risk thresholds
+    risk_threshold: str = "LOW"  # Minimum risk level to report
+    fail_on_critical: bool = False  # Exit with error if critical findings
+    
+    # Output options
+    output_format: str = "json"  # json, sarif, junit
+    verbose: bool = False
+    
+    # Incremental scanning
+    enable_incremental: bool = False
+    baseline_file: str = ".api-scan-baseline.json"
+    
+    # Policy
+    policy_file: Optional[str] = None
+    
+    # Audit & Metrics
+    audit_log_file: Optional[str] = None
+    metrics_enabled: bool = False
+    
+    def __post_init__(self):
+        """Apply default ignore dirs if not set."""
+        if not self.ignore_dirs:
+            self.ignore_dirs = DEFAULT_IGNORE_DIRS.copy()
+    
+    @classmethod
+    def from_env(cls) -> "ScannerConfig":
+        """Load configuration from environment variables."""
+        return cls(
+            max_file_size_mb=int(os.getenv("SCANNER_MAX_FILE_SIZE", 10)),
+            timeout_seconds=int(os.getenv("SCANNER_TIMEOUT", 300)),
+            parallel_workers=int(os.getenv("SCANNER_WORKERS", 4)),
+            enable_heuristics=os.getenv("SCANNER_HEURISTICS", "true").lower() == "true",
+            risk_threshold=os.getenv("SCANNER_RISK_THRESHOLD", "LOW"),
+            fail_on_critical=os.getenv("SCANNER_FAIL_ON_CRITICAL", "false").lower() == "true",
+            output_format=os.getenv("SCANNER_OUTPUT_FORMAT", "json"),
+            verbose=os.getenv("SCANNER_VERBOSE", "false").lower() == "true",
+            enable_incremental=os.getenv("SCANNER_INCREMENTAL", "false").lower() == "true",
+            baseline_file=os.getenv("SCANNER_BASELINE_FILE", ".api-scan-baseline.json"),
+            policy_file=os.getenv("SCANNER_POLICY_FILE"),
+            audit_log_file=os.getenv("SCANNER_AUDIT_LOG"),
+            metrics_enabled=os.getenv("SCANNER_METRICS", "false").lower() == "true",
+        )
+    
+    @classmethod
+    def from_file(cls, path: str) -> "ScannerConfig":
+        """Load configuration from JSON or YAML file."""
+        with open(path, 'r') as f:
+            if path.endswith(('.yaml', '.yml')):
+                try:
+                    import yaml
+                    data = yaml.safe_load(f)
+                except ImportError:
+                    raise RuntimeError("PyYAML required for YAML config files: pip install pyyaml")
+            else:
+                data = json.load(f)
+        
+        # Convert ignore_dirs list to set if present
+        if 'ignore_dirs' in data and isinstance(data['ignore_dirs'], list):
+            data['ignore_dirs'] = set(data['ignore_dirs'])
+        
+        return cls(**data)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert config to dictionary."""
+        return {
+            "max_file_size_mb": self.max_file_size_mb,
+            "timeout_seconds": self.timeout_seconds,
+            "parallel_workers": self.parallel_workers,
+            "enable_heuristics": self.enable_heuristics,
+            "risk_threshold": self.risk_threshold,
+            "fail_on_critical": self.fail_on_critical,
+            "output_format": self.output_format,
+            "enable_incremental": self.enable_incremental,
+            "policy_file": self.policy_file,
+            "metrics_enabled": self.metrics_enabled,
+        }
+
+# =============================================================================
 # CONFIGURATION - STRICT IGNORE PATTERNS
 # =============================================================================
-IGNORE_DIRS: Set[str] = {
+DEFAULT_IGNORE_DIRS: Set[str] = {
     # Version control
     ".git", ".svn", ".hg", ".bzr",
     # Dependencies
@@ -86,6 +227,9 @@ IGNORE_DIRS: Set[str] = {
     # Docs
     "docs", "doc", "_site",
 }
+
+# Alias for backward compatibility
+IGNORE_DIRS = DEFAULT_IGNORE_DIRS
 
 # =============================================================================
 # DATA MODELS
@@ -1260,16 +1404,732 @@ class Enricher:
         return ep
 
 # =============================================================================
-# SCANNER ORCHESTRATOR
+# POLICY ENGINE - Enterprise Compliance
+# =============================================================================
+@dataclass
+class SecurityPolicy:
+    """Security policy rule definition."""
+    name: str
+    description: str
+    severity: RiskLevel
+    condition: str  # Python expression evaluated against endpoint
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "description": self.description,
+            "severity": self.severity.value,
+            "condition": self.condition,
+        }
+
+
+class PolicyEngine:
+    """
+    Evaluate endpoints against security policies for compliance.
+    Supports custom policies loaded from YAML/JSON files.
+    """
+    
+    DEFAULT_POLICIES = [
+        SecurityPolicy(
+            name="no-public-admin",
+            description="Admin endpoints must not be public",
+            severity=RiskLevel.CRITICAL,
+            condition="'admin' in ep.route.lower() and ep.auth_status == AuthStatus.PUBLIC"
+        ),
+        SecurityPolicy(
+            name="no-shadow-mutation",
+            description="Mutation endpoints must have explicit authentication",
+            severity=RiskLevel.HIGH,
+            condition="ep.method in ['POST', 'PUT', 'DELETE', 'PATCH'] and ep.auth_status == AuthStatus.UNKNOWN"
+        ),
+        SecurityPolicy(
+            name="no-sensitive-public",
+            description="Sensitive data endpoints must be private",
+            severity=RiskLevel.CRITICAL,
+            condition="any(kw in ep.route.lower() for kw in ['password', 'token', 'secret', 'key', 'credential']) and ep.auth_status == AuthStatus.PUBLIC"
+        ),
+        SecurityPolicy(
+            name="no-debug-endpoints",
+            description="Debug endpoints should not exist in production",
+            severity=RiskLevel.HIGH,
+            condition="any(kw in ep.route.lower() for kw in ['debug', 'test', 'swagger', 'graphql-playground'])"
+        ),
+        SecurityPolicy(
+            name="auth-coverage",
+            description="All non-health endpoints should have auth info",
+            severity=RiskLevel.MEDIUM,
+            condition="ep.auth_status == AuthStatus.UNKNOWN and not any(kw in ep.route.lower() for kw in ['health', 'ping', 'ready', 'live', 'metrics'])"
+        ),
+    ]
+    
+    def __init__(self, policies: Optional[List[SecurityPolicy]] = None):
+        self.policies = policies if policies is not None else self.DEFAULT_POLICIES
+        self._violations: List[Dict[str, Any]] = []
+    
+    def evaluate(self, endpoints: List[Endpoint]) -> List[Dict[str, Any]]:
+        """
+        Evaluate all endpoints against defined policies.
+        Returns list of policy violations.
+        """
+        self._violations = []
+        
+        for ep in endpoints:
+            for policy in self.policies:
+                try:
+                    # Create safe evaluation context
+                    context = {
+                        "ep": ep,
+                        "AuthStatus": AuthStatus,
+                        "RiskLevel": RiskLevel,
+                        "any": any,
+                        "all": all,
+                        "len": len,
+                    }
+                    
+                    if eval(policy.condition, {"__builtins__": {}}, context):
+                        self._violations.append({
+                            "policy": policy.name,
+                            "description": policy.description,
+                            "severity": policy.severity.value,
+                            "endpoint": {
+                                "route": ep.route,
+                                "method": ep.method,
+                                "file": ep.file_path,
+                                "line": ep.line_number,
+                                "auth_status": ep.auth_status.value,
+                            }
+                        })
+                        logger.warning(f"Policy violation: {policy.name} - {ep.method} {ep.route}")
+                except Exception as e:
+                    logger.debug(f"Policy evaluation error for {policy.name}: {e}")
+                    continue
+        
+        return self._violations
+    
+    @property
+    def violations(self) -> List[Dict[str, Any]]:
+        return self._violations
+    
+    @property
+    def critical_count(self) -> int:
+        return len([v for v in self._violations if v["severity"] == "CRITICAL"])
+    
+    @property
+    def high_count(self) -> int:
+        return len([v for v in self._violations if v["severity"] == "HIGH"])
+    
+    @classmethod
+    def from_file(cls, path: str) -> "PolicyEngine":
+        """Load policies from YAML or JSON file."""
+        with open(path, 'r') as f:
+            if path.endswith(('.yaml', '.yml')):
+                try:
+                    import yaml
+                    data = yaml.safe_load(f)
+                except ImportError:
+                    raise RuntimeError("PyYAML required for policy files: pip install pyyaml")
+            else:
+                data = json.load(f)
+        
+        policies = []
+        for p in data.get("policies", []):
+            severity = RiskLevel[p.get("severity", "MEDIUM").upper()]
+            policies.append(SecurityPolicy(
+                name=p["name"],
+                description=p.get("description", ""),
+                severity=severity,
+                condition=p["condition"],
+            ))
+        
+        return cls(policies)
+
+# =============================================================================
+# OUTPUT FORMATTERS - CI/CD Integration
+# =============================================================================
+class OutputFormatter(ABC):
+    """Base class for output formatters."""
+    
+    @abstractmethod
+    def format(self, endpoints: List[Endpoint], summary: Dict[str, Any], 
+               violations: Optional[List[Dict]] = None) -> str:
+        """Format scan results."""
+        pass
+    
+    @abstractmethod
+    def file_extension(self) -> str:
+        """Return file extension for this format."""
+        pass
+
+
+class SARIFFormatter(OutputFormatter):
+    """
+    SARIF format for GitHub Security tab and other SAST tools.
+    Static Analysis Results Interchange Format (SARIF) v2.1.0
+    """
+    
+    def format(self, endpoints: List[Endpoint], summary: Dict[str, Any],
+               violations: Optional[List[Dict]] = None) -> str:
+        sarif = {
+            "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+            "version": "2.1.0",
+            "runs": [{
+                "tool": {
+                    "driver": {
+                        "name": "Universal Polyglot API Scanner",
+                        "version": __version__,
+                        "informationUri": "https://github.com/your-org/api-scanner",
+                        "rules": self._generate_rules()
+                    }
+                },
+                "results": self._generate_results(endpoints, violations or []),
+                "invocations": [{
+                    "executionSuccessful": True,
+                    "endTimeUtc": datetime.now(tz=None).isoformat() + "Z"
+                }]
+            }]
+        }
+        return json.dumps(sarif, indent=2)
+    
+    def _generate_rules(self) -> List[Dict[str, Any]]:
+        """Generate SARIF rule definitions."""
+        return [
+            {
+                "id": "API001",
+                "name": "ShadowAPI",
+                "shortDescription": {"text": "Shadow API detected without authentication info"},
+                "fullDescription": {"text": "An API endpoint was discovered that lacks explicit authentication configuration."},
+                "defaultConfiguration": {"level": "warning"},
+                "helpUri": "https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/"
+            },
+            {
+                "id": "API002",
+                "name": "HighRiskEndpoint",
+                "shortDescription": {"text": "High risk endpoint detected"},
+                "fullDescription": {"text": "An API endpoint with critical or high risk characteristics was detected."},
+                "defaultConfiguration": {"level": "error"},
+                "helpUri": "https://owasp.org/API-Security/"
+            },
+            {
+                "id": "API003",
+                "name": "PublicSensitiveEndpoint",
+                "shortDescription": {"text": "Sensitive endpoint is publicly accessible"},
+                "fullDescription": {"text": "An endpoint handling sensitive data is marked as public."},
+                "defaultConfiguration": {"level": "error"},
+                "helpUri": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+            },
+            {
+                "id": "API004",
+                "name": "PolicyViolation",
+                "shortDescription": {"text": "Security policy violation"},
+                "fullDescription": {"text": "The endpoint violates a defined security policy."},
+                "defaultConfiguration": {"level": "error"},
+                "helpUri": "https://owasp.org/API-Security/"
+            },
+        ]
+    
+    def _generate_results(self, endpoints: List[Endpoint], violations: List[Dict]) -> List[Dict]:
+        """Generate SARIF results from endpoints and violations."""
+        results = []
+        
+        # High risk endpoints
+        for ep in endpoints:
+            if ep.risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
+                results.append({
+                    "ruleId": "API002",
+                    "level": "error" if ep.risk_level == RiskLevel.CRITICAL else "warning",
+                    "message": {
+                        "text": f"High risk endpoint: {ep.method} {ep.route}. Reasons: {', '.join(ep.risk_reasons)}"
+                    },
+                    "locations": [{
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": ep.file_path.replace("\\", "/")},
+                            "region": {"startLine": ep.line_number}
+                        }
+                    }],
+                    "properties": {
+                        "framework": ep.framework,
+                        "authStatus": ep.auth_status.value,
+                        "riskReasons": ep.risk_reasons
+                    }
+                })
+            
+            # Shadow APIs
+            if ep.auth_status == AuthStatus.UNKNOWN:
+                results.append({
+                    "ruleId": "API001",
+                    "level": "warning",
+                    "message": {
+                        "text": f"Shadow API: {ep.method} {ep.route} has no explicit authentication configuration"
+                    },
+                    "locations": [{
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": ep.file_path.replace("\\", "/")},
+                            "region": {"startLine": ep.line_number}
+                        }
+                    }]
+                })
+        
+        # Policy violations
+        for violation in violations:
+            results.append({
+                "ruleId": "API004",
+                "level": "error" if violation["severity"] == "CRITICAL" else "warning",
+                "message": {
+                    "text": f"Policy '{violation['policy']}': {violation['description']}"
+                },
+                "locations": [{
+                    "physicalLocation": {
+                        "artifactLocation": {"uri": violation["endpoint"]["file"].replace("\\", "/")},
+                        "region": {"startLine": violation["endpoint"]["line"]}
+                    }
+                }]
+            })
+        
+        return results
+    
+    def file_extension(self) -> str:
+        return ".sarif"
+
+
+class JUnitFormatter(OutputFormatter):
+    """JUnit XML format for CI/CD test reporting."""
+    
+    def format(self, endpoints: List[Endpoint], summary: Dict[str, Any],
+               violations: Optional[List[Dict]] = None) -> str:
+        violations = violations or []
+        critical = [e for e in endpoints if e.risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]]
+        
+        total_tests = len(endpoints)
+        failures = len(critical) + len(violations)
+        
+        xml = f'''<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="API Security Scan" tests="{total_tests}" failures="{failures}" timestamp="{datetime.now().isoformat()}">
+  <testsuite name="Endpoint Risk Analysis" tests="{len(endpoints)}" failures="{len(critical)}">
+'''
+        
+        for ep in endpoints:
+            test_name = f"{ep.method} {ep.route}".replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
+            classname = ep.framework.replace('"', '&quot;')
+            
+            if ep.risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
+                failure_msg = f"Risk Level: {ep.risk_level.value}"
+                failure_detail = ', '.join(ep.risk_reasons).replace('"', '&quot;').replace('<', '&lt;')
+                xml += f'''    <testcase name="{test_name}" classname="{classname}">
+      <failure message="{failure_msg}">{failure_detail}</failure>
+    </testcase>
+'''
+            else:
+                xml += f'''    <testcase name="{test_name}" classname="{classname}" />
+'''
+        
+        xml += '''  </testsuite>
+'''
+        
+        if violations:
+            xml += f'''  <testsuite name="Policy Compliance" tests="{len(violations)}" failures="{len(violations)}">
+'''
+            for v in violations:
+                policy_name = v["policy"].replace('"', '&quot;')
+                route = v["endpoint"]["route"].replace('"', '&quot;').replace('<', '&lt;').replace('>', '&gt;')
+                xml += f'''    <testcase name="{policy_name}: {route}" classname="SecurityPolicy">
+      <failure message="{v['severity']}">{v['description'].replace('"', '&quot;')}</failure>
+    </testcase>
+'''
+            xml += '''  </testsuite>
+'''
+        
+        xml += '''</testsuites>'''
+        return xml
+    
+    def file_extension(self) -> str:
+        return ".xml"
+
+
+# =============================================================================
+# INCREMENTAL SCANNING - CI/CD Optimization
+# =============================================================================
+class IncrementalScanner:
+    """
+    Scan only changed files since last scan for CI/CD efficiency.
+    Maintains a baseline of file hashes.
+    """
+    
+    def __init__(self, target: str, baseline_file: str = ".api-scan-baseline.json"):
+        self.target = Path(target)
+        self.baseline_file = Path(baseline_file)
+        self.baseline = self._load_baseline()
+        self._current_hashes: Dict[str, str] = {}
+    
+    def _load_baseline(self) -> Dict[str, Any]:
+        """Load baseline from previous scan."""
+        if self.baseline_file.exists():
+            try:
+                with open(self.baseline_file, 'r') as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, IOError) as e:
+                logger.warning(f"Could not load baseline: {e}")
+        return {"files": {}, "endpoints": [], "timestamp": None}
+    
+    def _hash_file(self, path: Path) -> str:
+        """Calculate MD5 hash of file content."""
+        try:
+            return hashlib.md5(path.read_bytes()).hexdigest()
+        except IOError:
+            return ""
+    
+    def get_changed_files(self, all_files: List[Path]) -> Tuple[List[Path], List[Path]]:
+        """
+        Identify new or modified files.
+        Returns: (changed_files, unchanged_files)
+        """
+        changed = []
+        unchanged = []
+        previous_hashes = self.baseline.get("files", {})
+        
+        for fp in all_files:
+            current_hash = self._hash_file(fp)
+            self._current_hashes[str(fp)] = current_hash
+            
+            if str(fp) not in previous_hashes or previous_hashes[str(fp)] != current_hash:
+                changed.append(fp)
+            else:
+                unchanged.append(fp)
+        
+        logger.info(f"Incremental scan: {len(changed)} changed, {len(unchanged)} unchanged")
+        return changed, unchanged
+    
+    def get_cached_endpoints(self, unchanged_files: List[Path]) -> List[Endpoint]:
+        """Get endpoints from cache for unchanged files."""
+        cached = []
+        cached_eps = {ep["file_path"]: ep for ep in self.baseline.get("endpoints", [])}
+        
+        for fp in unchanged_files:
+            if str(fp) in cached_eps:
+                ep_data = cached_eps[str(fp)]
+                # Reconstruct endpoint from cached data
+                cached.append(Endpoint(
+                    file_path=ep_data["file_path"],
+                    line_number=ep_data["line_number"],
+                    language=Language(ep_data["language"]),
+                    framework=ep_data["framework"],
+                    kind=EndpointKind(ep_data["kind"]),
+                    method=ep_data["method"],
+                    route=ep_data["route"],
+                    raw_match=ep_data.get("raw_match", ""),
+                    risk_level=RiskLevel(ep_data["risk_level"]),
+                    auth_status=AuthStatus(ep_data["auth_status"]),
+                    risk_reasons=ep_data.get("risk_reasons", []),
+                ))
+        
+        return cached
+    
+    def save_baseline(self, endpoints: List[Endpoint]):
+        """Save current state as new baseline."""
+        baseline = {
+            "timestamp": datetime.now().isoformat(),
+            "files": self._current_hashes,
+            "endpoints": [ep.to_dict() for ep in endpoints],
+        }
+        
+        with open(self.baseline_file, 'w') as f:
+            json.dump(baseline, f, indent=2)
+        
+        logger.info(f"Baseline saved: {len(endpoints)} endpoints")
+
+
+# =============================================================================
+# API CHANGE DETECTION
+# =============================================================================
+@dataclass
+class APIChange:
+    """Represents a change between two API scans."""
+    change_type: str  # ADDED, REMOVED, MODIFIED
+    endpoint: Endpoint
+    previous_endpoint: Optional[Endpoint] = None
+    breaking: bool = False
+    reason: str = ""
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "change_type": self.change_type,
+            "breaking": self.breaking,
+            "reason": self.reason,
+            "endpoint": self.endpoint.to_dict(),
+            "previous": self.previous_endpoint.to_dict() if self.previous_endpoint else None,
+        }
+
+
+class APIChangeDetector:
+    """
+    Detect API changes between scans for breaking change analysis.
+    Useful for PR reviews and release gates.
+    """
+    
+    BREAKING_CHANGE_REASONS = {
+        "route_removed": "Endpoint removed - may break clients",
+        "method_removed": "HTTP method removed from endpoint",
+        "auth_added": "Authentication requirement added (PUBLIC -> PRIVATE)",
+        "route_changed": "Route pattern changed",
+    }
+    
+    def compare(self, previous: List[Endpoint], current: List[Endpoint]) -> List[APIChange]:
+        """
+        Compare two scan results and identify changes.
+        
+        Args:
+            previous: Endpoints from previous scan (baseline)
+            current: Endpoints from current scan
+        
+        Returns:
+            List of API changes with breaking change indicators
+        """
+        changes = []
+        
+        # Create lookup maps
+        prev_map: Dict[Tuple[str, str], Endpoint] = {
+            (e.route, e.method): e for e in previous
+        }
+        curr_map: Dict[Tuple[str, str], Endpoint] = {
+            (e.route, e.method): e for e in current
+        }
+        
+        # Detect removed endpoints (BREAKING)
+        for key, ep in prev_map.items():
+            if key not in curr_map:
+                changes.append(APIChange(
+                    change_type="REMOVED",
+                    endpoint=ep,
+                    breaking=True,
+                    reason=self.BREAKING_CHANGE_REASONS["route_removed"]
+                ))
+        
+        # Detect added endpoints (non-breaking)
+        for key, ep in curr_map.items():
+            if key not in prev_map:
+                changes.append(APIChange(
+                    change_type="ADDED",
+                    endpoint=ep,
+                    breaking=False,
+                    reason="New endpoint added"
+                ))
+        
+        # Detect modified endpoints
+        for key in prev_map.keys() & curr_map.keys():
+            prev_ep = prev_map[key]
+            curr_ep = curr_map[key]
+            
+            # Auth status change: PUBLIC -> PRIVATE is breaking
+            if prev_ep.auth_status == AuthStatus.PUBLIC and curr_ep.auth_status == AuthStatus.PRIVATE:
+                changes.append(APIChange(
+                    change_type="MODIFIED",
+                    endpoint=curr_ep,
+                    previous_endpoint=prev_ep,
+                    breaking=True,
+                    reason=self.BREAKING_CHANGE_REASONS["auth_added"]
+                ))
+            # Auth status change: PRIVATE -> PUBLIC is not breaking but notable
+            elif prev_ep.auth_status == AuthStatus.PRIVATE and curr_ep.auth_status == AuthStatus.PUBLIC:
+                changes.append(APIChange(
+                    change_type="MODIFIED",
+                    endpoint=curr_ep,
+                    previous_endpoint=prev_ep,
+                    breaking=False,
+                    reason="Authentication requirement removed (security concern)"
+                ))
+        
+        return changes
+    
+    def has_breaking_changes(self, changes: List[APIChange]) -> bool:
+        """Check if any changes are breaking."""
+        return any(c.breaking for c in changes)
+    
+    def summary(self, changes: List[APIChange]) -> Dict[str, int]:
+        """Generate change summary."""
+        return {
+            "total": len(changes),
+            "added": len([c for c in changes if c.change_type == "ADDED"]),
+            "removed": len([c for c in changes if c.change_type == "REMOVED"]),
+            "modified": len([c for c in changes if c.change_type == "MODIFIED"]),
+            "breaking": len([c for c in changes if c.breaking]),
+        }
+
+
+# =============================================================================
+# AUDIT LOGGING & METRICS - Enterprise Compliance
+# =============================================================================
+class AuditLogger:
+    """
+    Audit logging for compliance and forensics.
+    Produces JSON-formatted logs suitable for SIEM ingestion.
+    """
+    
+    def __init__(self, log_file: Optional[str] = None):
+        self.log_file = log_file
+        self._audit_logger = logging.getLogger("api_scanner.audit")
+        self._audit_logger.setLevel(logging.INFO)
+        self._audit_logger.handlers.clear()
+        
+        if log_file:
+            handler = logging.FileHandler(log_file)
+            handler.setFormatter(logging.Formatter('%(message)s'))
+            self._audit_logger.addHandler(handler)
+    
+    def _log(self, event: Dict[str, Any]):
+        """Write audit event."""
+        event["timestamp"] = datetime.utcnow().isoformat() + "Z"
+        if self.log_file:
+            self._audit_logger.info(json.dumps(event))
+    
+    def log_scan_started(self, target: str, user: str, config: Dict[str, Any], scan_id: str):
+        """Log scan initiation."""
+        self._log({
+            "event_type": "SCAN_STARTED",
+            "scan_id": scan_id,
+            "target": target,
+            "user": user,
+            "config": config,
+        })
+    
+    def log_scan_completed(self, scan_id: str, summary: Dict[str, Any], duration_seconds: float):
+        """Log scan completion."""
+        self._log({
+            "event_type": "SCAN_COMPLETED",
+            "scan_id": scan_id,
+            "summary": summary,
+            "duration_seconds": duration_seconds,
+        })
+    
+    def log_critical_finding(self, scan_id: str, endpoint: Endpoint, 
+                            policy_violation: Optional[str] = None):
+        """Log critical security finding."""
+        self._log({
+            "event_type": "CRITICAL_FINDING",
+            "scan_id": scan_id,
+            "endpoint": endpoint.to_dict(),
+            "policy_violation": policy_violation,
+        })
+    
+    def log_policy_violation(self, scan_id: str, violation: Dict[str, Any]):
+        """Log policy violation."""
+        self._log({
+            "event_type": "POLICY_VIOLATION",
+            "scan_id": scan_id,
+            "violation": violation,
+        })
+
+
+@dataclass
+class ScanMetrics:
+    """
+    Metrics for monitoring and observability.
+    Exports to Prometheus and Datadog formats.
+    """
+    scan_id: str
+    target: str
+    start_time: datetime
+    end_time: Optional[datetime] = None
+    files_scanned: int = 0
+    files_errored: int = 0
+    endpoints_found: int = 0
+    critical_findings: int = 0
+    high_findings: int = 0
+    shadow_apis: int = 0
+    policy_violations: int = 0
+    duration_seconds: float = 0.0
+    
+    def finalize(self, summary: Dict[str, Any], violations: int = 0):
+        """Finalize metrics after scan."""
+        self.end_time = datetime.now()
+        self.duration_seconds = (self.end_time - self.start_time).total_seconds()
+        self.files_scanned = summary.get("files_scanned", 0)
+        self.endpoints_found = summary.get("total", 0)
+        self.critical_findings = summary.get("by_risk", {}).get("CRITICAL", 0)
+        self.high_findings = summary.get("by_risk", {}).get("HIGH", 0)
+        self.shadow_apis = summary.get("shadow_apis", 0)
+        self.policy_violations = violations
+    
+    def to_prometheus(self) -> str:
+        """Export as Prometheus metrics format."""
+        labels = f'target="{self.target}",scan_id="{self.scan_id}"'
+        return f'''# HELP api_scan_files_total Total files scanned
+# TYPE api_scan_files_total counter
+api_scan_files_total{{{labels}}} {self.files_scanned}
+
+# HELP api_scan_endpoints_total Total endpoints discovered
+# TYPE api_scan_endpoints_total counter
+api_scan_endpoints_total{{{labels}}} {self.endpoints_found}
+
+# HELP api_scan_critical_findings Critical security findings
+# TYPE api_scan_critical_findings gauge
+api_scan_critical_findings{{{labels}}} {self.critical_findings}
+
+# HELP api_scan_high_findings High severity findings
+# TYPE api_scan_high_findings gauge
+api_scan_high_findings{{{labels}}} {self.high_findings}
+
+# HELP api_scan_shadow_apis Shadow APIs without auth info
+# TYPE api_scan_shadow_apis gauge
+api_scan_shadow_apis{{{labels}}} {self.shadow_apis}
+
+# HELP api_scan_policy_violations Policy violations count
+# TYPE api_scan_policy_violations gauge
+api_scan_policy_violations{{{labels}}} {self.policy_violations}
+
+# HELP api_scan_duration_seconds Scan duration in seconds
+# TYPE api_scan_duration_seconds gauge
+api_scan_duration_seconds{{{labels}}} {self.duration_seconds}
+'''
+    
+    def to_datadog(self) -> List[Dict[str, Any]]:
+        """Export as Datadog metrics format."""
+        timestamp = int(self.end_time.timestamp() if self.end_time else time.time())
+        tags = [f"target:{self.target}", f"scan_id:{self.scan_id}"]
+        
+        return [
+            {"metric": "api_scan.files_scanned", "points": [[timestamp, self.files_scanned]], "tags": tags, "type": "count"},
+            {"metric": "api_scan.endpoints_found", "points": [[timestamp, self.endpoints_found]], "tags": tags, "type": "count"},
+            {"metric": "api_scan.critical_findings", "points": [[timestamp, self.critical_findings]], "tags": tags, "type": "gauge"},
+            {"metric": "api_scan.high_findings", "points": [[timestamp, self.high_findings]], "tags": tags, "type": "gauge"},
+            {"metric": "api_scan.shadow_apis", "points": [[timestamp, self.shadow_apis]], "tags": tags, "type": "gauge"},
+            {"metric": "api_scan.policy_violations", "points": [[timestamp, self.policy_violations]], "tags": tags, "type": "gauge"},
+            {"metric": "api_scan.duration_seconds", "points": [[timestamp, self.duration_seconds]], "tags": tags, "type": "gauge"},
+        ]
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON export."""
+        return {
+            "scan_id": self.scan_id,
+            "target": self.target,
+            "start_time": self.start_time.isoformat(),
+            "end_time": self.end_time.isoformat() if self.end_time else None,
+            "duration_seconds": self.duration_seconds,
+            "files_scanned": self.files_scanned,
+            "files_errored": self.files_errored,
+            "endpoints_found": self.endpoints_found,
+            "critical_findings": self.critical_findings,
+            "high_findings": self.high_findings,
+            "shadow_apis": self.shadow_apis,
+            "policy_violations": self.policy_violations,
+        }
+
+# =============================================================================
+# SCANNER ORCHESTRATOR - Production Ready
 # =============================================================================
 class PolyglotScanner:
     """
     Universal Polyglot Scanner orchestrator.
-    Coordinates all language-specific scanners.
+    Coordinates all language-specific scanners with enterprise features.
+    
+    Features:
+    - Parallel file processing
+    - Configurable via ScannerConfig
+    - Error isolation per file
+    - Progress reporting
     """
     
-    def __init__(self, target_path: str):
+    def __init__(self, target_path: str, config: Optional[ScannerConfig] = None):
         self.target = Path(target_path)
+        self.config = config or ScannerConfig.from_env()
         self.scanners: Dict[str, BaseScanner] = {
             ".py": PythonScanner(),
             ".cs": DotNetScanner(),
@@ -1280,7 +2140,7 @@ class PolyglotScanner:
             ".jsx": JavaScriptScanner(),
             ".tsx": JavaScriptScanner(),
             ".mjs": JavaScriptScanner(),
-            # ADD SPEC SCANNER
+            # Spec scanners
             ".json": SpecScanner(),
             ".yaml": SpecScanner(),
             ".yml": SpecScanner(),
@@ -1289,24 +2149,67 @@ class PolyglotScanner:
         }
         self.enricher = Enricher()
         self.endpoints: List[Endpoint] = []
-        self.stats = {"files_scanned": 0, "files_skipped": 0, "by_language": {}}
+        self.stats = {
+            "files_scanned": 0, 
+            "files_skipped": 0, 
+            "files_errored": 0,
+            "by_language": {}
+        }
+        self._lock = Lock()
+        self._ignore_dirs = self.config.ignore_dirs or DEFAULT_IGNORE_DIRS
     
     def should_ignore(self, path: Path) -> bool:
         """Check if path should be ignored."""
         for part in path.parts:
-            if part in IGNORE_DIRS:
+            if part in self._ignore_dirs:
                 return True
         return False
     
-    def scan(self, progress_cb=None) -> List[Endpoint]:
-        """Scan the target directory."""
-        self.endpoints = []
+    def _scan_single_file(self, fp: Path) -> List[Endpoint]:
+        """
+        Scan a single file with error isolation.
+        Returns list of endpoints found.
+        """
+        try:
+            # Check file size
+            file_size_mb = fp.stat().st_size / (1024 * 1024)
+            if file_size_mb > self.config.max_file_size_mb:
+                logger.warning(f"Skipping large file {fp}: {file_size_mb:.1f}MB > {self.config.max_file_size_mb}MB")
+                return []
+            
+            with open(fp, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+                lines = content.split('\n')
+            
+            ext = fp.suffix.lower()
+            scanner = self.scanners.get(ext)
+            
+            if not scanner:
+                return []
+            
+            found = scanner.scan_file(fp, content, lines)
+            enriched = [self.enricher.enrich(ep) for ep in found]
+            
+            return enriched
+            
+        except (IOError, UnicodeDecodeError) as e:
+            logger.debug(f"File read error {fp}: {e}")
+            with self._lock:
+                self.stats["files_errored"] += 1
+            return []
+        except Exception as e:
+            logger.error(f"Unexpected error scanning {fp}: {e}")
+            with self._lock:
+                self.stats["files_errored"] += 1
+            return []
+    
+    def _collect_files(self) -> List[Path]:
+        """Collect all scannable files."""
         all_files = []
         
-        # Collect files
         for root, dirs, files in os.walk(self.target):
-            # CRITICAL: Modify dirs in-place to skip ignored directories
-            dirs[:] = [d for d in dirs if d not in IGNORE_DIRS]
+            # Modify dirs in-place to skip ignored directories
+            dirs[:] = [d for d in dirs if d not in self._ignore_dirs]
             
             for f in files:
                 fp = Path(root) / f
@@ -1320,42 +2223,146 @@ class PolyglotScanner:
                 else:
                     self.stats["files_skipped"] += 1
         
-        # Scan files
+        return all_files
+    
+    def scan(self, progress_cb: Optional[Callable[[int, int, Path], None]] = None) -> List[Endpoint]:
+        """
+        Scan the target directory sequentially.
+        Use scan_parallel() for large codebases.
+        """
+        self.endpoints = []
+        all_files = self._collect_files()
+        
         for i, fp in enumerate(all_files):
             if progress_cb:
                 progress_cb(i + 1, len(all_files), fp)
             
-            try:
-                with open(fp, 'r', encoding='utf-8', errors='ignore') as f:
-                    content = f.read()
-                    lines = content.split('\n')
-                
-                ext = fp.suffix.lower()
-                scanner = self.scanners.get(ext)
-                if scanner:
-                    found = scanner.scan_file(fp, content, lines)
-                    for ep in found:
-                        ep = self.enricher.enrich(ep)
-                        self.endpoints.append(ep)
-                    
-                    lang = scanner.language.value
-                    self.stats["by_language"][lang] = self.stats["by_language"].get(lang, 0) + len(found)
-                
-                self.stats["files_scanned"] += 1
-            except Exception:
-                continue
+            found = self._scan_single_file(fp)
+            self.endpoints.extend(found)
+            
+            # Update language stats
+            for ep in found:
+                lang = ep.language.value
+                self.stats["by_language"][lang] = self.stats["by_language"].get(lang, 0) + 1
+            
+            self.stats["files_scanned"] += 1
         
         # Deduplicate
+        self.endpoints = self._deduplicate()
+        return self.endpoints
+    
+    def scan_parallel(self, progress_cb: Optional[Callable[[int, int, Path], None]] = None) -> List[Endpoint]:
+        """
+        Parallel file scanning for large codebases.
+        Uses ThreadPoolExecutor with configurable workers.
+        """
+        self.endpoints = []
+        all_files = self._collect_files()
+        completed = 0
+        
+        logger.info(f"Starting parallel scan with {self.config.parallel_workers} workers")
+        
+        with ThreadPoolExecutor(max_workers=self.config.parallel_workers) as executor:
+            # Submit all file scan tasks
+            future_to_file = {
+                executor.submit(self._scan_single_file, fp): fp 
+                for fp in all_files
+            }
+            
+            # Process results as they complete
+            for future in as_completed(future_to_file):
+                fp = future_to_file[future]
+                completed += 1
+                
+                if progress_cb:
+                    progress_cb(completed, len(all_files), fp)
+                
+                try:
+                    found = future.result(timeout=30)  # 30s timeout per file
+                    
+                    with self._lock:
+                        self.endpoints.extend(found)
+                        self.stats["files_scanned"] += 1
+                        
+                        for ep in found:
+                            lang = ep.language.value
+                            self.stats["by_language"][lang] = self.stats["by_language"].get(lang, 0) + 1
+                            
+                except Exception as e:
+                    logger.error(f"Task error for {fp}: {e}")
+                    with self._lock:
+                        self.stats["files_errored"] += 1
+        
+        # Deduplicate
+        self.endpoints = self._deduplicate()
+        
+        logger.info(f"Parallel scan complete: {len(self.endpoints)} endpoints from {self.stats['files_scanned']} files")
+        return self.endpoints
+    
+    def scan_incremental(self, incremental: IncrementalScanner,
+                        progress_cb: Optional[Callable[[int, int, Path], None]] = None) -> List[Endpoint]:
+        """
+        Incremental scan - only process changed files.
+        Uses cache for unchanged files.
+        """
+        self.endpoints = []
+        all_files = self._collect_files()
+        
+        # Identify changed files
+        changed_files, unchanged_files = incremental.get_changed_files(all_files)
+        
+        # Get cached endpoints for unchanged files
+        cached_endpoints = incremental.get_cached_endpoints(unchanged_files)
+        self.endpoints.extend(cached_endpoints)
+        
+        logger.info(f"Incremental scan: {len(changed_files)} to scan, {len(cached_endpoints)} cached")
+        
+        # Scan changed files (can use parallel)
+        if len(changed_files) > 10 and self.config.parallel_workers > 1:
+            # Use parallel for many files
+            with ThreadPoolExecutor(max_workers=self.config.parallel_workers) as executor:
+                futures = {executor.submit(self._scan_single_file, fp): fp for fp in changed_files}
+                
+                for i, future in enumerate(as_completed(futures)):
+                    fp = futures[future]
+                    if progress_cb:
+                        progress_cb(i + 1, len(changed_files), fp)
+                    
+                    try:
+                        found = future.result(timeout=30)
+                        with self._lock:
+                            self.endpoints.extend(found)
+                            self.stats["files_scanned"] += 1
+                    except Exception as e:
+                        logger.error(f"Error scanning {fp}: {e}")
+        else:
+            # Sequential for few files
+            for i, fp in enumerate(changed_files):
+                if progress_cb:
+                    progress_cb(i + 1, len(changed_files), fp)
+                
+                found = self._scan_single_file(fp)
+                self.endpoints.extend(found)
+                self.stats["files_scanned"] += 1
+        
+        # Deduplicate and save new baseline
+        self.endpoints = self._deduplicate()
+        incremental.save_baseline(self.endpoints)
+        
+        return self.endpoints
+    
+    def _deduplicate(self) -> List[Endpoint]:
+        """Remove duplicate endpoints."""
         seen = set()
         unique = []
+        
         for ep in self.endpoints:
             key = (ep.file_path, ep.line_number, ep.route, ep.method)
             if key not in seen:
                 seen.add(key)
                 unique.append(ep)
         
-        self.endpoints = unique
-        return self.endpoints
+        return unique
     
     def summary(self) -> Dict[str, Any]:
         """Generate summary statistics."""
@@ -1374,6 +2381,7 @@ class PolyglotScanner:
             "total": len(self.endpoints),
             "files_scanned": self.stats["files_scanned"],
             "files_skipped": self.stats["files_skipped"],
+            "files_errored": self.stats.get("files_errored", 0),
             "by_language": self.stats["by_language"],
             "by_risk": by_risk,
             "by_auth": by_auth,
@@ -1692,29 +2700,125 @@ def clone_repo(url: str) -> str:
     return tmp
 
 # =============================================================================
-# MAIN CLI
+# MAIN CLI - Production Ready
 # =============================================================================
 def main():
-    parser = argparse.ArgumentParser(description="Universal Polyglot API Scanner v3.1")
+    parser = argparse.ArgumentParser(
+        description=f"Universal Polyglot API Scanner v{__version__}",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python main.py ./src                          # Basic scan
+  python main.py ./src --parallel               # Parallel scan for large repos
+  python main.py ./src --incremental            # Only scan changed files
+  python main.py ./src --export-sarif           # Export SARIF for GitHub
+  python main.py ./src --policy policy.yaml     # Custom security policies
+  python main.py ./src --fail-on-critical       # CI gate mode
+        """
+    )
+    
+    # Target
     parser.add_argument("target", help="Directory or Git URL to scan")
-    parser.add_argument("-o", "--output", help="Output JSON file")
-    parser.add_argument("--export-openapi", metavar="FILE", nargs="?", const="AUTO", 
-                        help="Export OpenAPI 3.0 spec for DAST tools. If no filename given, auto-generates based on service name.")
-    parser.add_argument("--service-name", "-s", metavar="NAME",
-                        help="Microservice identifier (e.g., 'payment-service'). Used in OpenAPI title and output filename.")
-    parser.add_argument("-v", "--verbose", action="store_true")
+    
+    # Output options
+    output_group = parser.add_argument_group("Output Options")
+    output_group.add_argument("-o", "--output", help="Output JSON file")
+    output_group.add_argument("--export-openapi", metavar="FILE", nargs="?", const="AUTO",
+                             help="Export OpenAPI 3.0 spec for DAST tools")
+    output_group.add_argument("--export-sarif", metavar="FILE", nargs="?", const="AUTO",
+                             help="Export SARIF format for GitHub Security")
+    output_group.add_argument("--export-junit", metavar="FILE", nargs="?", const="AUTO",
+                             help="Export JUnit XML for CI/CD")
+    output_group.add_argument("--service-name", "-s", metavar="NAME",
+                             help="Microservice identifier for output files")
+    
+    # Scan options
+    scan_group = parser.add_argument_group("Scan Options")
+    scan_group.add_argument("--parallel", action="store_true",
+                           help="Enable parallel file scanning")
+    scan_group.add_argument("--workers", type=int, default=4,
+                           help="Number of parallel workers (default: 4)")
+    scan_group.add_argument("--incremental", action="store_true",
+                           help="Incremental scan - only changed files")
+    scan_group.add_argument("--baseline", metavar="FILE", default=".api-scan-baseline.json",
+                           help="Baseline file for incremental scans")
+    scan_group.add_argument("--max-file-size", type=int, default=10,
+                           help="Max file size in MB to scan (default: 10)")
+    scan_group.add_argument("--config", metavar="FILE",
+                           help="Configuration file (JSON/YAML)")
+    
+    # Policy & Compliance
+    policy_group = parser.add_argument_group("Policy & Compliance")
+    policy_group.add_argument("--policy", metavar="FILE",
+                             help="Security policy file (JSON/YAML)")
+    policy_group.add_argument("--fail-on-critical", action="store_true",
+                             help="Exit with error if critical findings")
+    policy_group.add_argument("--fail-on-policy", action="store_true",
+                             help="Exit with error if policy violations")
+    
+    # Audit & Metrics
+    audit_group = parser.add_argument_group("Audit & Metrics")
+    audit_group.add_argument("--audit-log", metavar="FILE",
+                            help="Write audit log to file")
+    audit_group.add_argument("--metrics", metavar="FILE",
+                            help="Export Prometheus metrics to file")
+    
+    # Compare mode
+    compare_group = parser.add_argument_group("Change Detection")
+    compare_group.add_argument("--compare", metavar="FILE",
+                              help="Compare with previous scan result JSON")
+    
+    # General
+    parser.add_argument("-v", "--verbose", action="store_true", help="Verbose output")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
+    parser.add_argument("--quiet", "-q", action="store_true", help="Minimal output")
+    
     args = parser.parse_args()
     
-    console.print(Panel.fit(
-        "[bold cyan]🛡️ Universal Polyglot API Scanner v3.1[/bold cyan]\n"
-        "[dim]Python | C#/.NET | Go | Java | JavaScript/TypeScript | OpenAPI | GraphQL[/dim]",
-        border_style="cyan"
-    ))
+    # Banner
+    if not args.quiet:
+        console.print(Panel.fit(
+            f"[bold cyan]🛡️ Universal Polyglot API Scanner v{__version__}[/bold cyan]\n"
+            "[dim]Python | C#/.NET | Go | Java | JavaScript/TypeScript | OpenAPI | GraphQL[/dim]\n"
+            "[dim]Production Ready: Parallel | Incremental | Policy | SARIF | Metrics[/dim]",
+            border_style="cyan"
+        ))
     
+    # Build configuration
+    if args.config:
+        config = ScannerConfig.from_file(args.config)
+    else:
+        config = ScannerConfig.from_env()
+    
+    # Override with CLI args
+    config.parallel_workers = args.workers
+    config.max_file_size_mb = args.max_file_size
+    config.verbose = args.verbose
+    config.fail_on_critical = args.fail_on_critical
+    config.enable_incremental = args.incremental
+    config.baseline_file = args.baseline
+    config.policy_file = args.policy
+    config.audit_log_file = args.audit_log
+    
+    # Initialize
+    scan_id = str(uuid.uuid4())[:8]
+    start_time = datetime.now()
     target = args.target
     tmp = None
+    exit_code = 0
+    
+    # Initialize audit logger
+    audit = AuditLogger(args.audit_log) if args.audit_log else None
+    
+    # Initialize metrics
+    metrics = ScanMetrics(
+        scan_id=scan_id,
+        target=target,
+        start_time=start_time
+    ) if args.metrics else None
     
     try:
+        # Clone if URL
         if target.startswith(("http://", "https://", "git@")):
             tmp = clone_repo(target)
             target = tmp
@@ -1722,26 +2826,82 @@ def main():
             console.print(f"[red]Error: {target} not found[/red]")
             sys.exit(1)
         
-        scanner = PolyglotScanner(target)
-        console.print("\n[bold cyan]▶ Scanning...[/bold cyan]")
+        # Log scan start
+        if audit:
+            audit.log_scan_started(
+                target=args.target,
+                user=os.getenv("USER", os.getenv("USERNAME", "unknown")),
+                config=config.to_dict(),
+                scan_id=scan_id
+            )
         
-        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), BarColumn(), TextColumn("{task.percentage:>3.0f}%"), console=console) as prog:
+        # Create scanner
+        scanner = PolyglotScanner(target, config)
+        
+        if not args.quiet:
+            console.print(f"\n[bold cyan]▶ Scanning...[/bold cyan] [dim](scan_id: {scan_id})[/dim]")
+        
+        # Progress callback
+        def progress_cb(cur, tot, fp):
+            if not args.quiet:
+                prog.update(task, completed=(cur / tot) * 100, 
+                           description=f"[cyan]{Path(fp).name[:25]}")
+        
+        # Run scan
+        with Progress(SpinnerColumn(), TextColumn("[progress.description]{task.description}"), 
+                     BarColumn(), TextColumn("{task.percentage:>3.0f}%"), 
+                     console=console, disable=args.quiet) as prog:
             task = prog.add_task("[cyan]Scanning", total=100)
-            def cb(cur, tot, fp):
-                prog.update(task, completed=(cur / tot) * 100, description=f"[cyan]{Path(fp).name[:25]}")
-            endpoints = scanner.scan(progress_cb=cb)
+            
+            if args.incremental:
+                # Incremental scan
+                inc_scanner = IncrementalScanner(target, args.baseline)
+                endpoints = scanner.scan_incremental(inc_scanner, progress_cb=progress_cb)
+            elif args.parallel:
+                # Parallel scan
+                endpoints = scanner.scan_parallel(progress_cb=progress_cb)
+            else:
+                # Sequential scan
+                endpoints = scanner.scan(progress_cb=progress_cb)
         
         summary = scanner.summary()
-        console.print(f"\n[green]✓ Found {len(endpoints)} endpoints[/green]")
-        console.print("\n" + "=" * 70)
-        console.print(make_summary(summary))
-        console.print()
         
-        if endpoints:
-            risk_order = {RiskLevel.CRITICAL: 0, RiskLevel.HIGH: 1, RiskLevel.MEDIUM: 2, RiskLevel.LOW: 3, RiskLevel.INFO: 4}
+        # Policy evaluation
+        violations = []
+        if args.policy:
+            if not args.quiet:
+                console.print("\n[bold cyan]▶ Evaluating policies...[/bold cyan]")
+            policy_engine = PolicyEngine.from_file(args.policy)
+            violations = policy_engine.evaluate(endpoints)
+            
+            if audit:
+                for v in violations:
+                    audit.log_policy_violation(scan_id, v)
+        else:
+            # Use default policies
+            policy_engine = PolicyEngine()
+            violations = policy_engine.evaluate(endpoints)
+        
+        # Log critical findings
+        if audit:
+            for ep in endpoints:
+                if ep.risk_level == RiskLevel.CRITICAL:
+                    audit.log_critical_finding(scan_id, ep)
+        
+        # Print results
+        if not args.quiet:
+            console.print(f"\n[green]✓ Found {len(endpoints)} endpoints[/green]")
+            console.print("\n" + "=" * 70)
+            console.print(make_summary(summary))
+            console.print()
+        
+        if endpoints and not args.quiet:
+            risk_order = {RiskLevel.CRITICAL: 0, RiskLevel.HIGH: 1, RiskLevel.MEDIUM: 2, 
+                         RiskLevel.LOW: 3, RiskLevel.INFO: 4}
             endpoints.sort(key=lambda e: risk_order.get(e.risk_level, 5))
             console.print(make_table(endpoints))
             
+            # High priority
             critical = [e for e in endpoints if e.risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]]
             if critical:
                 console.print("\n[bold red]⚠️ HIGH PRIORITY[/bold red]")
@@ -1750,40 +2910,135 @@ def main():
                     for r in e.risk_reasons[:2]:
                         console.print(f"    └─ {r}")
             
+            # Shadow APIs
             shadow = [e for e in endpoints if e.auth_status == AuthStatus.UNKNOWN]
             if shadow:
                 console.print(f"\n[bold yellow]👻 Shadow APIs: {len(shadow)}[/bold yellow]")
+            
+            # Policy violations
+            if violations:
+                console.print(f"\n[bold red]🚨 Policy Violations: {len(violations)}[/bold red]")
+                for v in violations[:5]:
+                    console.print(f"  • [{v['severity']}] {v['policy']}: {v['endpoint']['method']} {v['endpoint']['route']}")
         
+        # Compare mode
+        if args.compare:
+            if not args.quiet:
+                console.print("\n[bold cyan]▶ Comparing with baseline...[/bold cyan]")
+            
+            with open(args.compare, 'r') as f:
+                prev_data = json.load(f)
+            
+            # Reconstruct previous endpoints
+            prev_endpoints = []
+            for ep_data in prev_data.get("endpoints", []):
+                prev_endpoints.append(Endpoint(
+                    file_path=ep_data["file_path"],
+                    line_number=ep_data["line_number"],
+                    language=Language(ep_data["language"]),
+                    framework=ep_data["framework"],
+                    kind=EndpointKind(ep_data["kind"]),
+                    method=ep_data["method"],
+                    route=ep_data["route"],
+                    raw_match=ep_data.get("raw_match", ""),
+                    risk_level=RiskLevel(ep_data["risk_level"]),
+                    auth_status=AuthStatus(ep_data["auth_status"]),
+                ))
+            
+            detector = APIChangeDetector()
+            changes = detector.compare(prev_endpoints, endpoints)
+            change_summary = detector.summary(changes)
+            
+            if not args.quiet:
+                console.print(f"\n[bold]API Changes:[/bold]")
+                console.print(f"  • Added: {change_summary['added']}")
+                console.print(f"  • Removed: {change_summary['removed']}")
+                console.print(f"  • Modified: {change_summary['modified']}")
+                console.print(f"  • [bold red]Breaking: {change_summary['breaking']}[/bold red]")
+                
+                if detector.has_breaking_changes(changes):
+                    console.print("\n[bold red]⚠️ BREAKING CHANGES DETECTED[/bold red]")
+                    for c in changes:
+                        if c.breaking:
+                            console.print(f"  • {c.change_type}: {c.endpoint.method} {c.endpoint.route}")
+                            console.print(f"    └─ {c.reason}")
+        
+        # Export outputs
         if args.output:
             data = {
                 "timestamp": datetime.now().isoformat(),
+                "scan_id": scan_id,
                 "target": args.target,
+                "version": __version__,
                 "summary": summary,
-                "endpoints": [e.to_dict() for e in endpoints]
+                "endpoints": [e.to_dict() for e in endpoints],
+                "policy_violations": violations,
             }
             with open(args.output, 'w') as f:
                 json.dump(data, f, indent=2)
-            console.print(f"\n[green]✓ Saved: {args.output}[/green]")
+            if not args.quiet:
+                console.print(f"\n[green]✓ Saved: {args.output}[/green]")
         
-        # Export OpenAPI 3.0 specification for DAST integration
+        # OpenAPI export
         if args.export_openapi:
-            # Determine output filename
             if args.export_openapi == "AUTO":
-                # Auto-generate filename based on service name or target
-                if args.service_name:
-                    openapi_file = f"{args.service_name}-openapi.json"
-                else:
-                    # Use target directory name
-                    target_name = os.path.basename(os.path.normpath(args.target)).replace(" ", "-").lower()
-                    openapi_file = f"{target_name}-openapi.json"
+                openapi_file = f"{args.service_name or 'api'}-openapi.json"
             else:
                 openapi_file = args.export_openapi
-            
             export_openapi(endpoints, args.target, openapi_file, args.service_name)
+        
+        # SARIF export
+        if args.export_sarif:
+            if args.export_sarif == "AUTO":
+                sarif_file = f"{args.service_name or 'api'}-scan.sarif"
+            else:
+                sarif_file = args.export_sarif
             
-            # Print service context for microservices environments
-            if args.service_name:
-                console.print(f"  • Service: [cyan]{args.service_name}[/cyan]")
+            formatter = SARIFFormatter()
+            sarif_output = formatter.format(endpoints, summary, violations)
+            with open(sarif_file, 'w') as f:
+                f.write(sarif_output)
+            if not args.quiet:
+                console.print(f"[green]✓ SARIF exported: {sarif_file}[/green]")
+        
+        # JUnit export
+        if args.export_junit:
+            if args.export_junit == "AUTO":
+                junit_file = f"{args.service_name or 'api'}-scan.xml"
+            else:
+                junit_file = args.export_junit
+            
+            formatter = JUnitFormatter()
+            junit_output = formatter.format(endpoints, summary, violations)
+            with open(junit_file, 'w') as f:
+                f.write(junit_output)
+            if not args.quiet:
+                console.print(f"[green]✓ JUnit exported: {junit_file}[/green]")
+        
+        # Metrics export
+        if metrics:
+            metrics.finalize(summary, len(violations))
+            
+            with open(args.metrics, 'w') as f:
+                f.write(metrics.to_prometheus())
+            if not args.quiet:
+                console.print(f"[green]✓ Metrics exported: {args.metrics}[/green]")
+        
+        # Log completion
+        if audit:
+            duration = (datetime.now() - start_time).total_seconds()
+            audit.log_scan_completed(scan_id, summary, duration)
+        
+        # Determine exit code
+        if args.fail_on_critical and summary.get("critical", 0) > 0:
+            if not args.quiet:
+                console.print("\n[bold red]✗ Failed: Critical findings detected[/bold red]")
+            exit_code = 1
+        
+        if args.fail_on_policy and len(violations) > 0:
+            if not args.quiet:
+                console.print("\n[bold red]✗ Failed: Policy violations detected[/bold red]")
+            exit_code = 1
         
     except KeyboardInterrupt:
         console.print("\n[yellow]Interrupted[/yellow]")
@@ -1797,7 +3052,10 @@ def main():
         if tmp and os.path.exists(tmp):
             shutil.rmtree(tmp, ignore_errors=True)
     
-    console.print("\n[bold green]✓ Complete![/bold green]")
+    if not args.quiet and exit_code == 0:
+        console.print("\n[bold green]✓ Complete![/bold green]")
+    
+    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

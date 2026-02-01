@@ -1,6 +1,19 @@
-# 🛡️ Universal Polyglot API Scanner v3.1
+# 🛡️ Universal Polyglot API Scanner v4.0
 
-A unified, pattern-based API discovery tool supporting **5 major programming languages** through a modular scanner architecture. Now with **Docker deployment** and **Invicti DAST integration**.
+**Production-Ready** enterprise-grade API discovery tool supporting **5+ programming languages** through a modular scanner architecture.
+
+## ✨ What's New in v4.0
+
+| Feature | Description |
+|---------|-------------|
+| 🚀 **Parallel Processing** | Multi-threaded scanning for large codebases |
+| 📊 **SARIF Export** | GitHub Security tab integration |
+| 📋 **JUnit Export** | CI/CD test reporting |
+| 🔄 **Incremental Scanning** | Only scan changed files |
+| 📜 **Policy Engine** | Custom security compliance rules |
+| 📈 **Prometheus Metrics** | Monitoring & alerting |
+| 📝 **Audit Logging** | SIEM-compatible JSON logs |
+| 🔍 **API Change Detection** | Breaking change analysis |
 
 ## 🚀 Quick Start
 
@@ -10,11 +23,26 @@ A unified, pattern-based API discovery tool supporting **5 major programming lan
 # Build the image
 docker build -t api-scanner .
 
-# Scan your codebase
+# Basic scan
 docker run --rm \
   -v $(pwd):/code:ro \
   -v $(pwd)/output:/output \
   api-scanner
+
+# Parallel scan with SARIF output
+docker run --rm \
+  -v $(pwd):/code:ro \
+  -v $(pwd)/output:/output \
+  -e SCANNER_PARALLEL=true \
+  -e SCANNER_WORKERS=8 \
+  api-scanner --export-sarif /output/scan.sarif --export-junit /output/scan.xml
+
+# CI gate mode (fail on critical)
+docker run --rm \
+  -v $(pwd):/code:ro \
+  -v $(pwd)/output:/output \
+  -e SCANNER_FAIL_ON_CRITICAL=true \
+  api-scanner --fail-on-critical
 
 # With Invicti upload
 docker run --rm \
@@ -32,8 +60,28 @@ docker run --rm \
 
 ```bash
 pip install -r requirements.txt
-python main.py ./test_samples
-python main.py ./test_samples --export-openapi openapi.json
+
+# Basic scan
+python main.py ./my-project
+
+# Parallel scan (large repos)
+python main.py ./my-project --parallel --workers 8
+
+# Incremental scan (CI/CD)
+python main.py ./my-project --incremental
+
+# Export all formats
+python main.py ./my-project \
+  --export-openapi openapi.json \
+  --export-sarif scan.sarif \
+  --export-junit scan.xml \
+  -o results.json
+
+# With policy compliance
+python main.py ./my-project --policy policy.yaml --fail-on-policy
+
+# Full audit mode
+python main.py ./my-project --audit-log audit.json --metrics metrics.txt
 ```
 
 ## 🏗️ Architecture
@@ -70,6 +118,14 @@ python main.py ./test_samples --export-openapi openapi.json
 │                    │ • Auth Detection│                             │
 │                    │ • PII Detection │                             │
 │                    └─────────────────┘                             │
+│                                                                     │
+│   ┌─────────────────────────────────────────────────────────────┐ │
+│   │                  v4.0 Enterprise Features                    │ │
+│   ├─────────────────────────────────────────────────────────────┤ │
+│   │ PolicyEngine    │ IncrementalScanner │ APIChangeDetector   │ │
+│   │ SARIFFormatter  │ JUnitFormatter     │ AuditLogger         │ │
+│   │ ScanMetrics     │ ParallelProcessing │ ConfigSystem        │ │
+│   └─────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -211,6 +267,12 @@ ApiSecurity/
 |----------|----------|---------|-------------|
 | `TARGET_DIR` | No | `/code` | Directory to scan |
 | `OUTPUT_DIR` | No | `/output` | Output directory for results |
+| `SCANNER_PARALLEL` | No | `false` | Enable parallel scanning |
+| `SCANNER_WORKERS` | No | `4` | Number of parallel workers |
+| `SCANNER_MAX_FILE_SIZE` | No | `10` | Max file size (MB) to scan |
+| `SCANNER_INCREMENTAL` | No | `false` | Enable incremental scanning |
+| `SCANNER_FAIL_ON_CRITICAL` | No | `false` | Exit code 1 if critical findings |
+| `SCANNER_METRICS` | No | `false` | Enable Prometheus metrics |
 | `INVICTI_SYNC` | No | `false` | Enable Invicti upload |
 | `DRY_RUN` | No | `false` | Preview mode (no actual upload) |
 | `INVICTI_URL` | If sync | - | Invicti instance URL |
@@ -223,6 +285,24 @@ ApiSecurity/
 ```bash
 # Basic scan
 docker run --rm -v $(pwd):/code:ro -v $(pwd)/output:/output api-scanner
+
+# Parallel scan with 8 workers
+docker run --rm \
+  -v $(pwd):/code:ro \
+  -v $(pwd)/output:/output \
+  -e SCANNER_PARALLEL=true \
+  -e SCANNER_WORKERS=8 \
+  api-scanner
+
+# CI gate mode with all exports
+docker run --rm \
+  -v $(pwd):/code:ro \
+  -v $(pwd)/output:/output \
+  api-scanner \
+    --parallel \
+    --export-sarif /output/scan.sarif \
+    --export-junit /output/scan.xml \
+    --fail-on-critical
 
 # Dry run (preview without upload)
 docker run --rm \
@@ -253,28 +333,97 @@ Copy `.github/workflows/security.yml` and configure these secrets:
 
 | Secret | Description |
 |--------|-------------|
-| `INVICTI_URL` | Your Invicti instance URL |
-| `INVICTI_USER` | API User ID |
-| `INVICTI_TOKEN` | API Token |
-| `INVICTI_WEBSITE_ID` | Target Website ID |
+| `DOCKER_USERNAME` | Docker Hub username |
+| `DOCKER_PASSWORD` | Docker Hub access token |
 
 ## 🔧 CLI Usage
 
 ```bash
-# Scan local directory
+# Basic scan
 python main.py ./my-project
 
 # Scan Git repository
 python main.py https://github.com/user/repo.git
 
+# Parallel scan (for large repos)
+python main.py ./project --parallel --workers 8
+
+# Incremental scan (only changed files)
+python main.py ./project --incremental --baseline .baseline.json
+
 # Export OpenAPI spec for DAST tools
 python main.py ./project --export-openapi openapi.json
 
-# Export results to JSON
-python main.py ./project --output results.json
+# Export SARIF for GitHub Security
+python main.py ./project --export-sarif scan.sarif
 
-# Verbose mode (show stack traces on errors)
+# Export JUnit for CI/CD
+python main.py ./project --export-junit scan.xml
+
+# Export all + JSON results
+python main.py ./project \
+  -o results.json \
+  --export-openapi openapi.json \
+  --export-sarif scan.sarif \
+  --export-junit scan.xml
+
+# Policy compliance check
+python main.py ./project --policy policy.yaml --fail-on-policy
+
+# CI gate mode (fail on critical)
+python main.py ./project --fail-on-critical
+
+# Full audit mode
+python main.py ./project \
+  --audit-log audit.json \
+  --metrics metrics.txt
+
+# Compare with previous scan (detect breaking changes)
+python main.py ./project --compare previous-results.json
+
+# Quiet mode (minimal output)
+python main.py ./project -q -o results.json
+
+# Verbose mode (show stack traces)
 python main.py ./project -v
+```
+
+### All CLI Options
+
+```
+Usage: python main.py [OPTIONS] <target>
+
+Output Options:
+  -o, --output FILE         Output JSON file
+  --export-openapi [FILE]   Export OpenAPI 3.0 spec
+  --export-sarif [FILE]     Export SARIF format
+  --export-junit [FILE]     Export JUnit XML
+  --service-name NAME       Microservice identifier
+
+Scan Options:
+  --parallel                Enable parallel scanning
+  --workers N               Number of workers (default: 4)
+  --incremental             Scan only changed files
+  --baseline FILE           Baseline file for incremental
+  --max-file-size MB        Max file size (default: 10)
+  --config FILE             Config file (JSON/YAML)
+
+Policy & Compliance:
+  --policy FILE             Security policy file
+  --fail-on-critical        Exit 1 if critical findings
+  --fail-on-policy          Exit 1 if policy violations
+
+Audit & Metrics:
+  --audit-log FILE          Audit log file
+  --metrics FILE            Prometheus metrics file
+
+Change Detection:
+  --compare FILE            Compare with previous scan
+
+General:
+  -v, --verbose             Verbose output
+  -q, --quiet               Minimal output
+  --version                 Show version
 ```
 
 ### Invicti Sync CLI
@@ -293,6 +442,80 @@ python invicti_sync.py --file openapi.json --dry-run
 
 # With diff comparison
 python invicti_sync.py --file openapi.json --diff previous.json
+```
+
+## 📜 Policy Engine
+
+Create custom security policies to enforce organizational standards:
+
+### Example Policy File (policy.yaml)
+
+```yaml
+policies:
+  - name: no-public-admin
+    description: Admin endpoints must not be public
+    severity: CRITICAL
+    condition: "'admin' in ep.route.lower() and ep.auth_status == AuthStatus.PUBLIC"
+  
+  - name: no-shadow-mutation
+    description: Mutation endpoints must have explicit authentication
+    severity: HIGH
+    condition: "ep.method in ['POST', 'PUT', 'DELETE', 'PATCH'] and ep.auth_status == AuthStatus.UNKNOWN"
+  
+  - name: no-sensitive-public
+    description: Sensitive data endpoints must be private
+    severity: CRITICAL
+    condition: "any(kw in ep.route.lower() for kw in ['password', 'token', 'secret']) and ep.auth_status == AuthStatus.PUBLIC"
+  
+  - name: require-auth-non-health
+    description: All non-health endpoints should have auth info
+    severity: MEDIUM
+    condition: "ep.auth_status == AuthStatus.UNKNOWN and not any(kw in ep.route.lower() for kw in ['health', 'ping', 'ready'])"
+```
+
+### Usage
+
+```bash
+# Check compliance
+python main.py ./project --policy policy.yaml
+
+# Fail CI if violations
+python main.py ./project --policy policy.yaml --fail-on-policy
+```
+
+## 📊 Output Formats
+
+### SARIF (GitHub Security)
+
+```bash
+python main.py ./project --export-sarif scan.sarif
+```
+
+Upload to GitHub Security tab or use with `github/codeql-action/upload-sarif`.
+
+### JUnit XML (CI/CD)
+
+```bash
+python main.py ./project --export-junit scan.xml
+```
+
+Compatible with Jenkins, GitLab CI, Azure DevOps test reporting.
+
+### Prometheus Metrics
+
+```bash
+python main.py ./project --metrics metrics.txt
+```
+
+Output:
+```
+# HELP api_scan_endpoints_total Total endpoints discovered
+# TYPE api_scan_endpoints_total counter
+api_scan_endpoints_total{target="./project"} 87
+
+# HELP api_scan_critical_findings Critical security findings
+# TYPE api_scan_critical_findings gauge
+api_scan_critical_findings{target="./project"} 3
 ```
 
 ## 🧩 Extending the Scanner
@@ -334,10 +557,11 @@ self.scanners[".rb"] = RubyScanner()
 ## 📈 Example Output
 
 ```
-🛡️ Universal Polyglot API Scanner v3.0
-Python | C#/.NET | Go | Java | JavaScript/TypeScript
+🛡️ Universal Polyglot API Scanner v4.0.0
+Python | C#/.NET | Go | Java | JavaScript/TypeScript | OpenAPI | GraphQL
+Production Ready: Parallel | Incremental | Policy | SARIF | Metrics
 
-▶ Scanning...
+▶ Scanning... (scan_id: a1b2c3d4)
 ✓ Found 87 endpoints
 
 ======================================================================
@@ -389,6 +613,16 @@ Python | C#/.NET | Go | Java | JavaScript/TypeScript
     └─ admin: \badmin\b
 
 👻 Shadow APIs: 30
+
+🚨 Policy Violations: 5
+  • [HIGH] no-shadow-mutation: POST /api/auth/login
+  • [HIGH] no-shadow-mutation: DELETE /admin/users/{id}
+
+✓ Saved: results.json
+✓ SARIF exported: scan.sarif
+✓ JUnit exported: scan.xml
+
+✓ Complete!
 ```
 
 ## 📝 License
@@ -399,4 +633,17 @@ MIT License
 
 Built with ❤️ using Python and Rich
 
-**Universal Polyglot API Scanner v3.1** — *Discover. Document. Defend.*
+**Universal Polyglot API Scanner v4.0** — *Discover. Document. Defend.*
+
+```
+v4.0.0 - Production Ready
+├── Parallel Processing (ThreadPoolExecutor)
+├── SARIF 2.1.0 Export (GitHub Security)
+├── JUnit XML Export (CI/CD)
+├── Policy Engine (Custom compliance rules)
+├── Incremental Scanning (Baseline support)
+├── API Change Detection (Breaking changes)
+├── Audit Logging (SIEM-compatible JSON)
+├── Prometheus Metrics (Monitoring)
+└── Configuration System (ENV/JSON/YAML)
+```

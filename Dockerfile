@@ -1,15 +1,21 @@
 # =============================================================================
-# Universal Polyglot API Scanner - Production Dockerfile
+# Universal Polyglot API Scanner v4.0 - Production Dockerfile
 # =============================================================================
 # Multi-stage build for optimized image size
 #
 # Build:
 #   docker build -t api-scanner:latest .
 #
-# Run:
+# Run (Basic):
 #   docker run -v $(pwd):/code -v $(pwd)/output:/output api-scanner:latest
 #
-# With Invicti Sync:
+# Run (Parallel + SARIF):
+#   docker run -v $(pwd):/code -v $(pwd)/output:/output \
+#     -e SCANNER_PARALLEL=true \
+#     -e SCANNER_WORKERS=8 \
+#     api-scanner:latest --export-sarif /output/scan.sarif
+#
+# Run with Invicti Sync:
 #   docker run -v $(pwd):/code \
 #     -e INVICTI_SYNC=true \
 #     -e INVICTI_URL=https://www.netsparkercloud.com \
@@ -49,9 +55,11 @@ FROM python:3.11-slim as production
 
 # Labels for container metadata
 LABEL maintainer="Principal Security Engineer" \
-      description="Universal Polyglot API Scanner with Invicti DAST Integration" \
-      version="3.1" \
-      org.opencontainers.image.source="https://github.com/yourorg/api-scanner"
+      description="Universal Polyglot API Scanner v4.0 - Production Ready" \
+      version="4.0.0" \
+      org.opencontainers.image.source="https://github.com/yourorg/api-scanner" \
+      org.opencontainers.image.title="Universal Polyglot API Scanner" \
+      org.opencontainers.image.description="Enterprise-grade API discovery with parallel processing, policy engine, SARIF/JUnit output"
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -90,7 +98,14 @@ ENV TARGET_DIR=/code \
     INVICTI_SYNC=false \
     DRY_RUN=false \
     PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
+    PYTHONDONTWRITEBYTECODE=1 \
+    # Scanner v4.0 configuration
+    SCANNER_PARALLEL=false \
+    SCANNER_WORKERS=4 \
+    SCANNER_MAX_FILE_SIZE=10 \
+    SCANNER_INCREMENTAL=false \
+    SCANNER_FAIL_ON_CRITICAL=false \
+    SCANNER_METRICS=false
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
