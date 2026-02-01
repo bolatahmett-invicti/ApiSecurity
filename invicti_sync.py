@@ -324,10 +324,8 @@ class InvictiClient:
         "list_api_targets": "/api/apihub/v1/inventory/api-targets",
         # Get specific API target
         "get_api_target": "/api/apihub/v1/inventory/api-targets/{apiTargetId}",
-        # Import API definition file
-        "import_api": "/api/apihub/v1/inventory/api-targets/import",
-        # Update existing API target
-        "update_api": "/api/apihub/v1/inventory/api-targets/{apiTargetId}",
+        # Add or update API definition
+        "definitions": "/api/apihub/v1/inventory/definitions",
     }
     
     def __init__(self, config: Config):
@@ -458,13 +456,13 @@ class InvictiClient:
         if "openapi" in spec_data:
             version = spec_data["openapi"]
             if version.startswith("3"):
-                return "OpenApi3"
-            return "OpenApi"
+                return "OpenAPI3"  # Note: OpenAPI3, not OpenApi3
+            return "OpenAPI2"
         elif "swagger" in spec_data:
             return "Swagger"
         else:
             # Default to OpenAPI
-            return "OpenApi3"
+            return "OpenAPI3"
     
     def _find_existing_api(self, service_name: str) -> Optional[str]:
         """Check if an API with this name already exists in the inventory."""
@@ -505,34 +503,45 @@ class InvictiClient:
         tags: Optional[List[str]] = None
     ) -> bool:
         """Import a new API definition into the inventory."""
-        url = f"{self.config.url}{self.ENDPOINTS['import_api']}"
+        url = f"{self.config.url}{self.ENDPOINTS['definitions']}"
         
         try:
             # Default tags
             if tags is None:
                 tags = ["auto-discovered", "ci-cd"]
             
-            # Prepare multipart form data
-            files = {
-                "file": (Path(file_path).name, file_content, "application/json"),
+            # Map spec type to format parameter
+            format_mapping = {
+                "OpenAPI3": "OpenAPI3",
+                "OpenAPI2": "OpenAPI2",
+                "Swagger": "Swagger",
+            }
+            api_format = format_mapping.get(spec_type, "OpenAPI3")
+            
+            # Prepare query parameters
+            params = {
+                "format": api_format,
+                "mode": "Push",  # DefinitionsSourceMode: Push or Pull
+                "origin": "CI/CD Pipeline",  # Source of the definition
+                "originTag": ",".join(tags),  # Tags as origin tag
+                "name": service_name,  # API name
             }
             
-            # Prepare form data
-            data = {
-                "name": service_name,
-                "specType": spec_type,
-                "tags": ",".join(tags),
-                "description": f"Auto-discovered API from CI/CD pipeline - {datetime.now().isoformat()}",
-            }
-            
-            # Add team ID if configured
+            # Add team ID if configured (might need to be in params or headers)
             if self.config.team_id:
-                data["teamId"] = self.config.team_id
+                # Team ID is already in headers via X-Team-Id
+                pass
             
             Console.info(f"Uploading to: {url}")
             Console.info(f"Service Name: {service_name}")
-            Console.info(f"Spec Type: {spec_type}")
-            Console.info(f"Tags: {', '.join(tags)}")
+            Console.info(f"Format: {api_format}")
+            Console.info(f"Mode: Push")
+            Console.info(f"Origin Tag: {', '.join(tags)}")
+            
+            # Prepare multipart form data with 'body' field name
+            files = {
+                "body": (Path(file_path).name, file_content, "application/json"),
+            }
             
             # Remove Content-Type header to let requests set it with boundary
             headers = dict(self.session.headers)
@@ -541,13 +550,13 @@ class InvictiClient:
             
             response = self.session.post(
                 url,
+                params=params,
                 files=files,
-                data=data,
                 headers=headers,
                 timeout=120,
             )
             
-            return self._handle_response(response, f"Import API '{service_name}'")
+            return self._handle_response(response, f"Add/Update API Definition '{service_name}'")
             
         except requests.exceptions.Timeout:
             Console.error("Upload timeout - file may be too large")
@@ -566,101 +575,86 @@ class InvictiClient:
         tags: Optional[List[str]] = None
     ) -> bool:
         """Update an existing API definition in the inventory."""
-        url = f"{self.config.url}{self.ENDPOINTS['update_api'].format(apiTargetId=api_id)}"
-        
-        try:
-            # Default tags
-            if tags is None:
-                tags = ["auto-discovered", "ci-cd", "updated"]
-            
-            # Prepare multipart form data
-            files = {
-                "file": (Path(file_path).name, file_content, "application/json"),
-            }
-            
-            # Prepare form data
-            data = {
-                "name": service_name,
-                "specType": spec_type,
-                "tags": ",".join(tags),
-                "description": f"Auto-updated API from CI/CD pipeline - {datetime.now().isoformat()}",
-            }
-            
-            Console.info(f"Updating at: {url}")
-            
-            # Remove Content-Type header to let requests set it with boundary
-            headers = dict(self.session.headers)
-            if "Content-Type" in headers:
-                del headers["Content-Type"]
-            
-            response = self.session.put(
-                url,
-                files=files,
-                data=data,
-                headers=headers,
-                timeout=120,
-            )
-            
-            return self._handle_response(response, f"Update API '{service_name}'")
-            
-        except requests.exceptions.Timeout:
-            Console.error("Update timeout - file may be too large")
-            return False
-        except requests.exceptions.RequestException as e:
-            Console.error(f"Update failed: {e}")
-            return False
+        # The definitions endpoint handles both add and update
+        # We use the same endpoint but it will update if the API exists
+        Console.info("Using definitions endpoint (handles both create and update)")
+        return self._import_new_api(file_path, file_content, service_name, spec_type, tags)
     
     def _handle_response(self, response: requests.Response, operation: str) -> bool:
         """Handle API response and print appropriate messages."""
         status = response.status_code
         
-        if status in [200, 201, 202, 204]:
-            Console.success(f"{operation} successful! (HTTP {status})")
+        if status == 200:
+            Console.success(f"{operation} successful - Updated existing API target! (HTTP {status})")
             
             # Try to parse and show response details
             try:
                 data = response.json()
                 if isinstance(data, dict):
                     if "id" in data:
-                        print(f"   • API ID: {data['id']}")
+                        print(f"   • API Target ID: {data['id']}")
                     if "name" in data:
                         print(f"   • Name: {data['name']}")
                     if "endpointsCount" in data:
                         print(f"   • Endpoints: {data['endpointsCount']}")
-                    if "version" in data:
-                        print(f"   • Version: {data['version']}")
-                    if "message" in data:
-                        print(f"   • Message: {data['message']}")
             except json.JSONDecodeError:
                 pass
             
             return True
         
+        elif status == 201:
+            Console.success(f"{operation} successful - Created new API target! (HTTP {status})")
+            
+            # Try to parse and show response details
+            try:
+                data = response.json()
+                if isinstance(data, dict):
+                    if "id" in data:
+                        print(f"   • API Target ID: {data['id']}")
+                    if "name" in data:
+                        print(f"   • Name: {data['name']}")
+                    if "endpointsCount" in data:
+                        print(f"   • Endpoints: {data['endpointsCount']}")
+            except json.JSONDecodeError:
+                pass
+            
+            return True
+        
+        elif status in [202, 204]:
+            Console.success(f"{operation} successful! (HTTP {status})")
+            return True
+        
         elif status == 400:
             Console.error(f"{operation} failed: Bad Request (HTTP 400)")
-            Console.error("The OpenAPI file may be invalid or missing required fields")
+            Console.error("The API definition may be invalid or missing required parameters")
             self._print_error_details(response)
             return False
         
         elif status == 401:
             Console.error(f"{operation} failed: Unauthorized (HTTP 401)")
-            Console.error("Check your INVICTI_USER and INVICTI_TOKEN")
+            Console.error("Check your INVICTI_TOKEN")
             return False
         
         elif status == 403:
             Console.error(f"{operation} failed: Forbidden (HTTP 403)")
-            Console.error("Your API user needs 'API Inventory' permissions")
+            Console.error("Your API token needs 'API Inventory' permissions")
             self._print_error_details(response)
             return False
         
         elif status == 404:
             Console.error(f"{operation} failed: Not Found (HTTP 404)")
-            Console.error("Check your INVICTI_URL or the API may not exist")
+            Console.error("Check your INVICTI_URL")
+            return False
+        
+        elif status == 405:
+            Console.error(f"{operation} failed: Method Not Allowed (HTTP 405)")
+            Console.error("The endpoint may not support this operation")
+            self._print_error_details(response)
             return False
         
         elif status == 409:
             Console.warning(f"{operation}: Conflict (HTTP 409)")
-            Console.warning("API definition already exists with this name")
+            Console.warning("API definition conflict - this may indicate a duplicate")
             self._print_error_details(response)
             return False
         
