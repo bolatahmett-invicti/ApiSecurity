@@ -105,7 +105,7 @@ ENV TARGET_DIR=/code \
     SCANNER_MAX_FILE_SIZE=10 \
     SCANNER_INCREMENTAL=false \
     SCANNER_FAIL_ON_CRITICAL=false \
-    SCANNER_METRICS=false
+    SCANNER_METRICS=
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

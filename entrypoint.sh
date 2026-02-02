@@ -198,7 +198,7 @@ if [ -n "$SCANNER_AUDIT_LOG" ]; then
     SCANNER_CMD="$SCANNER_CMD --audit-log \"$SCANNER_AUDIT_LOG\""
 fi
 
-if [ -n "$SCANNER_METRICS" ]; then
+if [ -n "$SCANNER_METRICS" ] && [ "$SCANNER_METRICS" != "false" ]; then
     SCANNER_CMD="$SCANNER_CMD --metrics \"$SCANNER_METRICS\""
 fi
 
