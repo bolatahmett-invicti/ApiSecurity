@@ -793,18 +793,27 @@ class DotNetScanner(BaseScanner):
         """
         STATEFUL REGEX PARSING for .NET Controllers.
         Supports:
-        - Standard: public class XController : ControllerBase
+        - ASP.NET Core: public class XController : ControllerBase
+        - ASP.NET Web API 2: public class XController : ApiController (System.Web.Http)
         - Generated: public abstract class XControllerBase : Microsoft.AspNetCore.Mvc.Controller
         """
         results = []
         
+        # Detect if this is ASP.NET Web API 2 (System.Web.Http) or ASP.NET Core
+        is_webapi2 = "System.Web.Http" in content or "using System.Web.Http;" in content
+        
         # Extended pattern to match both standard and fully-qualified controller base classes
-        controller_pattern = r'public\s+(?:abstract\s+)?class\s+(\w+)\s*:\s*(?:Microsoft\.AspNetCore\.Mvc\.)?(Controller|ControllerBase|ApiController|ODataController)'
+        controller_pattern = r'public\s+(?:abstract\s+)?class\s+(\w+)\s*:\s*(?:Microsoft\.AspNetCore\.Mvc\.)?(Controller|ControllerBase|ApiController|ODataController|InvictiApiController|\w+ApiController|\w+Controller)'
         
         for class_match in re.finditer(controller_pattern, content, re.MULTILINE):
             controller_name = class_match.group(1)
+            base_class = class_match.group(2)
             class_start_pos = class_match.start()
             class_end_pos = class_match.end()
+            
+            # Skip if it's just a class ending with Controller but not inheriting from a controller base
+            if base_class not in ('Controller', 'ControllerBase', 'ApiController', 'ODataController') and not base_class.endswith('ApiController') and not base_class.endswith('Controller'):
+                continue
             
             lookback_start = max(0, class_start_pos - 500)
             preceding_text = content[lookback_start:class_start_pos]
@@ -815,6 +824,11 @@ class DotNetScanner(BaseScanner):
             route_match = re.search(r'\[(?:Microsoft\.AspNetCore\.Mvc\.)?Route\s*\(\s*["\']([^"\']+)["\']\s*\)\]', preceding_text)
             if route_match:
                 base_route = route_match.group(1)
+            
+            # ASP.NET Web API 2: Support [RoutePrefix("api/1.0/discovery")]
+            route_prefix_match = re.search(r'\[RoutePrefix\s*\(\s*["\']([^"\']+)["\']\s*\)\]', preceding_text)
+            if route_prefix_match:
+                base_route = route_prefix_match.group(1)
             
             if "[controller]" in base_route.lower():
                 ctrl_short_name = controller_name
@@ -854,6 +868,7 @@ class DotNetScanner(BaseScanner):
                 # Pattern 1: Standard format [HttpGet("route")] or [HttpGet]
                 # Pattern 2: Fully-qualified [Microsoft.AspNetCore.Mvc.HttpGet, Microsoft.AspNetCore.Mvc.Route("route")]
                 # Pattern 3: Inline combined [Microsoft.AspNetCore.Mvc.HttpPost, Microsoft.AspNetCore.Mvc.Route("scans")]
+                # Pattern 4: ASP.NET Web API 2: [HttpGet] standalone (route comes from separate [Route] attribute)
                 patterns = [
                     # Standard: [HttpGet("route")] or [HttpGet]
                     rf'\[{verb_attr}(?:\s*\(\s*["\']([^"\']*)["\']\s*\)|\s*\(\s*\))?\s*\]',
@@ -877,15 +892,25 @@ class DotNetScanner(BaseScanner):
                         method_context_start = max(0, verb_pos - 300)
                         method_preceding = class_body[method_context_start:verb_pos]
                         
-                        # Support both [Route("...")] and [Microsoft.AspNetCore.Mvc.Route("...")]
+                        # ASP.NET Web API 2 & Core: Support [Route("...")] attribute for method-level routes
                         method_route_attr = re.search(r'\[(?:Microsoft\.AspNetCore\.Mvc\.)?Route\s*\(\s*["\']([^"\']+)["\']\s*\)\]', method_preceding)
                         if method_route_attr and not method_route:
                             method_route = method_route_attr.group(1)
                         
+                        # Also check for [Route] after the verb attribute (common in Web API 2)
+                        method_following_block = class_body[verb_pos:verb_pos + 500]
+                        # Look for [Route("...")] between verb and method signature
+                        route_after_verb = re.search(r'\]\s*\[Route\s*\(\s*["\']([^"\']+)["\']\s*\)\]', method_following_block)
+                        if route_after_verb and not method_route:
+                            method_route = route_after_verb.group(1)
+                        
                         method_following = class_body[verb_pos:verb_pos + 500]
                         action_name = "Unknown"
                         
-                        sig_pattern = r'(?:public|private|protected)\s+(?:async\s+)?(?:virtual\s+)?(?:override\s+)?(?:Task<)?(?:IActionResult|ActionResult(?:<[^>]+>)?|[\w<>\[\]]+)>?\s+(\w+)\s*\('
+                        # Support both ASP.NET Core and Web API 2 return types
+                        # Core: IActionResult, ActionResult<T>, Task<IActionResult>
+                        # Web API 2: IHttpActionResult, HttpResponseMessage, Task<HttpResponseMessage>
+                        sig_pattern = r'(?:public|private|protected)\s+(?:async\s+)?(?:virtual\s+)?(?:override\s+)?(?:Task<)?(?:IActionResult|ActionResult(?:<[^>]+>)?|IHttpActionResult|HttpResponseMessage|[\w<>\[\]]+)>?\s+(\w+)\s*\('
                         sig_match = re.search(sig_pattern, method_following)
                         if sig_match:
                             action_name = sig_match.group(1)
@@ -908,9 +933,12 @@ class DotNetScanner(BaseScanner):
                         auth_context_end = min(len(class_body), verb_pos + 200)
                         auth_context = class_body[auth_context_start:auth_context_end]
                         
+                        # Check for authorization attributes (both Core and Web API 2)
                         if re.search(r'\[Authorize', auth_context, re.IGNORECASE):
                             auth_status = AuthStatus.PRIVATE
                         if re.search(r'\[Authorize', preceding_text, re.IGNORECASE):
+                            auth_status = AuthStatus.PRIVATE
+                        if re.search(r'\[ApiAuthorize', auth_context, re.IGNORECASE):  # Invicti custom auth
                             auth_status = AuthStatus.PRIVATE
                         
                         if re.search(r'\[AllowAnonymous\]', auth_context, re.IGNORECASE):
