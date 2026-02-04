@@ -904,7 +904,7 @@ class DotNetScanner(BaseScanner):
                         if route_after_verb and not method_route:
                             method_route = route_after_verb.group(1)
                         
-                        method_following = class_body[verb_pos:verb_pos + 500]
+                        method_following = class_body[verb_pos:verb_pos + 1000]  # Extended for parameter extraction
                         action_name = "Unknown"
                         
                         # Support both ASP.NET Core and Web API 2 return types
@@ -914,6 +914,9 @@ class DotNetScanner(BaseScanner):
                         sig_match = re.search(sig_pattern, method_following)
                         if sig_match:
                             action_name = sig_match.group(1)
+                        
+                        # Extract method parameters for payload discovery
+                        method_params = self._extract_method_parameters(method_following)
                         
                         if "[action]" in method_route.lower():
                             method_route = re.sub(r'\[action\]', action_name.lower(), method_route, flags=re.IGNORECASE)
@@ -960,6 +963,9 @@ class DotNetScanner(BaseScanner):
                                 "action": action_name,
                                 "base_route": base_route,
                                 "method_route": method_route,
+                                "parameters": method_params.get("parameters", []),
+                                "request_body": method_params.get("request_body"),
+                                "response_type": method_params.get("response_type"),
                             },
                         ))
         
@@ -988,6 +994,387 @@ class DotNetScanner(BaseScanner):
     def scan_with_heuristics(self, file_path: Path, content: str, lines: List[str]) -> List[Endpoint]:
         """No additional heuristics - deep scanning handles all controller patterns."""
         return []
+    
+    def _extract_method_parameters(self, method_body: str) -> Dict[str, Any]:
+        """
+        Extract method parameters including request body DTOs, query params, and route params.
+        Returns a dict with 'parameters' and 'request_body' info.
+        """
+        result = {
+            "parameters": [],
+            "request_body": None,
+            "response_type": None
+        }
+        
+        # Pattern to match method signature with parameters
+        # Handles: public async Task<IHttpActionResult> Create(CreateUserDto model, int page = 1)
+        sig_pattern = r'(?:public|private|protected)\s+(?:async\s+)?(?:virtual\s+)?(?:override\s+)?(?:Task<)?(?:IActionResult|ActionResult(?:<([^>]+)>)?|IHttpActionResult|HttpResponseMessage|([A-Z]\w+))>?\s+\w+\s*\(([^)]*)\)'
+        
+        sig_match = re.search(sig_pattern, method_body, re.DOTALL)
+        if not sig_match:
+            return result
+        
+        # Extract response type if present (from ActionResult<T> or return type)
+        response_type = sig_match.group(1) or sig_match.group(2)
+        if response_type and response_type not in ('IActionResult', 'IHttpActionResult', 'HttpResponseMessage', 'Task'):
+            result["response_type"] = response_type
+        
+        params_str = sig_match.group(3)
+        if not params_str or not params_str.strip():
+            return result
+        
+        # Parse individual parameters
+        # Handle complex generic types like Dictionary<string, object>
+        params = self._split_parameters(params_str)
+        
+        for param in params:
+            param = param.strip()
+            if not param:
+                continue
+            
+            param_info = self._parse_parameter(param)
+            if param_info:
+                # Determine if it's a body parameter or query/route parameter
+                if param_info.get("is_body"):
+                    result["request_body"] = param_info
+                else:
+                    result["parameters"].append(param_info)
+        
+        return result
+    
+    def _split_parameters(self, params_str: str) -> List[str]:
+        """Split parameter string handling nested generics."""
+        params = []
+        current = ""
+        depth = 0
+        
+        for char in params_str:
+            if char == '<':
+                depth += 1
+                current += char
+            elif char == '>':
+                depth -= 1
+                current += char
+            elif char == ',' and depth == 0:
+                params.append(current.strip())
+                current = ""
+            else:
+                current += char
+        
+        if current.strip():
+            params.append(current.strip())
+        
+        return params
+    
+    def _parse_parameter(self, param: str) -> Optional[Dict[str, Any]]:
+        """Parse a single parameter and determine its source and type."""
+        # Check for attribute annotations
+        from_body = bool(re.search(r'\[FromBody\]', param, re.IGNORECASE))
+        from_query = bool(re.search(r'\[FromQuery\]', param, re.IGNORECASE))
+        from_route = bool(re.search(r'\[FromRoute\]', param, re.IGNORECASE))
+        from_uri = bool(re.search(r'\[FromUri\]', param, re.IGNORECASE))  # Web API 2
+        
+        # Remove attributes for type parsing
+        clean_param = re.sub(r'\[[^\]]+\]\s*', '', param).strip()
+        
+        # Parse type and name: "CreateUserDto model" or "int page = 1"
+        # Handle nullable types: "int? page"
+        type_pattern = r'^([\w<>,\[\]\?\.]+)\s+(\w+)(?:\s*=\s*(.+))?$'
+        match = re.match(type_pattern, clean_param)
+        
+        if not match:
+            return None
+        
+        param_type = match.group(1)
+        param_name = match.group(2)
+        default_value = match.group(3)
+        
+        # Determine if this is a complex type (likely request body)
+        is_complex_type = self._is_complex_type(param_type)
+        
+        # In Web API 2, complex types without [FromUri] are body by default
+        # Simple types are query params by default
+        is_body = from_body or (is_complex_type and not from_query and not from_route and not from_uri)
+        
+        param_info = {
+            "name": param_name,
+            "type": param_type,
+            "is_body": is_body,
+            "is_query": from_query or from_uri or (not is_complex_type and not from_body and not from_route),
+            "is_route": from_route,
+            "required": default_value is None,
+            "default": default_value,
+            "schema": self._type_to_schema(param_type)
+        }
+        
+        return param_info
+    
+    def _is_complex_type(self, type_name: str) -> bool:
+        """Check if a type is a complex type (DTO/Model) vs primitive."""
+        # Simple/primitive types
+        simple_types = {
+            'int', 'long', 'short', 'byte', 'float', 'double', 'decimal',
+            'bool', 'boolean', 'string', 'char', 'guid', 'datetime',
+            'int32', 'int64', 'int16', 'uint', 'uint32', 'uint64',
+            'timespan', 'datetimeoffset', 'object', 'dynamic'
+        }
+        
+        # Remove nullable indicator and array brackets
+        clean_type = type_name.lower().replace('?', '').replace('[]', '')
+        
+        # Check for collections of simple types
+        if re.match(r'^(list|ienumerable|icollection|array)<', clean_type):
+            inner = re.search(r'<(.+)>', clean_type)
+            if inner:
+                return self._is_complex_type(inner.group(1))
+        
+        return clean_type not in simple_types
+    
+    def _type_to_schema(self, type_name: str) -> Dict[str, Any]:
+        """Convert C# type to OpenAPI schema."""
+        type_lower = type_name.lower().replace('?', '')
+        
+        # Handle nullable
+        nullable = '?' in type_name
+        
+        # Integer types
+        if type_lower in ('int', 'int32', 'short', 'int16', 'byte'):
+            schema = {"type": "integer", "format": "int32"}
+        elif type_lower in ('long', 'int64'):
+            schema = {"type": "integer", "format": "int64"}
+        # Floating point
+        elif type_lower in ('float', 'single'):
+            schema = {"type": "number", "format": "float"}
+        elif type_lower in ('double', 'decimal'):
+            schema = {"type": "number", "format": "double"}
+        # Boolean
+        elif type_lower in ('bool', 'boolean'):
+            schema = {"type": "boolean"}
+        # String types
+        elif type_lower == 'string':
+            schema = {"type": "string"}
+        elif type_lower == 'guid':
+            schema = {"type": "string", "format": "uuid"}
+        elif type_lower in ('datetime', 'datetimeoffset'):
+            schema = {"type": "string", "format": "date-time"}
+        elif type_lower == 'timespan':
+            schema = {"type": "string", "format": "duration"}
+        # Arrays
+        elif type_lower.endswith('[]'):
+            inner_type = type_name[:-2]
+            schema = {"type": "array", "items": self._type_to_schema(inner_type)}
+        # Generic collections
+        elif re.match(r'^(list|ienumerable|icollection|array)<', type_lower):
+            inner = re.search(r'<(.+)>', type_name)
+            if inner:
+                schema = {"type": "array", "items": self._type_to_schema(inner.group(1))}
+            else:
+                schema = {"type": "array", "items": {"type": "object"}}
+        # Complex types - reference to schema
+        else:
+            schema = {"$ref": f"#/components/schemas/{type_name}"}
+        
+        if nullable:
+            schema["nullable"] = True
+        
+        return schema
+
+
+# =============================================================================
+# DTO/MODEL SCHEMA EXTRACTOR
+# =============================================================================
+class DtoSchemaExtractor:
+    """
+    Extract DTO/Model class definitions and convert to OpenAPI schemas.
+    Parses C# class files to build component schemas.
+    """
+    
+    def __init__(self):
+        self.schemas: Dict[str, Dict[str, Any]] = {}
+        self._files_content: Dict[str, str] = {}
+        self._processed_types: Set[str] = set()
+    
+    def index_files(self, target_path: Path, ignore_dirs: Set[str]):
+        """Index all C# files for DTO lookup."""
+        for root, dirs, files in os.walk(target_path):
+            dirs[:] = [d for d in dirs if d not in ignore_dirs]
+            
+            for f in files:
+                if f.endswith('.cs'):
+                    fp = Path(root) / f
+                    try:
+                        with open(fp, 'r', encoding='utf-8', errors='ignore') as file:
+                            self._files_content[str(fp)] = file.read()
+                    except IOError:
+                        continue
+    
+    def extract_schema(self, type_name: str) -> Optional[Dict[str, Any]]:
+        """Extract schema for a DTO type by searching through indexed files."""
+        # Clean type name
+        clean_name = type_name.split('.')[-1].replace('?', '').replace('[]', '')
+        
+        # Skip if already processed
+        if clean_name in self._processed_types:
+            return self.schemas.get(clean_name)
+        
+        self._processed_types.add(clean_name)
+        
+        # Search for class definition
+        for file_path, content in self._files_content.items():
+            schema = self._extract_class_schema(clean_name, content)
+            if schema:
+                self.schemas[clean_name] = schema
+                return schema
+        
+        return None
+    
+    def _extract_class_schema(self, class_name: str, content: str) -> Optional[Dict[str, Any]]:
+        """Extract schema from a class definition."""
+        # Pattern to find class/record definition
+        # Handles: public class CreateUserDto, public record UserModel, public class UserDto : BaseDto
+        class_pattern = rf'(?:public|internal)\s+(?:partial\s+)?(?:class|record|struct)\s+{re.escape(class_name)}(?:\s*<[^>]+>)?(?:\s*:\s*[^{{]+)?\s*\{{'
+        
+        match = re.search(class_pattern, content, re.IGNORECASE)
+        if not match:
+            return None
+        
+        # Find the class body
+        class_start = match.end() - 1  # Start at opening brace
+        brace_depth = 1
+        class_end = class_start + 1
+        
+        while brace_depth > 0 and class_end < len(content):
+            if content[class_end] == '{':
+                brace_depth += 1
+            elif content[class_end] == '}':
+                brace_depth -= 1
+            class_end += 1
+        
+        class_body = content[class_start:class_end]
+        
+        # Extract properties
+        properties = {}
+        required = []
+        
+        # Pattern for properties:
+        # public string Name { get; set; }
+        # public int? Age { get; set; }
+        # [Required] public string Email { get; set; }
+        # [JsonProperty("user_name")] public string UserName { get; set; }
+        prop_pattern = r'(?:\[([^\]]+)\]\s*)*(?:public|internal)\s+([\w<>,\[\]\?\.]+)\s+(\w+)\s*\{\s*get;'
+        
+        for prop_match in re.finditer(prop_pattern, class_body):
+            attributes = prop_match.group(1) or ""
+            prop_type = prop_match.group(2)
+            prop_name = prop_match.group(3)
+            
+            # Skip backing fields or internal properties
+            if prop_name.startswith('_'):
+                continue
+            
+            # Check for JsonProperty name override
+            json_name = prop_name
+            json_prop_match = re.search(r'JsonProperty\s*\(\s*["\']([^"\']+)["\']', attributes)
+            if json_prop_match:
+                json_name = json_prop_match.group(1)
+            
+            # Convert to camelCase for JSON (common convention)
+            json_key = json_name[0].lower() + json_name[1:] if json_name else json_name
+            
+            # Build property schema
+            prop_schema = self._type_to_openapi_schema(prop_type)
+            
+            # Add description from XML comments if available (simplified)
+            properties[json_key] = prop_schema
+            
+            # Check if required
+            if 'Required' in attributes or ('?' not in prop_type and not self._is_nullable_reference(prop_type)):
+                # Only mark as required if has [Required] attribute
+                if 'Required' in attributes:
+                    required.append(json_key)
+            
+            # Check for nested complex types and extract them
+            if '$ref' in prop_schema or (prop_schema.get('type') == 'array' and '$ref' in prop_schema.get('items', {})):
+                nested_type = prop_type.replace('?', '').replace('[]', '')
+                # Extract generic type
+                generic_match = re.search(r'<(.+)>', nested_type)
+                if generic_match:
+                    nested_type = generic_match.group(1)
+                
+                if nested_type not in self._processed_types:
+                    self.extract_schema(nested_type)
+        
+        schema = {
+            "type": "object",
+            "properties": properties
+        }
+        
+        if required:
+            schema["required"] = required
+        
+        return schema if properties else None
+    
+    def _type_to_openapi_schema(self, type_name: str) -> Dict[str, Any]:
+        """Convert C# type to OpenAPI schema."""
+        type_lower = type_name.lower().replace('?', '')
+        nullable = '?' in type_name
+        
+        # Integer types
+        if type_lower in ('int', 'int32', 'short', 'int16', 'byte'):
+            schema = {"type": "integer", "format": "int32"}
+        elif type_lower in ('long', 'int64'):
+            schema = {"type": "integer", "format": "int64"}
+        # Floating point
+        elif type_lower in ('float', 'single'):
+            schema = {"type": "number", "format": "float"}
+        elif type_lower in ('double', 'decimal'):
+            schema = {"type": "number", "format": "double"}
+        # Boolean
+        elif type_lower in ('bool', 'boolean'):
+            schema = {"type": "boolean"}
+        # String types
+        elif type_lower == 'string':
+            schema = {"type": "string"}
+        elif type_lower == 'guid':
+            schema = {"type": "string", "format": "uuid"}
+        elif type_lower in ('datetime', 'datetimeoffset'):
+            schema = {"type": "string", "format": "date-time"}
+        elif type_lower == 'timespan':
+            schema = {"type": "string", "format": "duration"}
+        elif type_lower == 'object':
+            schema = {"type": "object"}
+        # Arrays
+        elif type_lower.endswith('[]'):
+            inner_type = type_name[:-2]
+            schema = {"type": "array", "items": self._type_to_openapi_schema(inner_type)}
+        # Generic collections
+        elif re.match(r'^(list|ienumerable|icollection|ilist|array|hashset)<', type_lower):
+            inner = re.search(r'<(.+)>', type_name)
+            if inner:
+                schema = {"type": "array", "items": self._type_to_openapi_schema(inner.group(1))}
+            else:
+                schema = {"type": "array", "items": {"type": "object"}}
+        # Dictionary types
+        elif re.match(r'^(dictionary|idictionary|concurrentdictionary)<', type_lower):
+            schema = {"type": "object", "additionalProperties": True}
+        # Complex types - reference to schema
+        else:
+            clean_type = type_name.split('.')[-1].replace('?', '').replace('[]', '')
+            # Remove generic part for reference
+            clean_type = re.sub(r'<.+>', '', clean_type)
+            schema = {"$ref": f"#/components/schemas/{clean_type}"}
+        
+        if nullable and '$ref' not in schema:
+            schema["nullable"] = True
+        
+        return schema
+    
+    def _is_nullable_reference(self, type_name: str) -> bool:
+        """Check if type is a nullable reference type."""
+        simple_types = {'int', 'long', 'short', 'byte', 'float', 'double', 'decimal', 
+                       'bool', 'boolean', 'char', 'guid', 'datetime', 'timespan'}
+        return type_name.lower() not in simple_types
+
 
 # =============================================================================
 # GO SCANNER (Standard lib + Gin + Echo + Fiber)
@@ -2641,9 +3028,11 @@ def generate_openapi_spec(endpoints: List[Endpoint], target: str, service_name: 
             elif ep.auth_status == AuthStatus.PUBLIC:
                 operation["security"] = []  # No security required
             
+            # Initialize parameters list
+            operation["parameters"] = []
+            
             # Add path parameters
             if path_params:
-                operation["parameters"] = []
                 for param in path_params:
                     operation["parameters"].append({
                         "name": param,
@@ -2655,19 +3044,86 @@ def generate_openapi_spec(endpoints: List[Endpoint], target: str, service_name: 
                         "description": f"Path parameter: {param}"
                     })
             
-            # Add request body for mutation methods
+            # Add query parameters from metadata
+            if ep.metadata.get("parameters"):
+                for param_info in ep.metadata["parameters"]:
+                    if param_info.get("is_query") and param_info["name"] not in path_params:
+                        param_schema = param_info.get("schema", {"type": "string"})
+                        # Don't include $ref in query params - use primitive type
+                        if "$ref" in param_schema:
+                            param_schema = {"type": "string"}
+                        
+                        operation["parameters"].append({
+                            "name": param_info["name"],
+                            "in": "query",
+                            "required": param_info.get("required", False),
+                            "schema": param_schema,
+                            "description": f"Query parameter: {param_info['name']} ({param_info.get('type', 'unknown')})"
+                        })
+            
+            # Remove empty parameters list
+            if not operation["parameters"]:
+                del operation["parameters"]
+            
+            # Add request body for mutation methods with discovered payload info
             if method in ["post", "put", "patch"]:
-                operation["requestBody"] = {
-                    "description": "Request body",
-                    "required": False,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object"
+                request_body_info = ep.metadata.get("request_body")
+                
+                if request_body_info and request_body_info.get("type"):
+                    # We have discovered a request body DTO
+                    body_type = request_body_info["type"]
+                    body_schema = request_body_info.get("schema", {"type": "object"})
+                    
+                    operation["requestBody"] = {
+                        "description": f"Request body: {body_type}",
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": body_schema
                             }
                         }
                     }
+                    
+                    # Track schema reference for later resolution
+                    if "$ref" in body_schema:
+                        schema_name = body_schema["$ref"].split("/")[-1]
+                        if schema_name not in spec["components"]["schemas"]:
+                            spec["components"]["schemas"][schema_name] = {
+                                "type": "object",
+                                "description": f"Auto-discovered DTO: {schema_name}",
+                                "x-discovered-from": ep.file_path
+                            }
+                else:
+                    # Fallback to generic object
+                    operation["requestBody"] = {
+                        "description": "Request body",
+                        "required": False,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+            
+            # Add response schema if discovered
+            response_type = ep.metadata.get("response_type")
+            if response_type:
+                operation["responses"]["200"]["content"] = {
+                    "application/json": {
+                        "schema": {
+                            "$ref": f"#/components/schemas/{response_type}"
+                        }
+                    }
                 }
+                # Track schema reference
+                if response_type not in spec["components"]["schemas"]:
+                    spec["components"]["schemas"][response_type] = {
+                        "type": "object",
+                        "description": f"Auto-discovered response type: {response_type}",
+                        "x-discovered-from": ep.file_path
+                    }
             
             path_item[method] = operation
         
@@ -2692,7 +3148,8 @@ def _generate_operation_id(route: str, method: str, ep: Endpoint) -> str:
     return f"{method}_{clean_route}"
 
 
-def export_openapi(endpoints: List[Endpoint], target: str, output_file: str, service_name: Optional[str] = None) -> None:
+def export_openapi(endpoints: List[Endpoint], target: str, output_file: str, service_name: Optional[str] = None, 
+                   extract_schemas: bool = True) -> None:
     """
     Export endpoints to an OpenAPI 3.0 specification file.
     
@@ -2701,8 +3158,53 @@ def export_openapi(endpoints: List[Endpoint], target: str, output_file: str, ser
         target: Source directory or URL that was scanned  
         output_file: Path to write the OpenAPI spec
         service_name: Optional microservice identifier for enterprise deployments
+        extract_schemas: Whether to extract DTO schemas from source files
     """
     spec = generate_openapi_spec(endpoints, target, service_name)
+    
+    # Extract DTO schemas if enabled
+    if extract_schemas and os.path.isdir(target):
+        console.print("[cyan]Extracting DTO/Model schemas...[/cyan]")
+        extractor = DtoSchemaExtractor()
+        extractor.index_files(Path(target), DEFAULT_IGNORE_DIRS)
+        
+        # Find all schema references that need resolution
+        schemas_to_resolve = set()
+        for path_item in spec["paths"].values():
+            for operation in path_item.values():
+                # Check request body
+                if "requestBody" in operation:
+                    content = operation["requestBody"].get("content", {})
+                    for media_type in content.values():
+                        schema = media_type.get("schema", {})
+                        if "$ref" in schema:
+                            schema_name = schema["$ref"].split("/")[-1]
+                            schemas_to_resolve.add(schema_name)
+                
+                # Check responses
+                for response in operation.get("responses", {}).values():
+                    content = response.get("content", {})
+                    for media_type in content.values():
+                        schema = media_type.get("schema", {})
+                        if "$ref" in schema:
+                            schema_name = schema["$ref"].split("/")[-1]
+                            schemas_to_resolve.add(schema_name)
+        
+        # Resolve schemas
+        resolved_count = 0
+        for schema_name in schemas_to_resolve:
+            extracted = extractor.extract_schema(schema_name)
+            if extracted:
+                spec["components"]["schemas"][schema_name] = extracted
+                resolved_count += 1
+        
+        # Add all extracted schemas (including nested ones)
+        for name, schema in extractor.schemas.items():
+            if name not in spec["components"]["schemas"]:
+                spec["components"]["schemas"][name] = schema
+        
+        console.print(f"  • Resolved {resolved_count} schema references")
+        console.print(f"  • Total schemas: {len(spec['components']['schemas'])}")
     
     with open(output_file, 'w', encoding='utf-8') as f:
         json.dump(spec, f, indent=2)
@@ -2710,10 +3212,12 @@ def export_openapi(endpoints: List[Endpoint], target: str, output_file: str, ser
     # Print summary
     path_count = len(spec["paths"])
     operation_count = sum(len(methods) for methods in spec["paths"].values())
+    schema_count = len(spec.get("components", {}).get("schemas", {}))
     
     console.print(f"\n[green]✓ OpenAPI 3.0 spec exported: {output_file}[/green]")
     console.print(f"  • Paths: {path_count}")
     console.print(f"  • Operations: {operation_count}")
+    console.print(f"  • Schemas: {schema_count}")
     console.print(f"  • Ready for import into Invicti/Burp Suite/DAST tools")
 
 

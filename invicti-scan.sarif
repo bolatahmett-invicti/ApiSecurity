@@ -1,0 +1,3704 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Universal Polyglot API Scanner",
+          "version": "4.0.0",
+          "informationUri": "https://github.com/your-org/api-scanner",
+          "rules": [
+            {
+              "id": "API001",
+              "name": "ShadowAPI",
+              "shortDescription": {
+                "text": "Shadow API detected without authentication info"
+              },
+              "fullDescription": {
+                "text": "An API endpoint was discovered that lacks explicit authentication configuration."
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              },
+              "helpUri": "https://owasp.org/API-Security/editions/2023/en/0xa5-broken-function-level-authorization/"
+            },
+            {
+              "id": "API002",
+              "name": "HighRiskEndpoint",
+              "shortDescription": {
+                "text": "High risk endpoint detected"
+              },
+              "fullDescription": {
+                "text": "An API endpoint with critical or high risk characteristics was detected."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://owasp.org/API-Security/"
+            },
+            {
+              "id": "API003",
+              "name": "PublicSensitiveEndpoint",
+              "shortDescription": {
+                "text": "Sensitive endpoint is publicly accessible"
+              },
+              "fullDescription": {
+                "text": "An endpoint handling sensitive data is marked as public."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+            },
+            {
+              "id": "API004",
+              "name": "PolicyViolation",
+              "shortDescription": {
+                "text": "Security policy violation"
+              },
+              "fullDescription": {
+                "text": "The endpoint violates a defined security policy."
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              },
+              "helpUri": "https://owasp.org/API-Security/"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET /api/1.0/members/getapitoken. Reasons: auth: \\btoken\\b, pii: \\bemail\\b, pii: \\baddress\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 109
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "auth: \\btoken\\b",
+              "pii: \\bemail\\b",
+              "pii: \\baddress\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "error",
+          "message": {
+            "text": "High risk endpoint: GET /api/1.0/members/getbyemail. Reasons: pii: \\bemail\\b, pii: \\baddress\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 148
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "pii: \\bemail\\b",
+              "pii: \\baddress\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: POST /api/1.0/members/sendinvitationemail. Reasons: pii: \\bemail\\b, Shadow API"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 641
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "UNKNOWN",
+            "riskReasons": [
+              "pii: \\bemail\\b",
+              "Shadow API"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/members/sendinvitationemail has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 641
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API002",
+          "level": "warning",
+          "message": {
+            "text": "High risk endpoint: GET /api/1.0/issues/summary. Reasons: admin: \\broot\\b"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Vulnerabilities/IssuesController.cs"
+                },
+                "region": {
+                  "startLine": 139
+                }
+              }
+            }
+          ],
+          "properties": {
+            "framework": "ASP.NET",
+            "authStatus": "PRIVATE",
+            "riskReasons": [
+              "admin: \\broot\\b"
+            ]
+          }
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/1.0/discovery/connections has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 367
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/1.0/discovery/connectionbyid has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 405
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/discovery/deleteconnection has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 436
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/discovery/createconnection has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 492
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/discovery/editconnection has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 543
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/1.0/discovery/connection/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 569
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/discovery/connection/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 456
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/integrations has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/IntegrationsController.cs"
+                },
+                "region": {
+                  "startLine": 41
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/settings has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 241
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/settings has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 48
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/settings has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 144
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/settings has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 175
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/settings has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 202
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/notifications/delete has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/NotificationsController.cs"
+                },
+                "region": {
+                  "startLine": 52
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/notifications/setpriorities has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/NotificationsController.cs"
+                },
+                "region": {
+                  "startLine": 244
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/notifications/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/NotificationsController.cs"
+                },
+                "region": {
+                  "startLine": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/ssrf has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SsrfController.cs"
+                },
+                "region": {
+                  "startLine": 29
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/account has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/AccountController.cs"
+                },
+                "region": {
+                  "startLine": 131
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/1.0/members/get/{id?} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 222
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/1.0/members/getinvitation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 493
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/members/delete/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 179
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/members/new has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 262
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/members/update has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 334
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/members/newinvitation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 540
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/members/deleteinvitation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 703
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/1.0/members/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 382
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/members/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 191
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/members/invitation/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 728
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/roles/new has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/roles/update has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 125
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/roles/delete/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 192
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/1.0/roles/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 157
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/roles/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 203
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/team/new has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 95
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/team/update has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 160
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/team/delete/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 262
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/1.0/team/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 191
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/team/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 273
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 290
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 299
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 332
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 352
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 394
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 423
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 535
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1099
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1135
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1471
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1619
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 575
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 634
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 774
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 800
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 834
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1383
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1671
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 451
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 476
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 600
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 660
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 710
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 860
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 871
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 931
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 989
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1017
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1064
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1251
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1311
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1335
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1359
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1607
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/agent has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1679
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/agents/delete has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentsController.cs"
+                },
+                "region": {
+                  "startLine": 117
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/agents/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentsController.cs"
+                },
+                "region": {
+                  "startLine": 143
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 168
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 219
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 300
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 338
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 376
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 562
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 576
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 598
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 145
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 403
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 482
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 605
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 104
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/verifier has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 261
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/lateconfirmation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 56
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/lateconfirmation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 112
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/lateconfirmation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 133
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/lateconfirmation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 148
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/lateconfirmation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 166
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/lateconfirmation has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 183
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/1.0/apihub has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubController.cs"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/nad/heartbeat has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubNadController.cs"
+                },
+                "region": {
+                  "startLine": 27
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/nad/heartbeat has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubNadController.cs"
+                },
+                "region": {
+                  "startLine": 35
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/v1/agents/poll has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubZeroConfigAgentsController.cs"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/v1/agents/jobs/{jobId}/upload has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubZeroConfigAgentsController.cs"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/v1/agents/jobs/{jobId}/message has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubZeroConfigAgentsController.cs"
+                },
+                "region": {
+                  "startLine": 105
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/1.0/mend/mappings/get has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Mend/MendController.cs"
+                },
+                "region": {
+                  "startLine": 23
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/scanpolicies/delete has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Scans/ScanPoliciesController.cs"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: DELETE /api/1.0/scanpolicies/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Scans/ScanPoliciesController.cs"
+                },
+                "region": {
+                  "startLine": 65
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: GET /api/1.0/issues/report has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Vulnerabilities/IssuesController.cs"
+                },
+                "region": {
+                  "startLine": 406
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: POST /api/1.0/issues/update has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Vulnerabilities/IssuesController.cs"
+                },
+                "region": {
+                  "startLine": 209
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API001",
+          "level": "warning",
+          "message": {
+            "text": "Shadow API: PUT /api/1.0/issues/{id} has no explicit authentication configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Vulnerabilities/IssuesController.cs"
+                },
+                "region": {
+                  "startLine": 265
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 436
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 492
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 543
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 569
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/DiscoveryController.cs"
+                },
+                "region": {
+                  "startLine": 456
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 48
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 144
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 175
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/SettingsController.cs"
+                },
+                "region": {
+                  "startLine": 202
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/NotificationsController.cs"
+                },
+                "region": {
+                  "startLine": 52
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/NotificationsController.cs"
+                },
+                "region": {
+                  "startLine": 244
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/NotificationsController.cs"
+                },
+                "region": {
+                  "startLine": 77
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/AccountController.cs"
+                },
+                "region": {
+                  "startLine": 131
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 179
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 262
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 334
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 540
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 641
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 703
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 382
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 191
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/MembersController.cs"
+                },
+                "region": {
+                  "startLine": 728
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 88
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 125
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 192
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 157
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/RolesController.cs"
+                },
+                "region": {
+                  "startLine": 203
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 95
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 160
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 262
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 191
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Accounts/TeamController.cs"
+                },
+                "region": {
+                  "startLine": 273
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 575
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 634
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 774
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 800
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 834
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1383
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1671
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 451
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 476
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 600
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 660
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 710
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 860
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 871
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 931
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 989
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1017
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1064
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1251
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1311
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1335
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1359
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1607
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentController.cs"
+                },
+                "region": {
+                  "startLine": 1679
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentsController.cs"
+                },
+                "region": {
+                  "startLine": 117
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/AgentsController.cs"
+                },
+                "region": {
+                  "startLine": 143
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 145
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 403
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 482
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 605
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 104
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/VerifierController.cs"
+                },
+                "region": {
+                  "startLine": 261
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 133
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 148
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 166
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Agents/LateConfirmationController.cs"
+                },
+                "region": {
+                  "startLine": 183
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubNadController.cs"
+                },
+                "region": {
+                  "startLine": 27
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubNadController.cs"
+                },
+                "region": {
+                  "startLine": 35
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubZeroConfigAgentsController.cs"
+                },
+                "region": {
+                  "startLine": 28
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubZeroConfigAgentsController.cs"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/ApiHub/ApiHubZeroConfigAgentsController.cs"
+                },
+                "region": {
+                  "startLine": 105
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Scans/ScanPoliciesController.cs"
+                },
+                "region": {
+                  "startLine": 49
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Scans/ScanPoliciesController.cs"
+                },
+                "region": {
+                  "startLine": 65
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Vulnerabilities/IssuesController.cs"
+                },
+                "region": {
+                  "startLine": 209
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "API004",
+          "level": "warning",
+          "message": {
+            "text": "Policy 'no-shadow-mutation': Mutation endpoints must have explicit authentication"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "C:/Users/AhmetBolat/Projects/Invicti/Netsparker/Enterprise/source/src/Invicti.Enterprise.Web.Api/Api/Controllers/Vulnerabilities/IssuesController.cs"
+                },
+                "region": {
+                  "startLine": 265
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "invocations": [
+        {
+          "executionSuccessful": true,
+          "endTimeUtc": "2026-02-02T09:30:58.022332Z"
+        }
+      ]
+    }
+  ]
+}
