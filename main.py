@@ -907,7 +907,7 @@ class DotNetScanner(BaseScanner):
                         method_following = class_body[verb_pos:verb_pos + 1000]  # Extended for parameter extraction
                         action_name = "Unknown"
                         
-                        # Support both ASP.NET Core and Web API 2 return types
+                        # Support both ASP.NET Core and Web API 2 return types.
                         # Core: IActionResult, ActionResult<T>, Task<IActionResult>
                         # Web API 2: IHttpActionResult, HttpResponseMessage, Task<HttpResponseMessage>
                         sig_pattern = r'(?:public|private|protected)\s+(?:async\s+)?(?:virtual\s+)?(?:override\s+)?(?:Task<)?(?:IActionResult|ActionResult(?:<[^>]+>)?|IHttpActionResult|HttpResponseMessage|[\w<>\[\]]+)>?\s+(\w+)\s*\('
