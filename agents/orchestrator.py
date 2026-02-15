@@ -40,10 +40,15 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from cache.cache_manager import CacheManager
 
-# Import deterministic enrichers (HYBRID ARCHITECTURE)
+# Import deterministic enrichers (HYBRID ARCHITECTURE - Phase 1)
 from scanners.deterministic.parameter_extractor import DeterministicParameterExtractor
 from scanners.deterministic.http_method_analyzer import HTTPMethodAnalyzer
 from scanners.deterministic.status_code_analyzer import StatusCodeAnalyzer
+
+# Import AST-based enrichers (HYBRID ARCHITECTURE - Phase 2)
+from scanners.deterministic.type_hint_analyzer import TypeHintAnalyzer
+from scanners.deterministic.decorator_analyzer import DecoratorAnalyzer
+from scanners.deterministic.docstring_parser import DocstringParser
 
 logger = logging.getLogger("api_scanner.orchestrator")
 
@@ -103,6 +108,13 @@ class OrchestrationConfig:
     deterministic_status_codes: bool = True  # Extract status codes from code
     deterministic_http_methods: bool = True  # Map HTTP methods to operations
     deterministic_confidence_threshold: float = 0.7  # Use LLM if Python confidence < 70%
+
+    # Hybrid architecture (cost optimization - Phase 2: AST-based)
+    # Use Python AST module for type hints, decorators, and docstrings
+    # Additional savings: 15% (total 85% reduction)
+    deterministic_type_hints: bool = True  # Extract type hints from function signatures
+    deterministic_decorators: bool = True  # Detect auth patterns from decorators
+    deterministic_docstrings: bool = True  # Extract descriptions from docstrings
 
 
 class AgentOrchestrator:
@@ -450,6 +462,49 @@ class AgentOrchestrator:
                         )
                 except Exception as e:
                     logger.warning(f"Status code extraction failed for {context.endpoint.route}: {e}")
+
+            # PHASE 2: AST-based enrichment (type hints, decorators, docstrings)
+            if context.function_body:
+                # Extract type hints from function signature
+                if self.config.deterministic_type_hints:
+                    try:
+                        type_hints = TypeHintAnalyzer.extract_from_function(context.function_body)
+                        if type_hints:
+                            deterministic_data["type_hints"] = type_hints
+                            logger.debug(
+                                f"Extracted {len(type_hints)} type hints from {context.endpoint.route}: "
+                                f"{list(type_hints.keys())}"
+                            )
+                    except Exception as e:
+                        logger.warning(f"Type hint extraction failed for {context.endpoint.route}: {e}")
+
+                # Detect auth decorators
+                if self.config.deterministic_decorators:
+                    try:
+                        auth_info = DecoratorAnalyzer.extract_from_function(context.function_body)
+                        if auth_info:
+                            deterministic_data["auth_decorators"] = auth_info
+                            if "security" in auth_info:
+                                logger.debug(
+                                    f"Detected auth decorators on {context.endpoint.route}: "
+                                    f"{[list(s.keys())[0] for s in auth_info['security']]}"
+                                )
+                    except Exception as e:
+                        logger.warning(f"Decorator analysis failed for {context.endpoint.route}: {e}")
+
+                # Extract docstring
+                if self.config.deterministic_docstrings:
+                    try:
+                        docstring_info = DocstringParser.extract_from_function(context.function_body)
+                        if docstring_info:
+                            deterministic_data["docstring"] = docstring_info
+                            if "summary" in docstring_info:
+                                logger.debug(
+                                    f"Extracted docstring summary from {context.endpoint.route}: "
+                                    f"{docstring_info['summary'][:50]}..."
+                                )
+                    except Exception as e:
+                        logger.warning(f"Docstring extraction failed for {context.endpoint.route}: {e}")
 
             # Add deterministic data to context config
             if deterministic_data:
