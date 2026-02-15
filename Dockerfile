@@ -125,11 +125,22 @@ ENV TARGET_DIR=/code \
     # AI Enrichment v5.0 configuration (NEW!)
     SCANNER_AI_ENRICH=false \
     SCANNER_NO_CACHE=false \
+    # Multi-provider LLM support
+    LLM_PROVIDER=anthropic \
+    LLM_API_KEY= \
+    LLM_MODEL= \
+    LLM_MAX_TOKENS=4096 \
+    # Provider-specific API keys
     ANTHROPIC_API_KEY= \
+    OPENAI_API_KEY= \
+    GOOGLE_API_KEY= \
+    AWS_ACCESS_KEY_ID= \
+    AWS_SECRET_ACCESS_KEY= \
+    AWS_REGION=us-east-1 \
+    # Enrichment configuration
     ENRICHMENT_CACHE_DIR=/.cache/enrichment \
     ENRICHMENT_CACHE_TTL=604800 \
     ENRICHMENT_MAX_WORKERS=3 \
-    ENRICHMENT_MODEL=claude-sonnet-4-5-20250929 \
     ENRICHMENT_AGENTS=openapi_enrichment,auth_flow_detector,payload_generator,dependency_graph \
     ENRICHMENT_FALLBACK_ENABLED=true
 

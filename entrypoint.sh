@@ -173,11 +173,56 @@ fi
 # Log v5.0 AI options
 if [ "$SCANNER_AI_ENRICH" = "true" ]; then
     log_info "AI Enrichment:    Enabled"
-    if [ -n "$ANTHROPIC_API_KEY" ]; then
-        log_info "Claude API Key:   Configured"
-    else
-        log_warning "Claude API Key:   Missing (will fallback to basic export)"
+
+    # Determine LLM provider
+    LLM_PROVIDER="${LLM_PROVIDER:-anthropic}"
+    log_info "LLM Provider:     $LLM_PROVIDER"
+
+    # Check provider-specific API key
+    HAS_API_KEY=false
+    case "$LLM_PROVIDER" in
+        anthropic)
+            if [ -n "$ANTHROPIC_API_KEY" ]; then
+                log_info "Claude API Key:   Configured"
+                HAS_API_KEY=true
+            else
+                log_warning "Claude API Key:   Missing"
+            fi
+            ;;
+        openai)
+            if [ -n "$OPENAI_API_KEY" ]; then
+                log_info "OpenAI API Key:   Configured"
+                HAS_API_KEY=true
+            else
+                log_warning "OpenAI API Key:   Missing"
+            fi
+            ;;
+        gemini)
+            if [ -n "$GOOGLE_API_KEY" ]; then
+                log_info "Gemini API Key:   Configured"
+                HAS_API_KEY=true
+            else
+                log_warning "Gemini API Key:   Missing"
+            fi
+            ;;
+        bedrock)
+            if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+                log_info "AWS Credentials:  Configured"
+                log_info "AWS Region:       ${AWS_REGION:-us-east-1}"
+                HAS_API_KEY=true
+            else
+                log_warning "AWS Credentials:  Missing"
+            fi
+            ;;
+        *)
+            log_warning "Unknown provider: $LLM_PROVIDER (will fallback to basic export)"
+            ;;
+    esac
+
+    if [ "$HAS_API_KEY" = "false" ]; then
+        log_warning "No API key found for $LLM_PROVIDER (will fallback to basic export)"
     fi
+
     if [ "$SCANNER_NO_CACHE" = "true" ]; then
         log_info "Enrichment Cache: Disabled"
     fi
