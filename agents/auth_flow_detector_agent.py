@@ -299,7 +299,7 @@ OUTPUT (JSON only):
             )
 
         except Exception as e:
-            self.logger.error(f"Auth detection failed: {e}", exc_info=True)
+            self._log_error("Auth detection failed", e)
             return EnrichmentResult(
                 status=AgentStatus.FAILED,
                 errors=[str(e)]
@@ -337,7 +337,7 @@ OUTPUT (JSON only):
             )
 
         except Exception as e:
-            self.logger.error(f"Security analysis failed: {e}", exc_info=True)
+            self._log_error("Security analysis failed", e)
             return EnrichmentResult(
                 status=AgentStatus.FAILED,
                 errors=[str(e)]

@@ -198,7 +198,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
             )
 
         except Exception as e:
-            self.logger.error(f"Enrichment failed: {e}", exc_info=True)
+            self._log_error("Enrichment failed", e)
             return EnrichmentResult(
                 status=AgentStatus.FAILED,
                 errors=[str(e)]

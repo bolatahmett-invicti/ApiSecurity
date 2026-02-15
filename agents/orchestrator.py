@@ -210,10 +210,26 @@ class AgentOrchestrator:
             return enriched_spec
 
         except Exception as e:
-            logger.error(f"Orchestration failed: {e}", exc_info=True)
+            error_msg = str(e)
+
+            # For user-friendly errors, don't show full traceback
+            if any(phrase in error_msg.lower() for phrase in [
+                "aws bedrock authentication failed",
+                "authentication failed",
+                "invalid or expired aws credentials",
+                "rate limit exceeded",
+                "quota exceeded",
+                "invalid model"
+            ]):
+                # Clean error message without traceback for known user errors
+                logger.error(f"Orchestration failed: {error_msg}")
+            else:
+                # Full traceback for unexpected errors (debugging)
+                logger.error(f"Orchestration failed: {e}", exc_info=True)
+
             if self.config.fallback_enabled:
                 logger.warning("Falling back to basic export")
-                return {"error": str(e), "fallback": True}
+                return {"error": error_msg, "fallback": True}
             raise
 
     def _build_contexts(

@@ -350,3 +350,43 @@ class BaseAgent(ABC):
     def get_stats(self) -> Dict[str, int]:
         """Get agent statistics."""
         return self.stats.copy()
+
+    def _is_user_friendly_error(self, error: Exception) -> bool:
+        """
+        Check if an error is a known user-friendly error that doesn't need a traceback.
+
+        Args:
+            error: Exception to check
+
+        Returns:
+            True if error is user-friendly and doesn't need traceback
+        """
+        error_msg = str(error).lower()
+        user_friendly_phrases = [
+            "aws bedrock authentication failed",
+            "authentication failed",
+            "invalid or expired",
+            "rate limit exceeded",
+            "quota exceeded",
+            "invalid model",
+            "access denied",
+            "throttling",
+            "insufficient",
+            "unauthorized"
+        ]
+        return any(phrase in error_msg for phrase in user_friendly_phrases)
+
+    def _log_error(self, message: str, error: Exception):
+        """
+        Log an error, with or without traceback depending on error type.
+
+        Args:
+            message: Log message
+            error: Exception that occurred
+        """
+        if self._is_user_friendly_error(error):
+            # Clean error message without traceback for known user errors
+            self.logger.error(f"{message}: {error}")
+        else:
+            # Full traceback for unexpected errors (debugging)
+            self.logger.error(f"{message}: {error}", exc_info=True)

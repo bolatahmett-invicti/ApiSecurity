@@ -313,7 +313,7 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
             )
 
         except Exception as e:
-            self.logger.error(f"Dependency analysis failed: {e}", exc_info=True)
+            self._log_error("Dependency analysis failed", e)
             return EnrichmentResult(
                 status=AgentStatus.FAILED,
                 errors=[str(e)]

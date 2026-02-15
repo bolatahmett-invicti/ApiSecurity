@@ -3295,6 +3295,38 @@ def export_openapi_enriched(
         export_openapi(endpoints, target, output_file, service_name)
         return
 
+    # Validate credentials before starting enrichment
+    console.print(f"\n[cyan]Validating {provider_name} credentials...[/cyan]")
+    from agents.llm_provider import LLMProviderFactory
+
+    validation_kwargs = {}
+    if provider == "bedrock":
+        validation_kwargs["secret_key"] = os.getenv("AWS_SECRET_ACCESS_KEY")
+        validation_kwargs["region"] = os.getenv("AWS_REGION", "us-east-1")
+
+    is_valid, validation_error = LLMProviderFactory.validate_credentials(
+        provider, api_key, **validation_kwargs
+    )
+
+    if not is_valid:
+        console.print(f"[red]✗ Credential validation failed: {validation_error}[/red]")
+        if provider == "anthropic":
+            console.print("[yellow]   Please check your ANTHROPIC_API_KEY[/yellow]")
+        elif provider == "openai":
+            console.print("[yellow]   Please check your OPENAI_API_KEY[/yellow]")
+        elif provider == "gemini":
+            console.print("[yellow]   Please check your GOOGLE_API_KEY[/yellow]")
+        elif provider == "bedrock":
+            console.print("[yellow]   Please check your AWS credentials:[/yellow]")
+            console.print("[yellow]     - AWS_ACCESS_KEY_ID[/yellow]")
+            console.print("[yellow]     - AWS_SECRET_ACCESS_KEY[/yellow]")
+            console.print("[yellow]     - AWS_REGION[/yellow]")
+            console.print("[yellow]   Visit AWS Console > Bedrock > Model access to enable models[/yellow]")
+        console.print("[yellow]   Falling back to basic OpenAPI export...[/yellow]")
+        export_openapi(endpoints, target, output_file, service_name)
+        return
+
+    console.print(f"[green]✓ Credentials validated successfully[/green]")
     console.print(f"\n[bold cyan]🤖 AI-Powered Enrichment Starting ({provider_name})...[/bold cyan]")
 
     # Get model name (provider-specific defaults handled by LLMProviderFactory)

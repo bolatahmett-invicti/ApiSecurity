@@ -590,3 +590,71 @@ class LLMProviderFactory:
                 f"Unknown model '{model}' for provider '{provider_type}'. "
                 f"Known models: {', '.join(models[:3])}..."
             )
+
+    @classmethod
+    def validate_credentials(cls, provider_type: str, api_key: str, **kwargs) -> tuple:
+        """
+        Validate provider credentials by making a test API call.
+
+        Args:
+            provider_type: Provider type (anthropic, openai, gemini, bedrock)
+            api_key: API key for the provider
+            **kwargs: Additional provider-specific arguments
+
+        Returns:
+            Tuple of (is_valid: bool, error_message: str)
+        """
+        provider_type = provider_type.lower()
+
+        try:
+            if provider_type == "anthropic":
+                return cls._validate_anthropic(api_key)
+            elif provider_type == "openai":
+                return cls._validate_openai(api_key)
+            elif provider_type == "gemini":
+                return cls._validate_gemini(api_key)
+            elif provider_type == "bedrock":
+                secret_key = kwargs.get("secret_key")
+                region = kwargs.get("region", "us-east-1")
+                return cls._validate_bedrock(api_key, secret_key, region)
+            else:
+                return (False, f"Unknown provider: {provider_type}")
+        except Exception as e:
+            return (False, f"Validation failed: {str(e)}")
+
+    @staticmethod
+    def _validate_bedrock(access_key: str, secret_key: str, region: str) -> tuple:
+        """Validate AWS Bedrock credentials."""
+        try:
+            import boto3
+            from botocore.exceptions import ClientError, NoCredentialsError
+
+            # Create bedrock client for validation
+            try:
+                bedrock_client = boto3.client(
+                    "bedrock",
+                    region_name=region,
+                    aws_access_key_id=access_key,
+                    aws_secret_access_key=secret_key
+                )
+                # Try to list available models (lightweight operation)
+                bedrock_client.list_foundation_models(byProvider="anthropic")
+                return (True, "Valid")
+            except ClientError as e:
+                error_code = e.response.get("Error", {}).get("Code", "")
+                error_msg = str(e).lower()
+
+                if "unrecognizedclientexception" in error_msg or "security token" in error_msg:
+                    return (False, "Invalid or expired AWS credentials")
+                elif "accessdenied" in error_code.lower():
+                    return (False, "Access denied - check IAM permissions for Bedrock")
+                elif "invalidclienttokenid" in error_code.lower():
+                    return (False, "Invalid AWS access key ID")
+                else:
+                    return (False, f"AWS validation error: {error_code}")
+            except NoCredentialsError:
+                return (False, "No AWS credentials provided")
+            except Exception as e:
+                return (False, f"Validation error: {str(e)}")
+        except ImportError:
+            return (False, "boto3 package not installed")
