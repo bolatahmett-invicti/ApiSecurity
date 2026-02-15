@@ -71,7 +71,68 @@ from dotenv import load_dotenv
 import git
 
 load_dotenv()
-console = Console()
+
+# Configure Rich Console with platform compatibility
+import platform
+IS_WINDOWS = platform.system() == "Windows"
+IS_CI = os.getenv("CI", "").lower() in ("true", "1")  # Detect CI environments
+
+# Determine if we should use ASCII-safe icons
+# Use ASCII on: Windows, CI environments, or when NO_COLOR is set
+USE_ASCII_ICONS = IS_WINDOWS or IS_CI or os.getenv("NO_COLOR")
+
+if IS_WINDOWS or IS_CI:
+    # Windows/CI: Handle encoding issues with UTF-8
+    try:
+        import io
+        # Reconfigure stdout/stderr to use UTF-8 with error replacement
+        if hasattr(sys.stdout, 'buffer'):
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace', line_buffering=True)
+        if hasattr(sys.stderr, 'buffer'):
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace', line_buffering=True)
+    except Exception:
+        pass
+
+# Create console with platform-safe settings
+console = Console(
+    force_terminal=True if IS_CI else None,  # Force terminal output in CI
+    legacy_windows=IS_WINDOWS,  # Use legacy mode on Windows
+    emoji=not USE_ASCII_ICONS,  # Disable emoji on Windows/CI to prevent encoding errors
+    force_jupyter=False
+)
+
+# Icon helper with platform fallbacks
+def get_icon(name: str) -> str:
+    """
+    Get icon with fallback for different platforms.
+
+    Returns ASCII-safe characters on Windows and CI environments,
+    Unicode/emoji on Unix terminals.
+    """
+    if USE_ASCII_ICONS:
+        # ASCII-safe icons for Windows/CI
+        icons = {
+            'success': '[OK]',
+            'error': '[X]',
+            'warning': '[!]',
+            'arrow': '>',
+            'search': '*',
+            'info': 'i',
+            'check': 'v',
+        }
+        return icons.get(name, '*')
+    else:
+        # Unicode/emoji for Unix terminals
+        icons = {
+            'success': '✓',
+            'error': '✗',
+            'warning': '⚠',
+            'arrow': '▶',
+            'search': '🔍',
+            'info': 'ℹ',
+            'check': '✓',
+        }
+        return icons.get(name, '•')
 
 # =============================================================================
 # LOGGING CONFIGURATION
@@ -3362,7 +3423,7 @@ def export_openapi(endpoints: List[Endpoint], target: str, output_file: str, ser
     operation_count = sum(len(methods) for methods in spec["paths"].values())
     schema_count = len(spec.get("components", {}).get("schemas", {}))
     
-    console.print(f"\n[green]✓ OpenAPI 3.0 spec exported: {output_file}[/green]")
+    console.print(f"\n[green]{get_icon('success')} OpenAPI 3.0 spec exported: {output_file}[/green]")
     console.print(f"  • Paths: {path_count}")
     console.print(f"  • Operations: {operation_count}")
     console.print(f"  • Schemas: {schema_count}")
@@ -3425,13 +3486,13 @@ def export_openapi_enriched(
             api_key = None
         provider_name = "AWS Bedrock"
     else:
-        console.print(f"[yellow]⚠️ Unknown LLM provider: {provider}[/yellow]")
+        console.print(f"[yellow]{get_icon('warning')} Unknown LLM provider: {provider}[/yellow]")
         console.print("[yellow]   Supported providers: anthropic, openai, gemini, bedrock[/yellow]")
         export_openapi(endpoints, target, output_file, service_name)
         return
 
     if not api_key:
-        console.print(f"[yellow]⚠️ API key not found for {provider_name}. Falling back to basic OpenAPI export.[/yellow]")
+        console.print(f"[yellow]{get_icon('warning')} API key not found for {provider_name}. Falling back to basic OpenAPI export.[/yellow]")
         if provider == "anthropic":
             console.print("[yellow]   Set ANTHROPIC_API_KEY in .env to enable AI enrichment.[/yellow]")
         elif provider == "openai":
@@ -3457,7 +3518,7 @@ def export_openapi_enriched(
     )
 
     if not is_valid:
-        console.print(f"[red]✗ Credential validation failed: {validation_error}[/red]")
+        console.print(f"[red]{get_icon('error')} Credential validation failed: {validation_error}[/red]")
         if provider == "anthropic":
             console.print("[yellow]   Please check your ANTHROPIC_API_KEY[/yellow]")
         elif provider == "openai":
@@ -3474,7 +3535,7 @@ def export_openapi_enriched(
         export_openapi(endpoints, target, output_file, service_name)
         return
 
-    console.print(f"[green]✓ Credentials validated successfully[/green]")
+    console.print(f"[green]{get_icon('success')} Credentials validated successfully[/green]")
     console.print(f"\n[bold cyan]🤖 AI-Powered Enrichment Starting ({provider_name})...[/bold cyan]")
 
     # Get model name (provider-specific defaults handled by LLMProviderFactory)
@@ -3524,7 +3585,7 @@ def export_openapi_enriched(
                         code_map[ep.file_path] = f.read()
                     seen_files.add(ep.file_path)
                 except Exception as e:
-                    console.print(f"[yellow]  ⚠️ Could not read {ep.file_path}: {e}[/yellow]")
+                    console.print(f"[yellow]  {get_icon('warning')} Could not read {ep.file_path}: {e}[/yellow]")
 
         console.print(f"[cyan]Loaded {len(code_map)} source files[/cyan]")
 
@@ -3571,13 +3632,13 @@ def export_openapi_enriched(
         console.print(f"\n[green]✓ Ready for import into Invicti with complete payloads and auth config[/green]")
 
     except ValueError as e:
-        console.print(f"[red]✗ Configuration error: {e}[/red]")
+        console.print(f"[red]{get_icon('error')} Configuration error: {e}[/red]")
         console.print(f"[yellow]   Please check your API key and provider settings[/yellow]")
         console.print(f"[yellow]   Falling back to basic OpenAPI export...[/yellow]")
         export_openapi(endpoints, target, output_file, service_name)
 
     except ImportError as e:
-        console.print(f"[yellow]⚠️ AI enrichment dependencies not installed: {e}[/yellow]")
+        console.print(f"[yellow]{get_icon('warning')} AI enrichment dependencies not installed: {e}[/yellow]")
         console.print(f"[yellow]   Run: pip install -r requirements.txt[/yellow]")
         console.print(f"[yellow]   Falling back to basic OpenAPI export...[/yellow]")
         export_openapi(endpoints, target, output_file, service_name)
@@ -3587,7 +3648,7 @@ def export_openapi_enriched(
 
         # Check for common error patterns
         if "aws bedrock" in error_msg:
-            console.print(f"[red]✗ AWS Bedrock error: {e}[/red]")
+            console.print(f"[red]{get_icon('error')} AWS Bedrock error: {e}[/red]")
             if "authentication" in error_msg or "credentials" in error_msg:
                 console.print(f"[yellow]   Please verify your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY[/yellow]")
                 console.print(f"[yellow]   Run: aws configure (or set environment variables)[/yellow]")
@@ -3597,20 +3658,20 @@ def export_openapi_enriched(
             elif "access denied" in error_msg or "permissions" in error_msg:
                 console.print(f"[yellow]   Please verify your IAM user/role has bedrock:InvokeModel permission[/yellow]")
         elif "rate limit" in error_msg or "429" in error_msg or "throttling" in error_msg:
-            console.print(f"[red]✗ Rate limit exceeded: {e}[/red]")
+            console.print(f"[red]{get_icon('error')} Rate limit exceeded: {e}[/red]")
             console.print(f"[yellow]   Please wait a moment and try again[/yellow]")
             console.print(f"[yellow]   Consider reducing ENRICHMENT_MAX_WORKERS in .env[/yellow]")
         elif "quota" in error_msg or "insufficient" in error_msg:
-            console.print(f"[red]✗ Quota exceeded or insufficient credits: {e}[/red]")
+            console.print(f"[red]{get_icon('error')} Quota exceeded or insufficient credits: {e}[/red]")
             console.print(f"[yellow]   Please check your account balance at your provider[/yellow]")
         elif "authentication" in error_msg or "unauthorized" in error_msg or "401" in error_msg:
-            console.print(f"[red]✗ Authentication failed: {e}[/red]")
+            console.print(f"[red]{get_icon('error')} Authentication failed: {e}[/red]")
             console.print(f"[yellow]   Please verify your API key is correct and active[/yellow]")
         elif "invalid" in error_msg and "model" in error_msg:
-            console.print(f"[red]✗ Invalid model: {e}[/red]")
+            console.print(f"[red]{get_icon('error')} Invalid model: {e}[/red]")
             console.print(f"[yellow]   Please check LLM_MODEL in .env or use provider default[/yellow]")
         else:
-            console.print(f"[red]✗ AI enrichment failed: {e}[/red]")
+            console.print(f"[red]{get_icon('error')} AI enrichment failed: {e}[/red]")
 
         if config.fallback_enabled:
             console.print(f"[yellow]   Falling back to basic OpenAPI export...[/yellow]")
@@ -3626,7 +3687,7 @@ def clone_repo(url: str) -> str:
     tmp = tempfile.mkdtemp(prefix="polyglot_scan_")
     console.print(f"[cyan]Cloning: {url}[/cyan]")
     git.Repo.clone_from(url, tmp, depth=1)
-    console.print(f"[green]✓ Cloned[/green]")
+    console.print(f"[green]{get_icon('success')} Cloned[/green]")
     return tmp
 
 # =============================================================================
@@ -3758,26 +3819,32 @@ Examples:
     
     try:
         # Clone if URL
+        is_temp_clone = False
         if target.startswith(("http://", "https://", "git@")):
             tmp = clone_repo(target)
             target = tmp
+            is_temp_clone = True  # Skip strict validation for temp git clones
         elif not os.path.exists(target):
             console.print(f"[red]Error: {target} not found[/red]")
             sys.exit(1)
 
-        # Security: Validate scan path
-        try:
-            target_path = validate_scan_path(target)
-            target = str(target_path)  # Use validated path
-        except PathSecurityError as e:
-            console.print(f"[red]✗ Security Error:[/red] {e}")
-            if audit:
-                audit.log_event("security_violation", {
-                    "error": str(e),
-                    "attempted_path": target,
-                    "user": os.getenv("USER", os.getenv("USERNAME", "unknown"))
-                })
-            sys.exit(1)
+        # Security: Validate scan path (skip for temp git clones unless explicitly required)
+        # Only enforce if ALLOWED_SCAN_DIRS is set and not a temp clone
+        skip_validation = is_temp_clone and not os.getenv("ENFORCE_PATH_VALIDATION", "").lower() == "true"
+
+        if not skip_validation:
+            try:
+                target_path = validate_scan_path(target)
+                target = str(target_path)  # Use validated path
+            except PathSecurityError as e:
+                console.print(f"[red]{get_icon('error')} Security Error:[/red] {e}")
+                if audit:
+                    audit.log_event("security_violation", {
+                        "error": str(e),
+                        "attempted_path": target,
+                        "user": os.getenv("USER", os.getenv("USERNAME", "unknown"))
+                    })
+                sys.exit(1)
         
         # Log scan start
         if audit:
@@ -3963,7 +4030,7 @@ Examples:
             with open(sarif_file, 'w') as f:
                 f.write(sarif_output)
             if not args.quiet:
-                console.print(f"[green]✓ SARIF exported: {sarif_file}[/green]")
+                console.print(f"[green]{get_icon('success')} SARIF exported: {sarif_file}[/green]")
         
         # JUnit export
         if args.export_junit:
@@ -3977,7 +4044,7 @@ Examples:
             with open(junit_file, 'w') as f:
                 f.write(junit_output)
             if not args.quiet:
-                console.print(f"[green]✓ JUnit exported: {junit_file}[/green]")
+                console.print(f"[green]{get_icon('success')} JUnit exported: {junit_file}[/green]")
         
         # Metrics export
         if metrics:
@@ -3986,7 +4053,7 @@ Examples:
             with open(args.metrics, 'w') as f:
                 f.write(metrics.to_prometheus())
             if not args.quiet:
-                console.print(f"[green]✓ Metrics exported: {args.metrics}[/green]")
+                console.print(f"[green]{get_icon('success')} Metrics exported: {args.metrics}[/green]")
         
         # Log completion
         if audit:

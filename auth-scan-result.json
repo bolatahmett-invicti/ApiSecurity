@@ -1,0 +1,818 @@
+{
+  "timestamp": "2026-02-15T14:25:06.804785",
+  "scan_id": "38f8fe6b",
+  "target": "C:/Users/AhmetBolat/Projects/PoC/Claude/ApiSecurity_TestApp/test-microservices/auth-service",
+  "version": "4.0.0",
+  "summary": {
+    "total": 30,
+    "files_scanned": 1,
+    "files_skipped": 0,
+    "files_errored": 0,
+    "by_language": {
+      "JavaScript": 30
+    },
+    "by_risk": {
+      "HIGH": 8,
+      "INFO": 1,
+      "CRITICAL": 14,
+      "MEDIUM": 7
+    },
+    "by_auth": {
+      "PUBLIC": 3,
+      "UNKNOWN": 27
+    },
+    "by_framework": {
+      "Express": 30
+    },
+    "by_kind": {
+      "Endpoint": 30
+    },
+    "shadow_apis": 27,
+    "critical": 22
+  },
+  "endpoints": [
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 70,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/register",
+      "raw_match": "app.post('/api/v1/auth/register'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bemail\\b",
+        "pii: \\bphone\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 95,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/login",
+      "raw_match": "app.post('/api/v1/auth/login'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\bauth\\b",
+        "auth: \\bjwt\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 167,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/forgot-password",
+      "raw_match": "app.post('/api/v1/auth/forgot-password'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bemail\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 178,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/reset-password",
+      "raw_match": "app.post('/api/v1/auth/reset-password'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 193,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/verify-email",
+      "raw_match": "app.post('/api/v1/auth/verify-email'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "pii: \\bemail\\b",
+        "pii: \\baddress\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 230,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/v1/auth/mfa/disable",
+      "raw_match": "app.delete('/api/v1/auth/mfa/disable'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bpassword\\b",
+        "auth: \\bauth\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 305,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/v1/auth/api-keys/:keyId",
+      "raw_match": "app.delete('/api/v1/auth/api-keys/:keyId'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "auth: \\bapi.?key\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 362,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/internal/admin/users",
+      "raw_match": "app.get('/internal/admin/users'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 371,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/internal/admin/users/:userId/ban",
+      "raw_match": "app.post('/internal/admin/users/:userId/ban'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 381,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/internal/admin/users/:userId/unban",
+      "raw_match": "app.post('/internal/admin/users/:userId/unban'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 390,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/internal/admin/users/:userId",
+      "raw_match": "app.delete('/internal/admin/users/:userId'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 399,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/internal/admin/database/reset",
+      "raw_match": "app.post('/internal/admin/database/reset'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "admin: \\badmin\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 412,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/internal/token/introspect",
+      "raw_match": "app.post('/internal/token/introspect'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bjwt\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 427,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/internal/token/validate",
+      "raw_match": "app.post('/internal/token/validate'",
+      "risk_level": "CRITICAL",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bjwt\\b",
+        "admin: \\binternal\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 49,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health",
+      "raw_match": "app.get('/health'",
+      "risk_level": "HIGH",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Sensitive PUBLIC"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 53,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health/live",
+      "raw_match": "app.get('/health/live'",
+      "risk_level": "HIGH",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Sensitive PUBLIC"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 128,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/logout",
+      "raw_match": "app.post('/api/v1/auth/logout'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 138,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/refresh",
+      "raw_match": "app.post('/api/v1/auth/refresh'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\btoken\\b",
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 207,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/mfa/enable",
+      "raw_match": "app.post('/api/v1/auth/mfa/enable'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bsecret\\b",
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 258,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/v1/auth/sessions/:sessionId",
+      "raw_match": "app.delete('/api/v1/auth/sessions/:sessionId'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 267,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "DELETE",
+      "route": "/api/v1/auth/sessions",
+      "raw_match": "app.delete('/api/v1/auth/sessions'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Mutation: DELETE",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 289,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/api-keys",
+      "raw_match": "app.post('/api/v1/auth/api-keys'",
+      "risk_level": "HIGH",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "auth: \\bapi.?key\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 220,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "POST",
+      "route": "/api/v1/auth/mfa/verify",
+      "raw_match": "app.post('/api/v1/auth/mfa/verify'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 244,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/auth/sessions",
+      "raw_match": "app.get('/api/v1/auth/sessions'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 280,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/auth/api-keys",
+      "raw_match": "app.get('/api/v1/auth/api-keys'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 318,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/auth/oauth/google",
+      "raw_match": "app.get('/api/v1/auth/oauth/google'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 328,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/auth/oauth/google/callback",
+      "raw_match": "app.get('/api/v1/auth/oauth/google/callback'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 339,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/auth/oauth/github",
+      "raw_match": "app.get('/api/v1/auth/oauth/github'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 348,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/api/v1/auth/oauth/github/callback",
+      "raw_match": "app.get('/api/v1/auth/oauth/github/callback'",
+      "risk_level": "MEDIUM",
+      "auth_status": "UNKNOWN",
+      "risk_reasons": [
+        "auth: \\bauth\\b",
+        "Shadow API"
+      ],
+      "metadata": {}
+    },
+    {
+      "file_path": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+      "line_number": 57,
+      "language": "JavaScript",
+      "framework": "Express",
+      "kind": "Endpoint",
+      "method": "GET",
+      "route": "/health/ready",
+      "raw_match": "app.get('/health/ready'",
+      "risk_level": "INFO",
+      "auth_status": "PUBLIC",
+      "risk_reasons": [],
+      "metadata": {}
+    }
+  ],
+  "policy_violations": [
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/register",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 70,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/login",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 95,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/logout",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 128,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/refresh",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 138,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/forgot-password",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 167,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/reset-password",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 178,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/verify-email",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 193,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/mfa/enable",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 207,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/mfa/verify",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 220,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/mfa/disable",
+        "method": "DELETE",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 230,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/sessions/:sessionId",
+        "method": "DELETE",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 258,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/sessions",
+        "method": "DELETE",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 267,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/api-keys",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 289,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/api/v1/auth/api-keys/:keyId",
+        "method": "DELETE",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 305,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/internal/admin/users/:userId/ban",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 371,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/internal/admin/users/:userId/unban",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 381,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/internal/admin/users/:userId",
+        "method": "DELETE",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 390,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/internal/admin/database/reset",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 399,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/internal/token/introspect",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 412,
+        "auth_status": "UNKNOWN"
+      }
+    },
+    {
+      "policy": "no-shadow-mutation",
+      "description": "Mutation endpoints must have explicit authentication",
+      "severity": "HIGH",
+      "endpoint": {
+        "route": "/internal/token/validate",
+        "method": "POST",
+        "file": "C:\\Users\\AhmetBolat\\Projects\\PoC\\Claude\\ApiSecurity_TestApp\\test-microservices\\auth-service\\app.js",
+        "line": 427,
+        "auth_status": "UNKNOWN"
+      }
+    }
+  ]
+}
