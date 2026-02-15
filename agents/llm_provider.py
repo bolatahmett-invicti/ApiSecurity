@@ -2,7 +2,7 @@
 """
 LLM Provider Abstraction Layer
 ===============================
-Unified interface for multiple LLM providers (Claude, GPT, Gemini, Bedrock).
+Unified interface for multiple LLM providers (Claude, GPT, Gemini, Bedrock, Mock).
 
 This allows agents to work with any LLM provider without code changes.
 Simply configure the provider via environment variables.
@@ -12,6 +12,7 @@ Supported Providers:
 - OpenAI GPT-4
 - Google Gemini
 - AWS Bedrock (Claude, Llama, etc.)
+- Mock (for testing without API costs)
 
 Usage:
     provider = LLMProviderFactory.create(
@@ -20,6 +21,11 @@ Usage:
         model="claude-sonnet-4-5-20250929"
     )
     response = await provider.generate(system_prompt, user_prompt)
+
+Testing Usage:
+    export LLM_PROVIDER=mock
+    export MOCK_LLM_QUALITY=high  # high, medium, low
+    python main.py ./project --ai-enrich
 """
 
 from abc import ABC, abstractmethod
@@ -351,6 +357,50 @@ class BedrockProvider(LLMProvider):
 
 
 # =============================================================================
+# Mock Provider (for testing without API costs)
+# =============================================================================
+class MockProvider(LLMProvider):
+    """Mock LLM provider for testing without making real API calls."""
+
+    def __init__(self, api_key: str = "mock-key", model: str = "mock-model",
+                 max_tokens: int = 4096, quality: str = "high"):
+        super().__init__(api_key, model, max_tokens)
+        self.quality = quality.lower()
+        self.call_count = 0
+        logger.info(f"🧪 Mock LLM Provider initialized (quality: {self.quality})")
+
+    async def generate(self, system_prompt: str, user_prompt: str,
+                      temperature: float = 0.3) -> str:
+        """Generate mock response based on prompt."""
+        import json
+        self.call_count += 1
+
+        # Detect response type from keywords
+        if "openapi" in system_prompt.lower():
+            data = {"summary": "Mock endpoint", "responses": {"200": {"description": "Success"}}}
+        elif "auth" in system_prompt.lower():
+            data = {"authentication_mechanisms": [{"type": "bearer", "scheme": "JWT"}]}
+        elif "payload" in system_prompt.lower():
+            data = {"valid": [{"name": "test", "payload": {}, "expected_status": 200}],
+                   "security": [{"name": "sqli", "payload": {}, "expected_status": 400}]}
+        else:
+            data = {"result": "mock", "status": "success"}
+
+        json_str = json.dumps(data, indent=2)
+
+        # Apply quality degradation
+        if self.quality == "medium" and self.call_count % 3 == 0:
+            json_str = json_str.replace('",\n', '"\n', 1)
+        elif self.quality == "low":
+            json_str = json_str.replace('",\n', '"\n', 1).replace('}\n', '},\n', 1)
+
+        return json_str
+
+    def count_tokens(self, text: str) -> int:
+        return 0
+
+
+# =============================================================================
 # Provider Factory
 # =============================================================================
 class LLMProviderFactory:
@@ -370,6 +420,7 @@ class LLMProviderFactory:
         "openai": OpenAIProvider,
         "gemini": GeminiProvider,
         "bedrock": BedrockProvider,
+        "mock": MockProvider,  # For testing without API costs
     }
 
     @classmethod
@@ -406,7 +457,13 @@ class LLMProviderFactory:
                 f"Supported: {', '.join(cls._providers.keys())}"
             )
 
-        # Validate API key
+        # Skip validation for mock provider (used for testing)
+        if provider_type == "mock":
+            quality = kwargs.get("quality", os.getenv("MOCK_LLM_QUALITY", "high"))
+            logger.info(f"🧪 Creating Mock LLM Provider (quality: {quality}) - no API costs")
+            return MockProvider(quality=quality)
+
+        # Validate API key (not needed for mock)
         if not api_key or not isinstance(api_key, str) or len(api_key.strip()) == 0:
             raise ValueError(f"Invalid or empty API key for provider: {provider_type}")
 
