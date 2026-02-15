@@ -1,10 +1,10 @@
 #!/bin/bash
 # =============================================================================
-# Universal Polyglot API Scanner v4.0 - Docker Entrypoint
+# Universal Polyglot API Scanner v5.0 - Docker Entrypoint
 # =============================================================================
 # Orchestrates the scan-to-upload workflow:
-#   1. Run API Scanner on target directory (with v4.0 features)
-#   2. Generate OpenAPI 3.0 specification
+#   1. Run API Scanner on target directory (with v5.0 AI enrichment)
+#   2. Generate AI-enriched OpenAPI 3.0 specification
 #   3. Export SARIF/JUnit for CI/CD
 #   4. Optionally upload to Invicti DAST platform
 #
@@ -30,6 +30,14 @@
 #   SCANNER_POLICY_FILE - Policy file path (optional)
 #   SCANNER_AUDIT_LOG   - Audit log file (optional)
 #   SCANNER_METRICS     - Metrics output file (optional)
+#
+# v5.0 AI Enrichment Configuration:
+#   SCANNER_AI_ENRICH     - Enable AI-powered enrichment (true/false)
+#   SCANNER_NO_CACHE      - Disable enrichment cache (true/false)
+#   ANTHROPIC_API_KEY     - Anthropic Claude API key (required for AI)
+#   ENRICHMENT_CACHE_DIR  - Cache directory (default: /.cache/enrichment)
+#   ENRICHMENT_MODEL      - Claude model to use
+#   ENRICHMENT_MAX_WORKERS - Max concurrent enrichments (default: 3)
 #
 # Author: Principal Security Engineer
 # =============================================================================
@@ -92,6 +100,10 @@ SCANNER_POLICY_FILE="${SCANNER_POLICY_FILE:-}"
 SCANNER_AUDIT_LOG="${SCANNER_AUDIT_LOG:-}"
 SCANNER_METRICS="${SCANNER_METRICS:-}"
 
+# v5.0 AI Enrichment Configuration
+SCANNER_AI_ENRICH="${SCANNER_AI_ENRICH:-false}"
+SCANNER_NO_CACHE="${SCANNER_NO_CACHE:-false}"
+
 # =============================================================================
 # BANNER
 # =============================================================================
@@ -103,7 +115,7 @@ cat << 'EOF'
  | |_| | | | | |\ V /  __/ |  \__ \ (_| | | |  _  |  __/  | |  
   \___/|_| |_|_| \_/ \___|_|  |___/\__,_|_| \_| |_|_|     \_/  
                                                                 
-  API Scanner + DAST Integration  v4.0.0 - Production Ready
+  API Scanner + DAST Integration  v5.0.0 - AI-Enriched Edition
 EOF
 echo -e "${NC}"
 
@@ -158,10 +170,23 @@ if [ -n "$SCANNER_POLICY_FILE" ]; then
     log_info "Policy File:      $SCANNER_POLICY_FILE"
 fi
 
+# Log v5.0 AI options
+if [ "$SCANNER_AI_ENRICH" = "true" ]; then
+    log_info "AI Enrichment:    Enabled"
+    if [ -n "$ANTHROPIC_API_KEY" ]; then
+        log_info "Claude API Key:   Configured"
+    else
+        log_warning "Claude API Key:   Missing (will fallback to basic export)"
+    fi
+    if [ "$SCANNER_NO_CACHE" = "true" ]; then
+        log_info "Enrichment Cache: Disabled"
+    fi
+fi
+
 # =============================================================================
 # STEP 1: RUN API SCANNER
 # =============================================================================
-log_step "Step 1: Running Universal Polyglot API Scanner v4.0"
+log_step "Step 1: Running Universal Polyglot API Scanner v5.0"
 
 SCANNER_CMD="python /app/main.py \"$TARGET_DIR\" --export-openapi \"$OPENAPI_FILE\""
 
@@ -200,6 +225,17 @@ fi
 
 if [ -n "$SCANNER_METRICS" ] && [ "$SCANNER_METRICS" != "false" ]; then
     SCANNER_CMD="$SCANNER_CMD --metrics \"$SCANNER_METRICS\""
+fi
+
+# Add v5.0 AI enrichment options
+if [ "$SCANNER_AI_ENRICH" = "true" ]; then
+    SCANNER_CMD="$SCANNER_CMD --ai-enrich"
+    log_info "AI enrichment enabled"
+fi
+
+if [ "$SCANNER_NO_CACHE" = "true" ]; then
+    SCANNER_CMD="$SCANNER_CMD --no-cache"
+    log_info "Cache disabled - forcing fresh analysis"
 fi
 
 log_info "Executing: $SCANNER_CMD"
