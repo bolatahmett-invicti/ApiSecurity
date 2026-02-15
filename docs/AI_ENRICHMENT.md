@@ -136,19 +136,110 @@ The generated `enriched.json` file contains:
 Configure AI enrichment via `.env` file or environment variables:
 
 ```bash
-# Required
-ANTHROPIC_API_KEY=sk-ant-api03-...
+# LLM Provider Selection (v5.0+)
+LLM_PROVIDER=anthropic        # Options: anthropic, openai, gemini, bedrock
+LLM_API_KEY=                  # Universal API key (if provider-specific not set)
 
-# Optional (with defaults)
+# Provider-Specific API Keys
+ANTHROPIC_API_KEY=sk-ant-api03-...              # Anthropic Claude (default)
+OPENAI_API_KEY=sk-...                           # OpenAI GPT-4
+GOOGLE_API_KEY=...                              # Google Gemini
+AWS_ACCESS_KEY_ID=...                           # AWS Bedrock
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=us-east-1
+
+# Model Configuration (optional - uses provider defaults if not set)
+LLM_MODEL=                    # Override provider default model
+LLM_MAX_TOKENS=4096          # Maximum tokens for responses
+
+# Provider Defaults:
+#   Anthropic: claude-sonnet-4-5-20250929
+#   OpenAI: gpt-4-turbo
+#   Gemini: gemini-1.5-pro
+#   Bedrock: anthropic.claude-3-5-sonnet-20241022-v2:0
+
+# Enrichment Configuration
 ENABLE_AI_ENRICHMENT=false                    # Enable by default
 ENRICHMENT_CACHE_DIR=./.cache/enrichment      # Cache directory
 ENRICHMENT_CACHE_TTL=604800                   # Cache TTL (7 days)
 ENRICHMENT_MAX_WORKERS=3                      # Concurrent enrichments
-ENRICHMENT_MODEL=claude-sonnet-4-5-20250929   # Claude model
 ENRICHMENT_FALLBACK_ENABLED=true              # Fallback to basic export on error
 
 # Enabled agents (comma-separated)
 ENRICHMENT_AGENTS=openapi_enrichment,auth_flow_detector,payload_generator,dependency_graph
+```
+
+### Multi-Provider Support (v5.0+)
+
+The scanner now supports multiple AI providers beyond Anthropic Claude:
+
+#### Anthropic Claude (Default)
+```bash
+LLM_PROVIDER=anthropic
+ANTHROPIC_API_KEY=sk-ant-api03-...
+LLM_MODEL=claude-sonnet-4-5-20250929
+
+# Recommended models:
+# - claude-sonnet-4-5-20250929 (best balance)
+# - claude-opus-4-6 (most capable, expensive)
+# - claude-haiku-4-5-20251001 (fastest, cheapest)
+```
+
+#### OpenAI GPT-4
+```bash
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+LLM_MODEL=gpt-4-turbo
+
+# Available models:
+# - gpt-4-turbo (recommended for quality)
+# - gpt-4o (faster, cheaper)
+# - gpt-4o-mini (fastest, cheapest)
+```
+
+#### Google Gemini
+```bash
+LLM_PROVIDER=gemini
+GOOGLE_API_KEY=...
+LLM_MODEL=gemini-1.5-pro
+
+# Available models:
+# - gemini-1.5-pro (recommended)
+# - gemini-1.5-flash (faster, cheaper)
+```
+
+#### AWS Bedrock
+```bash
+LLM_PROVIDER=bedrock
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_REGION=us-east-1
+LLM_MODEL=anthropic.claude-3-5-sonnet-20241022-v2:0
+
+# Available models:
+# - anthropic.claude-3-5-sonnet-20241022-v2:0 (Claude via Bedrock)
+# - meta.llama3-70b-instruct-v1:0 (Llama 3)
+# - mistral.mistral-large-2402-v1:0 (Mistral)
+```
+
+#### Usage Examples
+```bash
+# Using OpenAI GPT-4
+export LLM_PROVIDER=openai
+export OPENAI_API_KEY=sk-...
+python main.py ./src --ai-enrich --export-openapi enriched.json
+
+# Using Google Gemini
+export LLM_PROVIDER=gemini
+export GOOGLE_API_KEY=...
+python main.py ./src --ai-enrich --export-openapi enriched.json
+
+# Using AWS Bedrock with Claude
+export LLM_PROVIDER=bedrock
+export AWS_ACCESS_KEY_ID=...
+export AWS_SECRET_ACCESS_KEY=...
+export LLM_MODEL=anthropic.claude-3-5-sonnet-20241022-v2:0
+python main.py ./src --ai-enrich --export-openapi enriched.json
 ```
 
 ### CLI Arguments

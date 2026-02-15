@@ -69,8 +69,9 @@ class OrchestrationConfig:
     max_endpoints_for_global_analysis: int = 100
     max_code_context_size: int = 2000  # chars
 
-    # Claude model
-    model: str = "claude-sonnet-4-5-20250929"
+    # LLM provider configuration
+    llm_provider: str = "anthropic"  # anthropic, openai, gemini, bedrock
+    model: str = None  # If None, uses provider default
     max_tokens: int = 4096
 
 
@@ -97,32 +98,55 @@ class AgentOrchestrator:
 
     def __init__(
         self,
-        anthropic_api_key: str,
+        api_key: str = None,
         cache_manager: Optional[CacheManager] = None,
-        config: Optional[OrchestrationConfig] = None
+        config: Optional[OrchestrationConfig] = None,
+        provider = None
     ):
         """
         Initialize orchestrator.
 
         Args:
-            anthropic_api_key: Anthropic API key for Claude
+            api_key: API key for LLM provider (legacy parameter, kept for backward compatibility)
             cache_manager: Optional cache manager for results
             config: Optional orchestration configuration
+            provider: Pre-configured LLMProvider instance (if None, will create from config/env)
         """
-        self.api_key = anthropic_api_key
+        self.api_key = api_key
         self.cache = cache_manager
         self.config = config or OrchestrationConfig()
 
-        # Initialize agents
+        # Create or use provided LLM provider
+        if provider is None:
+            from agents.llm_provider import LLMProviderFactory
+
+            # Try to create provider from config/env
+            if self.api_key:
+                provider_type = self.config.llm_provider
+                model = self.config.model
+                provider = LLMProviderFactory.create(
+                    provider_type=provider_type,
+                    api_key=self.api_key,
+                    model=model or LLMProviderFactory._get_default_model(provider_type),
+                    max_tokens=self.config.max_tokens
+                )
+            else:
+                # Use environment variables
+                provider = LLMProviderFactory.from_env()
+
+            logger.info(f"Created {provider.get_provider_name()} provider with model {provider.model}")
+
+        # Initialize agents with provider
         agent_config = {
+            "llm_provider": self.config.llm_provider,
             "model": self.config.model,
             "max_tokens": self.config.max_tokens
         }
 
-        self.openapi_agent = OpenAPIEnrichmentAgent(anthropic_api_key, agent_config)
-        self.auth_agent = AuthFlowDetectorAgent(anthropic_api_key, agent_config)
-        self.payload_agent = PayloadGeneratorAgent(anthropic_api_key, agent_config)
-        self.dependency_agent = DependencyGraphAgent(anthropic_api_key, agent_config)
+        self.openapi_agent = OpenAPIEnrichmentAgent(api_key=self.api_key, config=agent_config, provider=provider)
+        self.auth_agent = AuthFlowDetectorAgent(api_key=self.api_key, config=agent_config, provider=provider)
+        self.payload_agent = PayloadGeneratorAgent(api_key=self.api_key, config=agent_config, provider=provider)
+        self.dependency_agent = DependencyGraphAgent(api_key=self.api_key, config=agent_config, provider=provider)
 
         # Statistics
         self.stats = {

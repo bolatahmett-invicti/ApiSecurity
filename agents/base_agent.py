@@ -113,20 +113,21 @@ class BaseAgent(ABC):
                 pass
     """
 
-    def __init__(self, anthropic_api_key: str, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, api_key: str = None, config: Optional[Dict[str, Any]] = None, provider=None):
         """
         Initialize the agent.
 
         Args:
-            anthropic_api_key: Anthropic API key for Claude
+            api_key: API key (legacy parameter, kept for backward compatibility)
             config: Agent-specific configuration
+            provider: LLMProvider instance (if None, will create from config/env)
         """
-        self.api_key = anthropic_api_key
+        self.api_key = api_key
         self.config = config or {}
         self.logger = logging.getLogger(f"api_scanner.agents.{self.__class__.__name__}")
 
-        # Claude client (lazily initialized)
-        self._client = None
+        # LLM Provider (lazily initialized)
+        self._provider = provider
 
         # Statistics
         self.stats = {
@@ -138,16 +139,34 @@ class BaseAgent(ABC):
         }
 
     @property
-    def client(self):
-        """Lazy initialization of Anthropic client."""
-        if self._client is None:
+    def provider(self):
+        """Lazy initialization of LLM provider."""
+        if self._provider is None:
             try:
-                from anthropic import Anthropic
-                self._client = Anthropic(api_key=self.api_key)
-            except ImportError:
-                self.logger.error("anthropic package not installed. Run: pip install anthropic")
+                from agents.llm_provider import LLMProviderFactory
+
+                # Try to get provider from config first
+                provider_type = self.config.get("llm_provider", "anthropic")
+                model = self.config.get("model", None)
+                max_tokens = self.config.get("max_tokens", 4096)
+
+                # Use api_key if provided, otherwise let factory use environment variables
+                if self.api_key:
+                    self._provider = LLMProviderFactory.create(
+                        provider_type=provider_type,
+                        api_key=self.api_key,
+                        model=model or LLMProviderFactory._get_default_model(provider_type),
+                        max_tokens=max_tokens
+                    )
+                else:
+                    # Use environment variables
+                    self._provider = LLMProviderFactory.from_env()
+
+                self.logger.info(f"Initialized {self._provider.get_provider_name()} provider with model {self._provider.model}")
+            except ImportError as e:
+                self.logger.error(f"Failed to import LLM provider: {e}")
                 raise
-        return self._client
+        return self._provider
 
     @property
     @abstractmethod
@@ -157,13 +176,13 @@ class BaseAgent(ABC):
 
     @property
     def model(self) -> str:
-        """Claude model to use (can be overridden in config)."""
-        return self.config.get("model", "claude-sonnet-4-5-20250929")
+        """LLM model to use (from provider)."""
+        return self.provider.model
 
     @property
     def max_tokens(self) -> int:
-        """Maximum tokens for response."""
-        return self.config.get("max_tokens", 4096)
+        """Maximum tokens for response (from provider)."""
+        return self.provider.max_tokens
 
     @abstractmethod
     async def enrich(self, context: EnrichmentContext) -> EnrichmentResult:
@@ -186,16 +205,17 @@ class BaseAgent(ABC):
         """Build user prompt from context (override in subclasses)."""
         return "Analyze this API endpoint."
 
-    async def _call_claude(self, system_prompt: str, user_prompt: str) -> str:
+    async def _call_claude(self, system_prompt: str, user_prompt: str, temperature: float = 0.0) -> str:
         """
-        Call Claude API with retry logic and error handling.
+        Call LLM API with retry logic and error handling.
 
         Args:
             system_prompt: System instructions
             user_prompt: User query
+            temperature: Sampling temperature (0.0 = deterministic)
 
         Returns:
-            Claude's response text
+            LLM response text
 
         Raises:
             Exception: If API call fails after retries
@@ -205,7 +225,7 @@ class BaseAgent(ABC):
         except ImportError:
             self.logger.warning("tenacity not installed, retries disabled. Run: pip install tenacity")
             # Fallback to simple retry
-            return await self._call_claude_simple(system_prompt, user_prompt)
+            return await self._call_llm_simple(system_prompt, user_prompt, temperature)
 
         @retry(
             stop=stop_after_attempt(3),
@@ -214,48 +234,50 @@ class BaseAgent(ABC):
         async def _make_request():
             self.stats["total_calls"] += 1
 
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": user_prompt}
-                ]
+            # Use provider's generate method
+            response_text = await self.provider.generate(
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+                temperature=temperature
             )
 
             self.stats["successful_calls"] += 1
-            self.stats["tokens_used"] += response.usage.input_tokens + response.usage.output_tokens
 
-            return response.content[0].text
+            # Estimate tokens (all providers support count_tokens)
+            tokens_used = self.provider.count_tokens(system_prompt + user_prompt + response_text)
+            self.stats["tokens_used"] += tokens_used
+
+            return response_text
 
         try:
             return await _make_request()
         except Exception as e:
             self.stats["failed_calls"] += 1
-            self.logger.error(f"Claude API call failed: {e}")
+            self.logger.error(f"LLM API call failed: {e}")
             raise
 
-    async def _call_claude_simple(self, system_prompt: str, user_prompt: str) -> str:
-        """Simple Claude API call without retry library."""
+    async def _call_llm_simple(self, system_prompt: str, user_prompt: str, temperature: float = 0.0) -> str:
+        """Simple LLM API call without retry library."""
         import asyncio
 
         for attempt in range(3):
             try:
                 self.stats["total_calls"] += 1
 
-                response = self.client.messages.create(
-                    model=self.model,
-                    max_tokens=self.max_tokens,
-                    system=system_prompt,
-                    messages=[
-                        {"role": "user", "content": user_prompt}
-                    ]
+                # Use provider's generate method
+                response_text = await self.provider.generate(
+                    system_prompt=system_prompt,
+                    user_prompt=user_prompt,
+                    temperature=temperature
                 )
 
                 self.stats["successful_calls"] += 1
-                self.stats["tokens_used"] += response.usage.input_tokens + response.usage.output_tokens
 
-                return response.content[0].text
+                # Estimate tokens
+                tokens_used = self.provider.count_tokens(system_prompt + user_prompt + response_text)
+                self.stats["tokens_used"] += tokens_used
+
+                return response_text
 
             except Exception as e:
                 if attempt < 2:  # Retry
