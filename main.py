@@ -3390,6 +3390,12 @@ def export_openapi_enriched(
 
         console.print(f"\n[green]✓ Ready for import into Invicti with complete payloads and auth config[/green]")
 
+    except ValueError as e:
+        console.print(f"[red]✗ Configuration error: {e}[/red]")
+        console.print(f"[yellow]   Please check your API key and provider settings[/yellow]")
+        console.print(f"[yellow]   Falling back to basic OpenAPI export...[/yellow]")
+        export_openapi(endpoints, target, output_file, service_name)
+
     except ImportError as e:
         console.print(f"[yellow]⚠️ AI enrichment dependencies not installed: {e}[/yellow]")
         console.print(f"[yellow]   Run: pip install -r requirements.txt[/yellow]")
@@ -3397,7 +3403,25 @@ def export_openapi_enriched(
         export_openapi(endpoints, target, output_file, service_name)
 
     except Exception as e:
-        console.print(f"[red]✗ AI enrichment failed: {e}[/red]")
+        error_msg = str(e).lower()
+
+        # Check for common error patterns
+        if "rate limit" in error_msg or "429" in error_msg:
+            console.print(f"[red]✗ Rate limit exceeded: {e}[/red]")
+            console.print(f"[yellow]   Please wait a moment and try again[/yellow]")
+            console.print(f"[yellow]   Consider reducing ENRICHMENT_MAX_WORKERS in .env[/yellow]")
+        elif "quota" in error_msg or "insufficient" in error_msg:
+            console.print(f"[red]✗ Quota exceeded or insufficient credits: {e}[/red]")
+            console.print(f"[yellow]   Please check your account balance at your provider[/yellow]")
+        elif "authentication" in error_msg or "unauthorized" in error_msg or "401" in error_msg:
+            console.print(f"[red]✗ Authentication failed: {e}[/red]")
+            console.print(f"[yellow]   Please verify your API key is correct and active[/yellow]")
+        elif "invalid" in error_msg and "model" in error_msg:
+            console.print(f"[red]✗ Invalid model: {e}[/red]")
+            console.print(f"[yellow]   Please check LLM_MODEL in .env or use provider default[/yellow]")
+        else:
+            console.print(f"[red]✗ AI enrichment failed: {e}[/red]")
+
         if config.fallback_enabled:
             console.print(f"[yellow]   Falling back to basic OpenAPI export...[/yellow]")
             export_openapi(endpoints, target, output_file, service_name)

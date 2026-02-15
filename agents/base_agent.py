@@ -253,8 +253,24 @@ class BaseAgent(ABC):
             return await _make_request()
         except Exception as e:
             self.stats["failed_calls"] += 1
-            self.logger.error(f"LLM API call failed: {e}")
-            raise
+
+            # Enhanced error messages for common issues
+            error_msg = str(e).lower()
+            if "rate limit" in error_msg or "429" in error_msg:
+                self.logger.error(f"Rate limit exceeded. Consider reducing ENRICHMENT_MAX_WORKERS or adding delays.")
+                raise Exception(f"Rate limit exceeded: {e}")
+            elif "quota" in error_msg or "insufficient_quota" in error_msg:
+                self.logger.error(f"API quota exceeded or insufficient credits")
+                raise Exception(f"Quota exceeded: {e}")
+            elif "invalid_api_key" in error_msg or "authentication" in error_msg:
+                self.logger.error(f"API authentication failed. Check your API key.")
+                raise Exception(f"Authentication failed: {e}")
+            elif "invalid" in error_msg and ("model" in error_msg or "engine" in error_msg):
+                self.logger.error(f"Invalid model specified: {self.model}")
+                raise Exception(f"Invalid model: {e}")
+            else:
+                self.logger.error(f"LLM API call failed: {e}")
+                raise
 
     async def _call_llm_simple(self, system_prompt: str, user_prompt: str, temperature: float = 0.0) -> str:
         """Simple LLM API call without retry library."""

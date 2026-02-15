@@ -382,7 +382,7 @@ class LLMProviderFactory:
         **kwargs
     ) -> LLMProvider:
         """
-        Create LLM provider instance.
+        Create LLM provider instance with validation.
 
         Args:
             provider_type: Provider type (anthropic, openai, gemini, bedrock)
@@ -395,15 +395,36 @@ class LLMProviderFactory:
             LLMProvider instance
 
         Raises:
-            ValueError: If provider type is not supported
+            ValueError: If provider type is not supported or validation fails
         """
         provider_type = provider_type.lower()
 
+        # Validate provider type
         if provider_type not in cls._providers:
             raise ValueError(
                 f"Unsupported provider: {provider_type}. "
                 f"Supported: {', '.join(cls._providers.keys())}"
             )
+
+        # Validate API key
+        if not api_key or not isinstance(api_key, str) or len(api_key.strip()) == 0:
+            raise ValueError(f"Invalid or empty API key for provider: {provider_type}")
+
+        # Validate API key format (basic checks)
+        cls._validate_api_key_format(provider_type, api_key)
+
+        # Validate max_tokens
+        if max_tokens < 100 or max_tokens > 200000:
+            raise ValueError(
+                f"Invalid max_tokens: {max_tokens}. Must be between 100 and 200000"
+            )
+
+        # Validate model (basic check - not empty)
+        if not model or not isinstance(model, str) or len(model.strip()) == 0:
+            raise ValueError(f"Invalid or empty model for provider: {provider_type}")
+
+        # Warn about potentially invalid models (non-blocking)
+        cls._validate_model_name(provider_type, model)
 
         provider_class = cls._providers[provider_type]
         return provider_class(api_key, model, max_tokens, **kwargs)
@@ -482,3 +503,90 @@ class LLMProviderFactory:
     def list_providers(cls) -> list:
         """List all supported providers."""
         return list(cls._providers.keys())
+
+    @staticmethod
+    def _validate_api_key_format(provider_type: str, api_key: str):
+        """
+        Validate API key format (basic checks).
+
+        Raises:
+            ValueError: If API key format is invalid
+        """
+        # Basic format validation
+        if provider_type == "anthropic":
+            if not api_key.startswith("sk-ant-"):
+                raise ValueError(
+                    "Invalid Anthropic API key format. Must start with 'sk-ant-'"
+                )
+            if len(api_key) < 20:
+                raise ValueError("Anthropic API key appears too short")
+
+        elif provider_type == "openai":
+            if not api_key.startswith("sk-"):
+                raise ValueError(
+                    "Invalid OpenAI API key format. Must start with 'sk-'"
+                )
+            if len(api_key) < 20:
+                raise ValueError("OpenAI API key appears too short")
+
+        elif provider_type == "gemini":
+            # Gemini keys are typically 39 characters
+            if len(api_key) < 20:
+                raise ValueError("Google API key appears too short")
+
+        elif provider_type == "bedrock":
+            # AWS access keys are 20 characters (uppercase alphanumeric)
+            if len(api_key) != 20:
+                logger.warning(
+                    f"AWS Access Key ID should be 20 characters, got {len(api_key)}"
+                )
+
+    @staticmethod
+    def _validate_model_name(provider_type: str, model: str):
+        """
+        Validate model name (non-blocking - logs warnings only).
+
+        This provides helpful warnings but doesn't block execution
+        since new models may be added by providers.
+        """
+        known_models = {
+            "anthropic": [
+                "claude-sonnet-4-5-20250929",
+                "claude-opus-4-6",
+                "claude-haiku-4-5-20251001",
+                "claude-3-5-sonnet-20241022",
+                "claude-3-opus-20240229",
+                "claude-3-sonnet-20240229",
+                "claude-3-haiku-20240307",
+            ],
+            "openai": [
+                "gpt-4-turbo",
+                "gpt-4o",
+                "gpt-4o-mini",
+                "gpt-4",
+                "gpt-4-32k",
+                "gpt-3.5-turbo",
+            ],
+            "gemini": [
+                "gemini-1.5-pro",
+                "gemini-1.5-flash",
+                "gemini-1.0-pro",
+            ],
+            "bedrock": [
+                "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                "anthropic.claude-3-opus-20240229-v1:0",
+                "anthropic.claude-3-sonnet-20240229-v1:0",
+                "anthropic.claude-3-haiku-20240307-v1:0",
+                "meta.llama3-70b-instruct-v1:0",
+                "meta.llama3-8b-instruct-v1:0",
+                "mistral.mistral-large-2402-v1:0",
+                "mistral.mixtral-8x7b-instruct-v0:1",
+            ],
+        }
+
+        models = known_models.get(provider_type, [])
+        if models and model not in models:
+            logger.warning(
+                f"Unknown model '{model}' for provider '{provider_type}'. "
+                f"Known models: {', '.join(models[:3])}..."
+            )
