@@ -3246,24 +3246,69 @@ def export_openapi_enriched(
         use_cache: Whether to use caching (default: True)
 
     Environment Variables:
-        ANTHROPIC_API_KEY: Required for AI enrichment
+        LLM_PROVIDER: AI provider (anthropic, openai, gemini, bedrock) - default: anthropic
+        ANTHROPIC_API_KEY / OPENAI_API_KEY / GOOGLE_API_KEY / AWS_ACCESS_KEY_ID: API keys
         ENRICHMENT_CACHE_DIR: Cache directory (default: ./.cache/enrichment)
-        ENRICHMENT_MODEL: Claude model to use (default: claude-sonnet-4-5-20250929)
+        LLM_MODEL: Model to use (provider-specific defaults)
     """
     import asyncio
     from agents import AgentOrchestrator, OrchestrationConfig
     from cache.cache_manager import CacheManager
 
-    # Check for API key
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
-        console.print("[yellow]⚠️ ANTHROPIC_API_KEY not found. Falling back to basic OpenAPI export.[/yellow]")
-        console.print("[yellow]   Set ANTHROPIC_API_KEY in .env to enable AI enrichment.[/yellow]")
+    # Check for API key based on provider
+    provider = os.getenv("LLM_PROVIDER", "anthropic").lower()
+    api_key = None
+    provider_name = ""
+
+    if provider == "anthropic":
+        api_key = os.getenv("ANTHROPIC_API_KEY")
+        provider_name = "Anthropic Claude"
+    elif provider == "openai":
+        api_key = os.getenv("OPENAI_API_KEY")
+        provider_name = "OpenAI GPT-4"
+    elif provider == "gemini":
+        api_key = os.getenv("GOOGLE_API_KEY")
+        provider_name = "Google Gemini"
+    elif provider == "bedrock":
+        # Bedrock requires both access key and secret key
+        api_key = os.getenv("AWS_ACCESS_KEY_ID")
+        secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        if not api_key or not secret_key:
+            api_key = None
+        provider_name = "AWS Bedrock"
+    else:
+        console.print(f"[yellow]⚠️ Unknown LLM provider: {provider}[/yellow]")
+        console.print("[yellow]   Supported providers: anthropic, openai, gemini, bedrock[/yellow]")
         export_openapi(endpoints, target, output_file, service_name)
         return
 
-    console.print("\n[bold cyan]🤖 AI-Powered Enrichment Starting...[/bold cyan]")
-    console.print(f"[dim]Using Claude {os.getenv('ENRICHMENT_MODEL', 'claude-sonnet-4-5-20250929')}[/dim]")
+    if not api_key:
+        console.print(f"[yellow]⚠️ API key not found for {provider_name}. Falling back to basic OpenAPI export.[/yellow]")
+        if provider == "anthropic":
+            console.print("[yellow]   Set ANTHROPIC_API_KEY in .env to enable AI enrichment.[/yellow]")
+        elif provider == "openai":
+            console.print("[yellow]   Set OPENAI_API_KEY in .env to enable AI enrichment.[/yellow]")
+        elif provider == "gemini":
+            console.print("[yellow]   Set GOOGLE_API_KEY in .env to enable AI enrichment.[/yellow]")
+        elif provider == "bedrock":
+            console.print("[yellow]   Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in .env to enable AI enrichment.[/yellow]")
+        export_openapi(endpoints, target, output_file, service_name)
+        return
+
+    console.print(f"\n[bold cyan]🤖 AI-Powered Enrichment Starting ({provider_name})...[/bold cyan]")
+
+    # Get model name (provider-specific defaults handled by LLMProviderFactory)
+    model_name = os.getenv("LLM_MODEL", "")
+    if not model_name:
+        # Show default model for the provider
+        model_defaults = {
+            "anthropic": "claude-sonnet-4-5-20250929",
+            "openai": "gpt-4-turbo",
+            "gemini": "gemini-1.5-pro",
+            "bedrock": "anthropic.claude-3-5-sonnet-20241022-v2:0"
+        }
+        model_name = model_defaults.get(provider, "default")
+    console.print(f"[dim]Using {model_name}[/dim]")
 
     try:
         # Initialize cache manager
@@ -3276,13 +3321,14 @@ def export_openapi_enriched(
             enabled_agents=os.getenv("ENRICHMENT_AGENTS", "openapi_enrichment,auth_flow_detector,payload_generator,dependency_graph").split(","),
             max_concurrent_enrichments=int(os.getenv("ENRICHMENT_MAX_WORKERS", "3")),
             use_cache=use_cache,
-            model=os.getenv("ENRICHMENT_MODEL", "claude-sonnet-4-5-20250929"),
+            llm_provider=provider,
+            model=os.getenv("LLM_MODEL") or None,  # None means use provider default
             fallback_enabled=os.getenv("ENRICHMENT_FALLBACK_ENABLED", "true").lower() == "true"
         )
 
         # Initialize orchestrator
         orchestrator = AgentOrchestrator(
-            anthropic_api_key=api_key,
+            api_key=api_key,
             cache_manager=cache_manager,
             config=config
         )
