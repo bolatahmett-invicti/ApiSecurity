@@ -50,11 +50,21 @@ Your task is to generate comprehensive test payloads for API endpoints to be use
 
 CRITICAL REQUIREMENTS:
 1. Return ONLY valid JSON (no markdown code fences, no explanations)
-2. Generate payloads in 4 categories: valid, edge_cases, security, fuzz
-3. Ensure valid payloads match the expected schema exactly
-4. Include diverse security payloads covering OWASP Top 10
-5. Make edge cases realistic (boundary values, special characters)
-6. Fuzz payloads should test error handling robustly
+2. EVERY object property MUST be followed by a comma except the last one in the object
+3. EVERY array element MUST be followed by a comma except the last one in the array
+4. All strings MUST use double quotes ("), not single quotes (')
+5. Generate payloads in 4 categories: valid, edge_cases, security, fuzz
+6. Ensure valid payloads match the expected schema exactly
+7. Include diverse security payloads covering OWASP Top 10
+8. Make edge cases realistic (boundary values, special characters)
+9. Fuzz payloads should test error handling robustly
+
+JSON SYNTAX RULES (CRITICAL):
+- Use commas between all object properties: {"a": 1, "b": 2, "c": 3}
+- Use commas between all array elements: [1, 2, 3]
+- NO comma after the last property in an object
+- NO comma after the last element in an array
+- All property names and string values use double quotes
 
 PAYLOAD CATEGORIES:
 
@@ -238,6 +248,13 @@ OUTPUT FORMAT (strict JSON):
   ],
   "summary": "Generated 15 test payloads across 4 categories for comprehensive API security testing"
 }
+
+BEFORE RESPONDING:
+1. Verify all commas are present between object properties
+2. Verify all commas are present between array elements
+3. Verify NO trailing commas before closing } or ]
+4. Verify all strings use double quotes
+5. Test your JSON syntax mentally before responding
 
 Generate realistic and diverse payloads. Focus on security testing quality."""
 
