@@ -435,6 +435,291 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
                     raise ValueError(f"'{category}' must be a list")
 
                 # Validate each payload has required fields
+
+    async def enrich_batch(self, contexts: List[EnrichmentContext]) -> List[EnrichmentResult]:
+        """
+        Generate payloads for multiple endpoints in a single LLM call (batch processing).
+
+        This is more cost-efficient than generating one-by-one:
+        - Before: 15 endpoints × 7K tokens = 105K tokens
+        - After: 1 batch × 50K tokens = 50K tokens (52% savings)
+
+        Args:
+            contexts: List of EnrichmentContext objects to process together
+
+        Returns:
+            List of EnrichmentResult objects (one per context)
+
+        Note:
+            If batch processing fails, falls back to per-endpoint enrichment
+            Skips GET/DELETE methods automatically
+        """
+        if not contexts:
+            return []
+
+        # Filter out GET/DELETE endpoints (they don't have request bodies)
+        payload_contexts = [
+            ctx for ctx in contexts
+            if ctx.endpoint.method in ["POST", "PUT", "PATCH"]
+        ]
+
+        # Create skipped results for GET/DELETE
+        skipped_results = []
+        for ctx in contexts:
+            if ctx.endpoint.method not in ["POST", "PUT", "PATCH"]:
+                skipped_results.append((ctx, EnrichmentResult(
+                    status=AgentStatus.SKIPPED,
+                    data={"reason": "Method does not accept request body"},
+                    metadata={
+                        "endpoint": f"{ctx.endpoint.method} {ctx.endpoint.route}",
+                    }
+                )))
+
+        # If no endpoints need payloads, return skipped results
+        if not payload_contexts:
+            return [result for _, result in skipped_results]
+
+        # Single endpoint - use regular enrich
+        if len(payload_contexts) == 1:
+            result = await self.enrich(payload_contexts[0])
+            return [result]
+
+        try:
+            # Build batch prompts
+            system_prompt = self._build_batch_system_prompt()
+            user_prompt = self._build_batch_user_prompt(payload_contexts)
+
+            # Call LLM
+            batch_summary = f"{len(payload_contexts)} endpoints (POST/PUT/PATCH only)"
+            self.logger.info(f"Batch generating payloads for {batch_summary}")
+            response = await self._call_claude(system_prompt, user_prompt)
+
+            # Parse batch JSON response
+            batch_data = self._parse_batch_json_response(response, payload_contexts)
+
+            # Create results for each endpoint
+            results = []
+            for ctx in payload_contexts:
+                endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+
+                # Find this endpoint's payloads in batch response
+                payloads = batch_data.get(endpoint_id)
+
+                if payloads:
+                    # Validate payloads
+                    try:
+                        self._validate_payloads(payloads)
+                        results.append(EnrichmentResult(
+                            status=AgentStatus.SUCCESS,
+                            data={"payloads": payloads},
+                            metadata={
+                                "model": self.model,
+                                "endpoint": endpoint_id,
+                                "batch_processed": True,
+                                "batch_size": len(payload_contexts),
+                                "valid_count": len(payloads.get("valid", [])),
+                                "edge_case_count": len(payloads.get("edge_cases", [])),
+                                "security_count": len(payloads.get("security", [])),
+                                "fuzz_count": len(payloads.get("fuzz", [])),
+                            }
+                        ))
+                    except ValueError as e:
+                        self.logger.warning(f"Batch validation failed for {endpoint_id}: {e}")
+                        results.append(EnrichmentResult(
+                            status=AgentStatus.FAILED,
+                            errors=[f"Validation error: {str(e)}"],
+                            data={"payloads": payloads}
+                        ))
+                else:
+                    # Endpoint missing from batch response
+                    self.logger.warning(f"Endpoint {endpoint_id} missing from batch response")
+                    results.append(EnrichmentResult(
+                        status=AgentStatus.FAILED,
+                        errors=[f"Endpoint not found in batch response"],
+                        data={}
+                    ))
+
+            # Merge with skipped results
+            all_results = []
+            result_map = {f"{ctx.endpoint.method} {ctx.endpoint.route}": result
+                         for ctx, result in zip(payload_contexts, results)}
+
+            for ctx in contexts:
+                endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+                if endpoint_id in result_map:
+                    all_results.append(result_map[endpoint_id])
+                else:
+                    # Must be a skipped endpoint
+                    for skip_ctx, skip_result in skipped_results:
+                        if f"{skip_ctx.endpoint.method} {skip_ctx.endpoint.route}" == endpoint_id:
+                            all_results.append(skip_result)
+                            break
+
+            # Check success rate
+            success_count = sum(1 for r in results if r.is_success())
+            self.logger.info(
+                f"Batch payload generation complete: {success_count}/{len(payload_contexts)} successful "
+                f"({success_count / len(payload_contexts) * 100:.0f}%)"
+            )
+
+            return all_results
+
+        except Exception as e:
+            # Batch processing failed - fall back to per-endpoint
+            self._log_error("Batch payload generation failed, falling back to per-endpoint", e)
+            self.logger.info(f"Processing {len(contexts)} endpoints individually...")
+
+            # Fallback: enrich one-by-one
+            results = []
+            for ctx in contexts:
+                result = await self.enrich(ctx)
+                results.append(result)
+
+            return results
+
+    def _build_batch_system_prompt(self) -> str:
+        """Build system prompt for batch payload generation."""
+        return """You are an expert security researcher and penetration tester specializing in API security testing.
+
+Your task is to generate comprehensive test payloads for MULTIPLE API endpoints in a single response.
+
+CRITICAL REQUIREMENTS:
+1. Return ONLY valid JSON (no markdown code fences, no explanations)
+2. Process ALL endpoints provided (do not skip any)
+3. Return a JSON object where keys are endpoint IDs (METHOD /route)
+4. For each endpoint, generate payloads in 4 categories: valid, edge_cases, security, fuzz
+5. Ensure valid payloads match the expected schema exactly
+6. Include diverse security payloads covering OWASP Top 10
+7. Make edge cases realistic (boundary values, special characters)
+8. Fuzz payloads should test error handling robustly
+
+OUTPUT FORMAT (strict JSON):
+{
+  "POST /api/users": {
+    "valid": [...],
+    "edge_cases": [...],
+    "security": [...],
+    "fuzz": [...],
+    "summary": "Generated payloads for user creation"
+  },
+  "PUT /api/users/:id": {
+    "valid": [...],
+    "edge_cases": [...],
+    "security": [...],
+    "fuzz": [...],
+    "summary": "Generated payloads for user update"
+  },
+  "POST /api/products": {
+    "valid": [...],
+    "edge_cases": [...],
+    "security": [...],
+    "fuzz": [...],
+    "summary": "Generated payloads for product creation"
+  }
+}
+
+PAYLOAD CATEGORIES (for each endpoint):
+1. **valid**: At least 3 happy path payloads that should succeed
+2. **edge_cases**: At least 5 boundary/special character tests
+3. **security**: At least 8 attack vectors (SQL injection, XSS, command injection, etc.)
+4. **fuzz**: At least 4 malformed data tests
+
+IMPORTANT: Process ALL endpoints. Return payload sets for every endpoint provided."""
+
+    def _build_batch_user_prompt(self, contexts: List[EnrichmentContext]) -> str:
+        """Build user prompt for batch payload generation."""
+        prompt = f"""Generate comprehensive test payloads for these {len(contexts)} API endpoints.
+
+ENDPOINTS TO PROCESS (all POST/PUT/PATCH):
+"""
+
+        # Add each endpoint
+        for i, ctx in enumerate(contexts, 1):
+            ep = ctx.endpoint
+            prompt += f"""
+{'=' * 60}
+ENDPOINT #{i}: {ep.method} {ep.route}
+{'=' * 60}
+Framework: {ctx.framework} | Language: {ctx.language}
+File: {ep.file_path}:{ep.line_number}
+
+SOURCE CODE:
+```
+{(ctx.surrounding_code or ctx.function_body or ep.raw_match)[:600]}
+```
+"""
+
+        prompt += f"""
+{'=' * 60}
+
+PAYLOAD GENERATION REQUIREMENTS FOR EACH ENDPOINT:
+1. At least 3 valid payloads (happy path)
+2. At least 5 edge case payloads (boundaries, special chars)
+3. At least 8 security payloads:
+   - SQL Injection (2+)
+   - XSS (2+)
+   - Command Injection
+   - Path Traversal
+   - NoSQL Injection
+   - Other relevant attacks
+4. At least 4 fuzz payloads (malformed data)
+
+IMPORTANT:
+- Process ALL {len(contexts)} endpoints
+- Return JSON object with keys: {', '.join(f'"{c.endpoint.method} {c.endpoint.route}"' for c in contexts[:3])}{"..." if len(contexts) > 3 else ""}
+- Analyze code to understand field names and types
+- Make security payloads realistic and diverse
+- NO markdown formatting, NO explanations, ONLY JSON"""
+
+        return prompt
+
+    def _parse_batch_json_response(
+        self,
+        response: str,
+        contexts: List[EnrichmentContext]
+    ) -> Dict[str, Dict[str, Any]]:
+        """
+        Parse batch JSON response for payloads.
+
+        Expected format:
+        {
+          "POST /api/users": {
+            "valid": [...],
+            "edge_cases": [...],
+            "security": [...],
+            "fuzz": [...]
+          }
+        }
+
+        Args:
+            response: Raw LLM response
+            contexts: Original contexts (for validation)
+
+        Returns:
+            Dictionary mapping endpoint_id to payload object
+
+        Raises:
+            json.JSONDecodeError: If response is not valid JSON
+        """
+        # Parse JSON using robust parser
+        batch_data = RobustJSONParser.parse(response, context="batch payload objects")
+
+        if not isinstance(batch_data, dict):
+            raise ValueError(f"Batch response must be a dictionary, got {type(batch_data).__name__}")
+
+        # Validate we got responses for expected endpoints
+        expected_ids = {f"{ctx.endpoint.method} {ctx.endpoint.route}" for ctx in contexts}
+        received_ids = set(batch_data.keys())
+
+        missing = expected_ids - received_ids
+        if missing:
+            self.logger.warning(f"Missing {len(missing)} endpoints from batch response: {list(missing)[:3]}")
+
+        extra = received_ids - expected_ids
+        if extra:
+            self.logger.warning(f"Unexpected {len(extra)} endpoints in batch response: {list(extra)[:3]}")
+
+        return batch_data
                 for i, payload_obj in enumerate(payloads[category]):
                     if not isinstance(payload_obj, dict):
                         raise ValueError(f"{category}[{i}] must be a dictionary")

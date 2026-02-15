@@ -13,7 +13,7 @@ Output: Full OpenAPI operation with parameters, requestBody, responses, examples
 
 import json
 import re
-from typing import Dict, Any
+from typing import Dict, Any, List
 from .base_agent import BaseAgent, EnrichmentContext, EnrichmentResult, AgentStatus
 from .json_parser import RobustJSONParser
 
@@ -317,3 +317,231 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
             operation["summary"] = f"API endpoint operation"
 
         self.logger.debug(f"Operation object validated successfully")
+
+    async def enrich_batch(self, contexts: List[EnrichmentContext]) -> List[EnrichmentResult]:
+        """
+        Enrich multiple endpoints in a single LLM call (batch processing).
+
+        This is more cost-efficient than enriching one-by-one:
+        - Before: 20 endpoints × 4.5K tokens = 90K tokens
+        - After: 1 batch × 60K tokens = 60K tokens (33% savings)
+
+        Args:
+            contexts: List of EnrichmentContext objects to process together
+
+        Returns:
+            List of EnrichmentResult objects (one per context)
+
+        Note:
+            If batch processing fails, falls back to per-endpoint enrichment
+        """
+        if not contexts:
+            return []
+
+        if len(contexts) == 1:
+            # Single endpoint - use regular enrich
+            return [await self.enrich(contexts[0])]
+
+        try:
+            # Build batch prompts
+            system_prompt = self._build_batch_system_prompt()
+            user_prompt = self._build_batch_user_prompt(contexts)
+
+            # Call LLM
+            batch_summary = f"{len(contexts)} endpoints ({', '.join(set(c.endpoint.method for c in contexts))})"
+            self.logger.info(f"Batch enriching {batch_summary}")
+            response = await self._call_claude(system_prompt, user_prompt)
+
+            # Parse batch JSON response
+            batch_data = self._parse_batch_json_response(response, contexts)
+
+            # Create results for each endpoint
+            results = []
+            for i, ctx in enumerate(contexts):
+                endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+
+                # Find this endpoint's operation in batch response
+                operation = batch_data.get(endpoint_id)
+
+                if operation:
+                    # Validate operation
+                    try:
+                        self._validate_operation_object(operation)
+                        results.append(EnrichmentResult(
+                            status=AgentStatus.SUCCESS,
+                            data={"operation": operation},
+                            metadata={
+                                "model": self.model,
+                                "endpoint": endpoint_id,
+                                "batch_processed": True,
+                                "batch_size": len(contexts),
+                                "has_parameters": "parameters" in operation,
+                                "has_request_body": "requestBody" in operation,
+                                "has_responses": "responses" in operation,
+                            }
+                        ))
+                    except ValueError as e:
+                        self.logger.warning(f"Batch validation failed for {endpoint_id}: {e}")
+                        results.append(EnrichmentResult(
+                            status=AgentStatus.FAILED,
+                            errors=[f"Validation error: {str(e)}"],
+                            data={"operation": operation}
+                        ))
+                else:
+                    # Endpoint missing from batch response
+                    self.logger.warning(f"Endpoint {endpoint_id} missing from batch response")
+                    results.append(EnrichmentResult(
+                        status=AgentStatus.FAILED,
+                        errors=[f"Endpoint not found in batch response"],
+                        data={}
+                    ))
+
+            # Check success rate
+            success_count = sum(1 for r in results if r.is_success())
+            self.logger.info(
+                f"Batch enrichment complete: {success_count}/{len(contexts)} successful "
+                f"({success_count / len(contexts) * 100:.0f}%)"
+            )
+
+            return results
+
+        except Exception as e:
+            # Batch processing failed - fall back to per-endpoint
+            self._log_error("Batch enrichment failed, falling back to per-endpoint", e)
+            self.logger.info(f"Processing {len(contexts)} endpoints individually...")
+
+            # Fallback: enrich one-by-one
+            results = []
+            for ctx in contexts:
+                result = await self.enrich(ctx)
+                results.append(result)
+
+            return results
+
+    def _build_batch_system_prompt(self) -> str:
+        """Build system prompt for batch enrichment."""
+        return """You are an expert OpenAPI 3.0 specification generator with deep knowledge of API design patterns.
+
+Your task is to analyze MULTIPLE API endpoints and generate OpenAPI operation objects for ALL of them.
+
+CRITICAL REQUIREMENTS:
+1. Return ONLY valid JSON (no markdown code fences, no explanations)
+2. Follow OpenAPI 3.0 specification exactly
+3. Process ALL endpoints provided (do not skip any)
+4. Return a JSON object where keys are endpoint IDs (METHOD /route)
+5. Be thorough - extract ALL parameters from the code for each endpoint
+6. Infer realistic data types from variable names, type hints, and context
+7. Generate practical examples for request/response bodies
+8. Identify security requirements from decorators/attributes/middleware
+
+OUTPUT FORMAT (strict JSON):
+{
+  "GET /api/users": {
+    "parameters": [...],
+    "responses": {...},
+    "security": [...],
+    "description": "...",
+    "summary": "..."
+  },
+  "POST /api/users": {
+    "requestBody": {...},
+    "responses": {...},
+    "security": [...],
+    "description": "...",
+    "summary": "..."
+  },
+  "GET /api/users/:id": {
+    "parameters": [...],
+    "responses": {...},
+    "description": "...",
+    "summary": "..."
+  }
+}
+
+IMPORTANT: Process ALL endpoints. Return operations for every endpoint provided."""
+
+    def _build_batch_user_prompt(self, contexts: List[EnrichmentContext]) -> str:
+        """Build user prompt for batch enrichment."""
+        prompt = f"""Analyze these {len(contexts)} API endpoints and generate OpenAPI operation objects for ALL of them.
+
+ENDPOINTS TO PROCESS:
+"""
+
+        # Add each endpoint
+        for i, ctx in enumerate(contexts, 1):
+            ep = ctx.endpoint
+            prompt += f"""
+{'=' * 60}
+ENDPOINT #{i}: {ep.method} {ep.route}
+{'=' * 60}
+Framework: {ctx.framework} | Language: {ctx.language}
+File: {ep.file_path}:{ep.line_number}
+
+SOURCE CODE:
+```
+{(ctx.surrounding_code or ctx.function_body or ep.raw_match)[:800]}
+```
+"""
+
+        prompt += f"""
+{'=' * 60}
+
+ANALYSIS CHECKLIST FOR EACH ENDPOINT:
+1. Extract ALL parameters (path, query, header, cookie) with types and constraints
+2. Determine request body schema if POST/PUT/PATCH - identify all fields
+3. Infer response schemas for success (200/201/204) and error cases (400/401/404/500)
+4. Identify authentication/authorization decorators or middleware
+5. Extract validation rules (required, min/max length, patterns, enums)
+6. Generate realistic examples per request/response
+7. Write clear, concise descriptions
+
+IMPORTANT:
+- Process ALL {len(contexts)} endpoints
+- Return JSON object with keys: {', '.join(f'"{c.endpoint.method} {c.endpoint.route}"' for c in contexts[:3])}{"..." if len(contexts) > 3 else ""}
+- NO markdown formatting, NO explanations, ONLY JSON"""
+
+        return prompt
+
+    def _parse_batch_json_response(
+        self,
+        response: str,
+        contexts: List[EnrichmentContext]
+    ) -> Dict[str, Dict[str, Any]]:
+        """
+        Parse batch JSON response.
+
+        Expected format:
+        {
+          "GET /api/users": { operation object },
+          "POST /api/users": { operation object }
+        }
+
+        Args:
+            response: Raw LLM response
+            contexts: Original contexts (for validation)
+
+        Returns:
+            Dictionary mapping endpoint_id to operation object
+
+        Raises:
+            json.JSONDecodeError: If response is not valid JSON
+        """
+        # Parse JSON using robust parser
+        batch_data = RobustJSONParser.parse(response, context="batch operation objects")
+
+        if not isinstance(batch_data, dict):
+            raise ValueError(f"Batch response must be a dictionary, got {type(batch_data).__name__}")
+
+        # Validate we got responses for expected endpoints
+        expected_ids = {f"{ctx.endpoint.method} {ctx.endpoint.route}" for ctx in contexts}
+        received_ids = set(batch_data.keys())
+
+        missing = expected_ids - received_ids
+        if missing:
+            self.logger.warning(f"Missing {len(missing)} endpoints from batch response: {list(missing)[:3]}")
+
+        extra = received_ids - expected_ids
+        if extra:
+            self.logger.warning(f"Unexpected {len(extra)} endpoints in batch response: {list(extra)[:3]}")
+
+        return batch_data

@@ -113,7 +113,7 @@ class BaseAgent(ABC):
                 pass
     """
 
-    def __init__(self, api_key: str = None, config: Optional[Dict[str, Any]] = None, provider=None):
+    def __init__(self, api_key: str = None, config: Optional[Dict[str, Any]] = None, provider=None, model_override: str = None):
         """
         Initialize the agent.
 
@@ -121,9 +121,12 @@ class BaseAgent(ABC):
             api_key: API key (legacy parameter, kept for backward compatibility)
             config: Agent-specific configuration
             provider: LLMProvider instance (if None, will create from config/env)
+            model_override: Override model for this agent (e.g., use Haiku instead of Sonnet)
+                          This allows cost optimization by using cheaper models for simple tasks
         """
         self.api_key = api_key
         self.config = config or {}
+        self.model_override = model_override  # Store model override for provider initialization
         self.logger = logging.getLogger(f"api_scanner.agents.{self.__class__.__name__}")
 
         # LLM Provider (lazily initialized)
@@ -147,7 +150,9 @@ class BaseAgent(ABC):
 
                 # Try to get provider from config first
                 provider_type = self.config.get("llm_provider", "anthropic")
-                model = self.config.get("model", None)
+
+                # Model selection priority: model_override > config > default
+                model = self.model_override or self.config.get("model", None)
                 max_tokens = self.config.get("max_tokens", 4096)
 
                 # Use api_key if provided, otherwise let factory use environment variables
@@ -159,10 +164,26 @@ class BaseAgent(ABC):
                         max_tokens=max_tokens
                     )
                 else:
-                    # Use environment variables
-                    self._provider = LLMProviderFactory.from_env()
+                    # Use environment variables, but respect model_override
+                    if model:
+                        # If we have a model override, create provider with specific model
+                        import os
+                        api_key = LLMProviderFactory._get_provider_specific_key(provider_type)
+                        self._provider = LLMProviderFactory.create(
+                            provider_type=provider_type,
+                            api_key=api_key,
+                            model=model,
+                            max_tokens=max_tokens
+                        )
+                    else:
+                        # Use full environment-based configuration
+                        self._provider = LLMProviderFactory.from_env()
 
-                self.logger.info(f"Initialized {self._provider.get_provider_name()} provider with model {self._provider.model}")
+                model_info = f"{self._provider.get_provider_name()} provider with model {self._provider.model}"
+                if self.model_override:
+                    self.logger.info(f"Initialized {model_info} (model overridden for cost optimization)")
+                else:
+                    self.logger.info(f"Initialized {model_info}")
             except ImportError as e:
                 self.logger.error(f"Failed to import LLM provider: {e}")
                 raise

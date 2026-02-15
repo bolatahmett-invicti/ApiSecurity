@@ -32,6 +32,7 @@ from .openapi_enrichment_agent import OpenAPIEnrichmentAgent
 from .auth_flow_detector_agent import AuthFlowDetectorAgent
 from .payload_generator_agent import PayloadGeneratorAgent
 from .dependency_graph_agent import DependencyGraphAgent
+from .batch_processor import BatchProcessor
 
 # Import cache manager - adjust path based on project structure
 import sys
@@ -73,6 +74,21 @@ class OrchestrationConfig:
     llm_provider: str = "anthropic"  # anthropic, openai, gemini, bedrock
     model: str = None  # If None, uses provider default
     max_tokens: int = 4096
+
+    # Per-agent model configuration (for cost optimization)
+    # Use cheaper models (Haiku) for simple tasks, expensive models (Sonnet) for complex tasks
+    model_openapi: str = None  # OpenAPI enrichment (default: sonnet) - requires code analysis
+    model_auth: str = None  # Auth detection (default: haiku) - simple pattern matching
+    model_payloads: str = None  # Payload generation (default: sonnet) - complex generation
+    model_dependency: str = None  # Dependency graph (default: haiku) - relationship detection
+
+    # Batch processing (cost optimization - Phase 2)
+    # Process multiple endpoints per LLM call instead of one-by-one
+    # Savings: ~25% for OpenAPI, ~30% for payloads
+    enable_batching: bool = True  # Master switch for batch processing
+    openapi_batch_size: int = 20  # Group 20 endpoints per OpenAPI call
+    payload_batch_size: int = 15  # Group 15 endpoints per payload call
+    batch_fallback_per_endpoint: bool = True  # Fall back to per-endpoint on batch errors
 
 
 class AgentOrchestrator:
@@ -136,17 +152,71 @@ class AgentOrchestrator:
 
             logger.info(f"Created {provider.get_provider_name()} provider with model {provider.model}")
 
-        # Initialize agents with provider
+        # Initialize agents with model-specific configurations
+        # This allows cost optimization by using cheaper models for simple tasks
+        import os
+
         agent_config = {
             "llm_provider": self.config.llm_provider,
             "model": self.config.model,
             "max_tokens": self.config.max_tokens
         }
 
-        self.openapi_agent = OpenAPIEnrichmentAgent(api_key=self.api_key, config=agent_config, provider=provider)
-        self.auth_agent = AuthFlowDetectorAgent(api_key=self.api_key, config=agent_config, provider=provider)
-        self.payload_agent = PayloadGeneratorAgent(api_key=self.api_key, config=agent_config, provider=provider)
-        self.dependency_agent = DependencyGraphAgent(api_key=self.api_key, config=agent_config, provider=provider)
+        # Get per-agent models from config or environment variables
+        # Priority: config > environment > defaults
+        model_openapi = (self.config.model_openapi or
+                        os.getenv("LLM_MODEL_OPENAPI") or
+                        self.config.model or  # Fall back to global model
+                        "claude-sonnet-4-5-20250929")  # Default for OpenAPI (needs code analysis)
+
+        model_auth = (self.config.model_auth or
+                     os.getenv("LLM_MODEL_AUTH") or
+                     "claude-haiku-4-5-20251001")  # Default to Haiku (simple pattern matching)
+
+        model_payloads = (self.config.model_payloads or
+                         os.getenv("LLM_MODEL_PAYLOADS") or
+                         self.config.model or
+                         "claude-sonnet-4-5-20250929")  # Default to Sonnet (complex generation)
+
+        model_dependency = (self.config.model_dependency or
+                           os.getenv("LLM_MODEL_DEPENDENCY") or
+                           "claude-haiku-4-5-20251001")  # Default to Haiku (simple relationships)
+
+        # Initialize agents with model overrides
+        self.openapi_agent = OpenAPIEnrichmentAgent(
+            api_key=self.api_key,
+            config=agent_config,
+            provider=provider,
+            model_override=model_openapi
+        )
+
+        self.auth_agent = AuthFlowDetectorAgent(
+            api_key=self.api_key,
+            config=agent_config,
+            provider=provider,
+            model_override=model_auth
+        )
+
+        self.payload_agent = PayloadGeneratorAgent(
+            api_key=self.api_key,
+            config=agent_config,
+            provider=provider,
+            model_override=model_payloads
+        )
+
+        self.dependency_agent = DependencyGraphAgent(
+            api_key=self.api_key,
+            config=agent_config,
+            provider=provider,
+            model_override=model_dependency
+        )
+
+        # Log model assignments for cost tracking
+        logger.info(f"Agent models configured:")
+        logger.info(f"  - OpenAPI: {model_openapi}")
+        logger.info(f"  - Auth: {model_auth}")
+        logger.info(f"  - Payloads: {model_payloads}")
+        logger.info(f"  - Dependency: {model_dependency}")
 
         # Statistics
         self.stats = {
@@ -370,7 +440,210 @@ class AgentOrchestrator:
         global_results: Dict[str, EnrichmentResult]
     ) -> Dict[str, Dict[str, EnrichmentResult]]:
         """
-        Run per-endpoint enrichments with parallel execution.
+        Run per-endpoint enrichments with batch processing and parallel execution.
+
+        Batching strategy (if enabled):
+        - OpenAPI: Group by HTTP method (20 per batch)
+        - Payloads: Group by resource type (15 per batch)
+
+        Args:
+            contexts: List of endpoint contexts
+            global_results: Results from global analyses
+
+        Returns:
+            Dictionary mapping endpoint_id → agent results
+        """
+        if self.config.enable_batching and "openapi_enrichment" in self.config.enabled_agents:
+            # Use batch processing for OpenAPI enrichment
+            logger.info("Using batch processing for OpenAPI enrichment")
+            return await self._run_endpoint_enrichments_batched(contexts, global_results)
+        else:
+            # Use traditional per-endpoint processing
+            logger.info("Using per-endpoint processing (batching disabled)")
+            return await self._run_endpoint_enrichments_per_endpoint(contexts, global_results)
+
+    async def _run_endpoint_enrichments_batched(
+        self,
+        contexts: List[EnrichmentContext],
+        global_results: Dict[str, EnrichmentResult]
+    ) -> Dict[str, Dict[str, EnrichmentResult]]:
+        """
+        Run enrichments using batch processing.
+
+        This groups endpoints and processes them in batches to reduce LLM API calls.
+
+        Args:
+            contexts: List of endpoint contexts
+            global_results: Results from global analyses
+
+        Returns:
+            Dictionary mapping endpoint_id → agent results
+        """
+        endpoint_results = {}
+
+        # Step 1: OpenAPI enrichment (batched by HTTP method)
+        if "openapi_enrichment" in self.config.enabled_agents:
+            batch_size = BatchProcessor.validate_batch_size(
+                self.config.openapi_batch_size,
+                max_batch_size=50
+            )
+
+            # Group contexts by HTTP method
+            batches = BatchProcessor.group_by_method(contexts, batch_size=batch_size)
+            logger.info(
+                f"OpenAPI enrichment: {len(contexts)} endpoints → {len(batches)} batches "
+                f"({batch_size} per batch)"
+            )
+
+            # Process each batch
+            for batch_idx, batch_contexts in enumerate(batches, 1):
+                batch_summary = BatchProcessor.create_batch_summary(batch_contexts)
+                logger.info(f"Processing OpenAPI batch {batch_idx}/{len(batches)}: {batch_summary}")
+
+                try:
+                    # Check cache first
+                    cached_results = await self._check_batch_cache("openapi", batch_contexts)
+
+                    if cached_results:
+                        # Use cached results
+                        for ctx, cached_data in zip(batch_contexts, cached_results):
+                            endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+                            if endpoint_id not in endpoint_results:
+                                endpoint_results[endpoint_id] = {}
+
+                            endpoint_results[endpoint_id]["openapi"] = EnrichmentResult(
+                                status=AgentStatus.SUCCESS,
+                                data=cached_data,
+                                metadata={"cached": True}
+                            )
+                        self.stats["cache_hits"] += len(batch_contexts)
+                        logger.info(f"Batch {batch_idx}: All from cache")
+                    else:
+                        # Call agent with batch
+                        self.stats["cache_misses"] += len(batch_contexts)
+                        self.stats["total_api_calls"] += 1  # Only 1 call for entire batch!
+
+                        batch_results = await self.openapi_agent.enrich_batch(batch_contexts)
+
+                        # Store results
+                        for ctx, result in zip(batch_contexts, batch_results):
+                            endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+
+                            if endpoint_id not in endpoint_results:
+                                endpoint_results[endpoint_id] = {}
+
+                            endpoint_results[endpoint_id]["openapi"] = result
+
+                            # Cache successful results
+                            if result.is_success() and self.config.use_cache:
+                                cache_key = self._generate_endpoint_cache_key("openapi", ctx)
+                                self._set_cache(cache_key, result.data)
+
+                        success_count = sum(1 for r in batch_results if r.is_success())
+                        logger.info(
+                            f"Batch {batch_idx}: {success_count}/{len(batch_results)} successful"
+                        )
+
+                except Exception as e:
+                    logger.error(f"Batch {batch_idx} failed: {e}", exc_info=True)
+                    # Mark all endpoints in batch as failed
+                    for ctx in batch_contexts:
+                        endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+                        if endpoint_id not in endpoint_results:
+                            endpoint_results[endpoint_id] = {}
+                        endpoint_results[endpoint_id]["openapi"] = EnrichmentResult(
+                            status=AgentStatus.FAILED,
+                            errors=[f"Batch processing failed: {str(e)}"]
+                        )
+
+        # Step 2: Payload generation (batched by resource - Phase 3)
+        if "payload_generator" in self.config.enabled_agents:
+            batch_size = BatchProcessor.validate_batch_size(
+                self.config.payload_batch_size,
+                max_batch_size=30  # Payloads are simpler, can handle larger batches
+            )
+
+            # Group contexts by resource
+            batches = BatchProcessor.group_by_resource(contexts, batch_size=batch_size)
+            logger.info(
+                f"Payload generation: {len(contexts)} endpoints → {len(batches)} batches "
+                f"({batch_size} per batch)"
+            )
+
+            # Process each batch
+            for batch_idx, batch_contexts in enumerate(batches, 1):
+                batch_summary = BatchProcessor.create_batch_summary(batch_contexts)
+                logger.info(f"Processing payload batch {batch_idx}/{len(batches)}: {batch_summary}")
+
+                try:
+                    # Check cache first
+                    cached_results = await self._check_batch_cache("payloads", batch_contexts)
+
+                    if cached_results:
+                        # Use cached results
+                        for ctx, cached_data in zip(batch_contexts, cached_results):
+                            endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+                            if endpoint_id not in endpoint_results:
+                                endpoint_results[endpoint_id] = {}
+
+                            endpoint_results[endpoint_id]["payloads"] = EnrichmentResult(
+                                status=AgentStatus.SUCCESS,
+                                data=cached_data,
+                                metadata={"cached": True}
+                            )
+                        self.stats["cache_hits"] += len(batch_contexts)
+                        logger.info(f"Batch {batch_idx}: All from cache")
+                    else:
+                        # Call agent with batch
+                        self.stats["cache_misses"] += len(batch_contexts)
+
+                        # Filter out GET/DELETE (payload agent skips them)
+                        payload_contexts = [c for c in batch_contexts if c.endpoint.method in ["POST", "PUT", "PATCH"]]
+                        if payload_contexts:
+                            self.stats["total_api_calls"] += 1  # Only 1 call for entire batch!
+
+                        batch_results = await self.payload_agent.enrich_batch(batch_contexts)
+
+                        # Store results
+                        for ctx, result in zip(batch_contexts, batch_results):
+                            endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+
+                            if endpoint_id not in endpoint_results:
+                                endpoint_results[endpoint_id] = {}
+
+                            endpoint_results[endpoint_id]["payloads"] = result
+
+                            # Cache successful results
+                            if result.is_success() and self.config.use_cache:
+                                cache_key = self._generate_endpoint_cache_key("payloads", ctx)
+                                self._set_cache(cache_key, result.data)
+
+                        success_count = sum(1 for r in batch_results if r.is_success())
+                        logger.info(
+                            f"Batch {batch_idx}: {success_count}/{len(batch_results)} successful"
+                        )
+
+                except Exception as e:
+                    logger.error(f"Batch {batch_idx} failed: {e}", exc_info=True)
+                    # Mark all endpoints in batch as failed
+                    for ctx in batch_contexts:
+                        endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+                        if endpoint_id not in endpoint_results:
+                            endpoint_results[endpoint_id] = {}
+                        endpoint_results[endpoint_id]["payloads"] = EnrichmentResult(
+                            status=AgentStatus.FAILED,
+                            errors=[f"Batch processing failed: {str(e)}"]
+                        )
+
+        return endpoint_results
+
+    async def _run_endpoint_enrichments_per_endpoint(
+        self,
+        contexts: List[EnrichmentContext],
+        global_results: Dict[str, EnrichmentResult]
+    ) -> Dict[str, Dict[str, EnrichmentResult]]:
+        """
+        Run per-endpoint enrichments with parallel execution (original method).
 
         Args:
             contexts: List of endpoint contexts
@@ -475,6 +748,89 @@ class AgentOrchestrator:
 
             logger.debug(f"Enriched endpoint: {endpoint_id}")
             return results
+
+    async def _check_batch_cache(
+        self,
+        agent_name: str,
+        batch_contexts: List[EnrichmentContext]
+    ) -> Optional[List[Dict[str, Any]]]:
+        """
+        Check if all endpoints in a batch are cached.
+
+        Args:
+            agent_name: Name of the agent (e.g., "openapi", "payloads")
+            batch_contexts: Batch of contexts to check
+
+        Returns:
+            List of cached data if ALL are cached, None otherwise
+        """
+        if not self.config.use_cache:
+            return None
+
+        cached_data = []
+        for ctx in batch_contexts:
+            cache_key = self._generate_endpoint_cache_key(agent_name, ctx)
+            cached = self._check_cache(cache_key)
+
+            if cached is None:
+                # One endpoint not cached - must process entire batch
+                return None
+
+            cached_data.append(cached)
+
+        # All cached!
+        return cached_data
+
+    async def _run_payload_enrichments_per_endpoint(
+        self,
+        contexts: List[EnrichmentContext],
+        endpoint_results: Dict[str, Dict[str, EnrichmentResult]]
+    ) -> None:
+        """
+        Run payload generation per-endpoint (fallback until Phase 3).
+
+        Args:
+            contexts: List of endpoint contexts
+            endpoint_results: Dictionary to update with payload results (modified in place)
+        """
+        # Create semaphore for concurrency control
+        semaphore = asyncio.Semaphore(self.config.max_concurrent_enrichments)
+
+        async def enrich_payload(ctx: EnrichmentContext):
+            """Enrich payload for one endpoint."""
+            async with semaphore:
+                endpoint_id = f"{ctx.endpoint.method} {ctx.endpoint.route}"
+
+                cache_key = self._generate_endpoint_cache_key("payloads", ctx)
+                cached = self._check_cache(cache_key) if self.config.use_cache else None
+
+                if cached:
+                    self.stats["cache_hits"] += 1
+                    if endpoint_id not in endpoint_results:
+                        endpoint_results[endpoint_id] = {}
+                    endpoint_results[endpoint_id]["payloads"] = EnrichmentResult(
+                        status=AgentStatus.SUCCESS,
+                        data=cached,
+                        metadata={"cached": True}
+                    )
+                else:
+                    self.stats["cache_misses"] += 1
+                    payload_result = await self.payload_agent.enrich(ctx)
+                    if payload_result.status != AgentStatus.SKIPPED:
+                        self.stats["total_api_calls"] += 1
+
+                    if endpoint_id not in endpoint_results:
+                        endpoint_results[endpoint_id] = {}
+                    endpoint_results[endpoint_id]["payloads"] = payload_result
+
+                    if payload_result.is_success() and self.config.use_cache:
+                        self._set_cache(cache_key, payload_result.data)
+
+        # Process all endpoints in parallel
+        tasks = [enrich_payload(ctx) for ctx in contexts]
+        await asyncio.gather(*tasks, return_exceptions=True)
+
+        logger.info(f"Payload generation complete (per-endpoint mode)")
 
     def _aggregate_results(
         self,

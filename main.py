@@ -3564,7 +3564,17 @@ def export_openapi_enriched(
             use_cache=use_cache,
             llm_provider=provider,
             model=os.getenv("LLM_MODEL") or None,  # None means use provider default
-            fallback_enabled=os.getenv("ENRICHMENT_FALLBACK_ENABLED", "true").lower() == "true"
+            fallback_enabled=os.getenv("ENRICHMENT_FALLBACK_ENABLED", "true").lower() == "true",
+            # Per-agent model configuration (cost optimization - Phase 1)
+            model_openapi=os.getenv("LLM_MODEL_OPENAPI") or None,
+            model_auth=os.getenv("LLM_MODEL_AUTH") or None,
+            model_payloads=os.getenv("LLM_MODEL_PAYLOADS") or None,
+            model_dependency=os.getenv("LLM_MODEL_DEPENDENCY") or None,
+            # Batch processing configuration (cost optimization - Phase 2)
+            enable_batching=os.getenv("ENABLE_BATCHING", "true").lower() == "true",
+            openapi_batch_size=int(os.getenv("OPENAPI_BATCH_SIZE", "20")),
+            payload_batch_size=int(os.getenv("PAYLOAD_BATCH_SIZE", "15")),
+            batch_fallback_per_endpoint=os.getenv("BATCH_FALLBACK_PER_ENDPOINT", "true").lower() == "true"
         )
 
         # Initialize orchestrator
