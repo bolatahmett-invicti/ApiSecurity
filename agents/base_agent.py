@@ -256,18 +256,63 @@ class BaseAgent(ABC):
 
             # Enhanced error messages for common issues
             error_msg = str(e).lower()
-            if "rate limit" in error_msg or "429" in error_msg:
+            error_type = type(e).__name__
+
+            # AWS Bedrock specific errors
+            if "clienterror" in error_type.lower():
+                if "unrecognizedclientexception" in error_msg or "security token" in error_msg:
+                    self.logger.error(f"AWS credentials are invalid or expired")
+                    raise Exception(f"AWS Bedrock authentication failed: Invalid or expired AWS credentials. Check AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.")
+                elif "resourcenotfoundexception" in error_msg or "could not resolve" in error_msg:
+                    self.logger.error(f"AWS Bedrock model not found or not accessible")
+                    raise Exception(f"AWS Bedrock model error: Model '{self.model}' not found or not accessible in your AWS account.")
+                elif "throttlingexception" in error_msg:
+                    self.logger.error(f"AWS Bedrock throttling - rate limit exceeded")
+                    raise Exception(f"AWS Bedrock rate limit exceeded. Please reduce ENRICHMENT_MAX_WORKERS or wait before retrying.")
+                elif "accessdeniedexception" in error_msg:
+                    self.logger.error(f"AWS Bedrock access denied - check IAM permissions")
+                    raise Exception(f"AWS Bedrock access denied: Check IAM permissions for bedrock:InvokeModel.")
+                else:
+                    self.logger.error(f"AWS Bedrock error: {e}")
+                    raise Exception(f"AWS Bedrock error: {e}")
+
+            # Tenacity RetryError - extract the underlying error
+            elif "retryerror" in error_type.lower():
+                # Try to extract the original exception
+                if hasattr(e, '__cause__') and e.__cause__:
+                    original_error = str(e.__cause__).lower()
+                    if "unrecognizedclientexception" in original_error or "security token" in original_error:
+                        raise Exception(f"AWS Bedrock authentication failed: Invalid or expired AWS credentials. Check AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.")
+                    elif "clienterror" in str(type(e.__cause__).__name__).lower():
+                        raise Exception(f"AWS Bedrock error: {e.__cause__}")
+                    else:
+                        self.logger.error(f"LLM API call failed after retries: {e.__cause__}")
+                        raise Exception(f"API call failed after 3 retries: {e.__cause__}")
+                else:
+                    self.logger.error(f"LLM API call failed after retries")
+                    raise Exception(f"API call failed after 3 retries")
+
+            # Rate limit errors
+            elif "rate limit" in error_msg or "429" in error_msg:
                 self.logger.error(f"Rate limit exceeded. Consider reducing ENRICHMENT_MAX_WORKERS or adding delays.")
                 raise Exception(f"Rate limit exceeded: {e}")
+
+            # Quota/billing errors
             elif "quota" in error_msg or "insufficient_quota" in error_msg:
                 self.logger.error(f"API quota exceeded or insufficient credits")
                 raise Exception(f"Quota exceeded: {e}")
-            elif "invalid_api_key" in error_msg or "authentication" in error_msg:
+
+            # Authentication errors
+            elif "invalid_api_key" in error_msg or "authentication" in error_msg or "unauthorized" in error_msg:
                 self.logger.error(f"API authentication failed. Check your API key.")
                 raise Exception(f"Authentication failed: {e}")
+
+            # Invalid model errors
             elif "invalid" in error_msg and ("model" in error_msg or "engine" in error_msg):
                 self.logger.error(f"Invalid model specified: {self.model}")
                 raise Exception(f"Invalid model: {e}")
+
+            # Generic error
             else:
                 self.logger.error(f"LLM API call failed: {e}")
                 raise

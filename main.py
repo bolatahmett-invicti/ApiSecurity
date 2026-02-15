@@ -3406,7 +3406,17 @@ def export_openapi_enriched(
         error_msg = str(e).lower()
 
         # Check for common error patterns
-        if "rate limit" in error_msg or "429" in error_msg:
+        if "aws bedrock" in error_msg:
+            console.print(f"[red]✗ AWS Bedrock error: {e}[/red]")
+            if "authentication" in error_msg or "credentials" in error_msg:
+                console.print(f"[yellow]   Please verify your AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY[/yellow]")
+                console.print(f"[yellow]   Run: aws configure (or set environment variables)[/yellow]")
+            elif "model" in error_msg and ("not found" in error_msg or "not accessible" in error_msg):
+                console.print(f"[yellow]   Please check the model name and ensure it's enabled in your AWS account[/yellow]")
+                console.print(f"[yellow]   Visit AWS Console > Bedrock > Model access to enable models[/yellow]")
+            elif "access denied" in error_msg or "permissions" in error_msg:
+                console.print(f"[yellow]   Please verify your IAM user/role has bedrock:InvokeModel permission[/yellow]")
+        elif "rate limit" in error_msg or "429" in error_msg or "throttling" in error_msg:
             console.print(f"[red]✗ Rate limit exceeded: {e}[/red]")
             console.print(f"[yellow]   Please wait a moment and try again[/yellow]")
             console.print(f"[yellow]   Consider reducing ENRICHMENT_MAX_WORKERS in .env[/yellow]")
