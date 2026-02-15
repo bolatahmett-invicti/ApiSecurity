@@ -95,6 +95,9 @@ COPY agents/ /app/agents/
 COPY cache/ /app/cache/
 COPY docs/ /app/docs/
 
+# Copy Phase 1, 2, 3 hybrid architecture modules (NEW!)
+COPY scanners/ /app/scanners/
+
 # Make entrypoint executable
 RUN chmod +x /app/entrypoint.sh
 
