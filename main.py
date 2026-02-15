@@ -110,6 +110,154 @@ def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> lo
 logger = setup_logging()
 
 # =============================================================================
+# SECURITY: PATH VALIDATION
+# =============================================================================
+class PathSecurityError(Exception):
+    """Raised when path validation fails for security reasons."""
+    pass
+
+
+def validate_scan_path(target_path: str, allowed_base_dirs: Optional[List[str]] = None) -> Path:
+    """
+    Validate scan target path for security.
+
+    Security checks:
+    1. Path traversal prevention (../ attacks)
+    2. Symbolic link validation
+    3. Restricted system directories
+    4. Optional allowed base directory restrictions
+
+    Args:
+        target_path: Path to validate
+        allowed_base_dirs: Optional list of allowed base directories (e.g., ["/workspace", "/app"])
+                          If None, allows any non-system directory
+
+    Returns:
+        Resolved absolute Path object
+
+    Raises:
+        PathSecurityError: If path fails security validation
+
+    Environment Variables:
+        ALLOWED_SCAN_DIRS: Comma-separated list of allowed base directories
+        ENABLE_SYMLINK_SCAN: Set to "true" to allow scanning symlinked directories (default: false)
+    """
+    try:
+        # Resolve to absolute path (follows symlinks)
+        resolved_path = Path(target_path).resolve()
+
+        # Check if path exists
+        if not resolved_path.exists():
+            raise PathSecurityError(f"Path does not exist: {target_path}")
+
+        # Check if it's a directory
+        if not resolved_path.is_dir():
+            raise PathSecurityError(f"Path is not a directory: {target_path}")
+
+        # 1. Check for path traversal attempts in original input
+        if ".." in str(target_path):
+            logger.warning(f"Path traversal attempt detected: {target_path}")
+            # Still allow if it resolves to a safe path
+
+        # 2. Symbolic link check (optional, based on config)
+        enable_symlink = os.getenv("ENABLE_SYMLINK_SCAN", "false").lower() == "true"
+        if not enable_symlink:
+            original_path = Path(target_path)
+            if original_path.is_symlink():
+                raise PathSecurityError(
+                    f"Symbolic links are not allowed: {target_path} -> {resolved_path}. "
+                    f"Set ENABLE_SYMLINK_SCAN=true to allow."
+                )
+
+        # 3. Restricted system directories (platform-specific)
+        restricted_dirs = _get_restricted_directories()
+        for restricted in restricted_dirs:
+            try:
+                restricted_resolved = Path(restricted).resolve()
+                # Check if scan path is under restricted directory
+                if resolved_path == restricted_resolved or restricted_resolved in resolved_path.parents:
+                    raise PathSecurityError(
+                        f"Cannot scan restricted system directory: {resolved_path} "
+                        f"(under {restricted})"
+                    )
+            except Exception:
+                # Skip if restricted path doesn't exist or can't be resolved
+                continue
+
+        # 4. Allowed base directory check (if configured)
+        if allowed_base_dirs is None:
+            # Check environment variable
+            env_allowed = os.getenv("ALLOWED_SCAN_DIRS", "").strip()
+            if env_allowed:
+                allowed_base_dirs = [d.strip() for d in env_allowed.split(",") if d.strip()]
+
+        if allowed_base_dirs:
+            # Validate that resolved path is under one of the allowed directories
+            is_allowed = False
+            for allowed_dir in allowed_base_dirs:
+                try:
+                    allowed_resolved = Path(allowed_dir).resolve()
+                    if resolved_path == allowed_resolved or allowed_resolved in resolved_path.parents:
+                        is_allowed = True
+                        break
+                except Exception as e:
+                    logger.warning(f"Could not resolve allowed directory {allowed_dir}: {e}")
+                    continue
+
+            if not is_allowed:
+                raise PathSecurityError(
+                    f"Path {resolved_path} is not under allowed directories: {', '.join(allowed_base_dirs)}. "
+                    f"Configure ALLOWED_SCAN_DIRS to allow scanning this location."
+                )
+
+        logger.debug(f"Path validation passed: {target_path} -> {resolved_path}")
+        return resolved_path
+
+    except PathSecurityError:
+        raise
+    except Exception as e:
+        raise PathSecurityError(f"Path validation failed: {e}")
+
+
+def _get_restricted_directories() -> List[str]:
+    """
+    Get list of restricted system directories that should not be scanned.
+
+    Returns:
+        List of restricted directory paths
+    """
+    import platform
+
+    system = platform.system()
+    restricted = []
+
+    if system == "Linux" or system == "Darwin":  # Linux/macOS
+        restricted.extend([
+            "/etc",           # System configuration
+            "/boot",          # Boot files
+            "/dev",           # Device files
+            "/proc",          # Process information
+            "/sys",           # System information
+            "/root",          # Root user home
+            "/var/log",       # System logs
+            "/usr/bin",       # System binaries
+            "/usr/sbin",      # System admin binaries
+            "/bin",           # Essential binaries
+            "/sbin",          # Essential admin binaries
+        ])
+    elif system == "Windows":
+        restricted.extend([
+            "C:\\Windows",          # Windows system directory
+            "C:\\Windows\\System32", # System binaries
+            "C:\\Program Files",    # Installed programs
+            "C:\\Program Files (x86)",
+            os.environ.get("SYSTEMROOT", "C:\\Windows"),
+        ])
+
+    return restricted
+
+
+# =============================================================================
 # CONFIGURATION SYSTEM
 # =============================================================================
 @dataclass
@@ -3615,6 +3763,20 @@ Examples:
             target = tmp
         elif not os.path.exists(target):
             console.print(f"[red]Error: {target} not found[/red]")
+            sys.exit(1)
+
+        # Security: Validate scan path
+        try:
+            target_path = validate_scan_path(target)
+            target = str(target_path)  # Use validated path
+        except PathSecurityError as e:
+            console.print(f"[red]✗ Security Error:[/red] {e}")
+            if audit:
+                audit.log_event("security_violation", {
+                    "error": str(e),
+                    "attempted_path": target,
+                    "user": os.getenv("USER", os.getenv("USERNAME", "unknown"))
+                })
             sys.exit(1)
         
         # Log scan start
