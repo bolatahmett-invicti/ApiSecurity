@@ -1,6 +1,6 @@
 # 🛡️ Universal Polyglot API Scanner v4.0
 
-**Production-Ready** enterprise-grade API discovery tool supporting **5+ programming languages** through a modular scanner architecture.
+**Production-Ready** enterprise-grade API discovery tool supporting **5+ programming languages** through a modular scanner architecture...
 
 ## ✨ What's New in v4.0
 
