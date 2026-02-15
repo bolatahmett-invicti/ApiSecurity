@@ -623,6 +623,105 @@ class LLMProviderFactory:
             return (False, f"Validation failed: {str(e)}")
 
     @staticmethod
+    def _validate_anthropic(api_key: str) -> tuple:
+        """Validate Anthropic Claude credentials."""
+        try:
+            from anthropic import Anthropic, AuthenticationError, APIError
+
+            try:
+                client = Anthropic(api_key=api_key)
+                # Make a minimal API call with smallest, cheapest model
+                # Using very small token limit to minimize cost (~$0.0001)
+                client.messages.create(
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=10,
+                    messages=[{"role": "user", "content": "test"}]
+                )
+                return (True, "Valid")
+            except AuthenticationError as e:
+                error_msg = str(e).lower()
+                if "invalid" in error_msg or "authentication" in error_msg:
+                    return (False, "Invalid Anthropic API key")
+                else:
+                    return (False, f"Authentication error: {str(e)}")
+            except APIError as e:
+                # If we get an API error (not auth error), credentials are valid
+                # but something else went wrong (rate limit, etc.)
+                error_msg = str(e).lower()
+                if "rate" in error_msg or "quota" in error_msg:
+                    return (False, "API key valid but rate limit/quota exceeded")
+                else:
+                    # Other API errors still mean the key is valid
+                    return (True, "Valid")
+            except Exception as e:
+                return (False, f"Validation error: {str(e)}")
+        except ImportError:
+            return (False, "anthropic package not installed")
+
+    @staticmethod
+    def _validate_openai(api_key: str) -> tuple:
+        """Validate OpenAI GPT credentials."""
+        try:
+            from openai import OpenAI, AuthenticationError, APIError
+
+            try:
+                client = OpenAI(api_key=api_key)
+                # List models is a lightweight operation with no token cost
+                client.models.list()
+                return (True, "Valid")
+            except AuthenticationError as e:
+                error_msg = str(e).lower()
+                if "invalid" in error_msg or "authentication" in error_msg or "incorrect" in error_msg:
+                    return (False, "Invalid OpenAI API key")
+                else:
+                    return (False, f"Authentication error: {str(e)}")
+            except APIError as e:
+                # If we get an API error (not auth error), credentials are valid
+                error_msg = str(e).lower()
+                if "rate" in error_msg or "quota" in error_msg or "insufficient" in error_msg:
+                    return (False, "API key valid but rate limit/quota exceeded")
+                else:
+                    # Other API errors still mean the key is valid
+                    return (True, "Valid")
+            except Exception as e:
+                return (False, f"Validation error: {str(e)}")
+        except ImportError:
+            return (False, "openai package not installed")
+
+    @staticmethod
+    def _validate_gemini(api_key: str) -> tuple:
+        """Validate Google Gemini credentials."""
+        try:
+            import google.generativeai as genai
+            from google.api_core.exceptions import PermissionDenied, Unauthenticated
+
+            try:
+                genai.configure(api_key=api_key)
+                # List models is a lightweight operation with no token cost
+                list(genai.list_models())
+                return (True, "Valid")
+            except (PermissionDenied, Unauthenticated) as e:
+                error_msg = str(e).lower()
+                if "invalid" in error_msg or "api key" in error_msg:
+                    return (False, "Invalid Google API key")
+                elif "permission" in error_msg or "denied" in error_msg:
+                    return (False, "API key valid but permission denied - enable Generative Language API")
+                else:
+                    return (False, f"Authentication error: {str(e)}")
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "quota" in error_msg or "rate" in error_msg:
+                    return (False, "API key valid but rate limit/quota exceeded")
+                elif "api key" in error_msg or "invalid" in error_msg:
+                    return (False, "Invalid Google API key")
+                else:
+                    # If we can configure and list models, key is likely valid
+                    # Some other errors don't necessarily mean invalid key
+                    return (False, f"Validation error: {str(e)}")
+        except ImportError:
+            return (False, "google-generativeai package not installed")
+
+    @staticmethod
     def _validate_bedrock(access_key: str, secret_key: str, region: str) -> tuple:
         """Validate AWS Bedrock credentials."""
         try:
