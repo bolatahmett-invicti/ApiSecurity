@@ -3819,20 +3819,23 @@ Examples:
     
     try:
         # Clone if URL
-        is_temp_clone = False
         if target.startswith(("http://", "https://", "git@")):
             tmp = clone_repo(target)
             target = tmp
-            is_temp_clone = True  # Skip strict validation for temp git clones
         elif not os.path.exists(target):
             console.print(f"[red]Error: {target} not found[/red]")
             sys.exit(1)
 
-        # Security: Validate scan path (skip for temp git clones unless explicitly required)
-        # Only enforce if ALLOWED_SCAN_DIRS is set and not a temp clone
-        skip_validation = is_temp_clone and not os.getenv("ENFORCE_PATH_VALIDATION", "").lower() == "true"
+        # Security: Validate scan path (OPT-IN - only if security restrictions configured)
+        # Path validation only runs when:
+        # 1. ALLOWED_SCAN_DIRS is set (restricts scanning to specific directories), OR
+        # 2. ENFORCE_PATH_VALIDATION=true (force validation even without ALLOWED_SCAN_DIRS)
+        should_validate = (
+            os.getenv("ALLOWED_SCAN_DIRS", "").strip() or
+            os.getenv("ENFORCE_PATH_VALIDATION", "").lower() == "true"
+        )
 
-        if not skip_validation:
+        if should_validate:
             try:
                 target_path = validate_scan_path(target)
                 target = str(target_path)  # Use validated path
