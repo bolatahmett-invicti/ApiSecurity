@@ -213,8 +213,17 @@ class RobustJSONParser:
         text = text.replace(''', "'").replace(''', "'")
 
         # Fix missing commas between properties (heuristic)
-        # Look for patterns like: "value"\n"key" and add comma
+        # Pattern 1: "value"\n"key" -> "value",\n"key"
         text = re.sub(r'"\s*\n\s*"', '",\n"', text)
+
+        # Pattern 2: }\n"key" -> },\n"key" (object followed by property)
+        text = re.sub(r'}\s*\n\s*"', '},\n"', text)
+
+        # Pattern 3: ]\n"key" -> ],\n"key" (array followed by property)
+        text = re.sub(r']\s*\n\s*"', '],\n"', text)
+
+        # Pattern 4: true/false/null/number\n"key" -> value,\n"key"
+        text = re.sub(r'(true|false|null|\d+)\s*\n\s*"', r'\1,\n"', text)
 
         # Fix missing commas between objects in arrays
         # Look for patterns like: }\n{ and add comma
