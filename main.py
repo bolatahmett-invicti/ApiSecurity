@@ -3221,6 +3221,144 @@ def export_openapi(endpoints: List[Endpoint], target: str, output_file: str, ser
     console.print(f"  • Ready for import into Invicti/Burp Suite/DAST tools")
 
 
+def export_openapi_enriched(
+    endpoints: List[Endpoint],
+    target: str,
+    output_file: str,
+    service_name: Optional[str] = None,
+    use_cache: bool = True
+) -> None:
+    """
+    Export endpoints with AI-powered enrichment to OpenAPI 3.0 specification.
+
+    This function uses Claude AI to generate comprehensive OpenAPI specs with:
+    - Complete parameter definitions with types and validation
+    - Request/response schemas with examples
+    - Authentication/authorization detection
+    - Security test payloads
+    - API dependency graphs and test sequences
+
+    Args:
+        endpoints: List of discovered endpoints
+        target: Source directory that was scanned
+        output_file: Path to write the enriched OpenAPI spec
+        service_name: Optional microservice identifier
+        use_cache: Whether to use caching (default: True)
+
+    Environment Variables:
+        ANTHROPIC_API_KEY: Required for AI enrichment
+        ENRICHMENT_CACHE_DIR: Cache directory (default: ./.cache/enrichment)
+        ENRICHMENT_MODEL: Claude model to use (default: claude-sonnet-4-5-20250929)
+    """
+    import asyncio
+    from agents import AgentOrchestrator, OrchestrationConfig
+    from cache.cache_manager import CacheManager
+
+    # Check for API key
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    if not api_key:
+        console.print("[yellow]⚠️ ANTHROPIC_API_KEY not found. Falling back to basic OpenAPI export.[/yellow]")
+        console.print("[yellow]   Set ANTHROPIC_API_KEY in .env to enable AI enrichment.[/yellow]")
+        export_openapi(endpoints, target, output_file, service_name)
+        return
+
+    console.print("\n[bold cyan]🤖 AI-Powered Enrichment Starting...[/bold cyan]")
+    console.print(f"[dim]Using Claude {os.getenv('ENRICHMENT_MODEL', 'claude-sonnet-4-5-20250929')}[/dim]")
+
+    try:
+        # Initialize cache manager
+        cache_dir = os.getenv("ENRICHMENT_CACHE_DIR", "./.cache/enrichment")
+        cache_ttl = int(os.getenv("ENRICHMENT_CACHE_TTL", "604800"))
+        cache_manager = CacheManager(cache_dir=cache_dir, ttl_seconds=cache_ttl) if use_cache else None
+
+        # Build orchestration config
+        config = OrchestrationConfig(
+            enabled_agents=os.getenv("ENRICHMENT_AGENTS", "openapi_enrichment,auth_flow_detector,payload_generator,dependency_graph").split(","),
+            max_concurrent_enrichments=int(os.getenv("ENRICHMENT_MAX_WORKERS", "3")),
+            use_cache=use_cache,
+            model=os.getenv("ENRICHMENT_MODEL", "claude-sonnet-4-5-20250929"),
+            fallback_enabled=os.getenv("ENRICHMENT_FALLBACK_ENABLED", "true").lower() == "true"
+        )
+
+        # Initialize orchestrator
+        orchestrator = AgentOrchestrator(
+            anthropic_api_key=api_key,
+            cache_manager=cache_manager,
+            config=config
+        )
+
+        # Build code map (file_path → source code)
+        console.print("[cyan]Loading source code for analysis...[/cyan]")
+        code_map = {}
+        seen_files = set()
+        for ep in endpoints:
+            if ep.file_path not in seen_files and os.path.isfile(ep.file_path):
+                try:
+                    with open(ep.file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                        code_map[ep.file_path] = f.read()
+                    seen_files.add(ep.file_path)
+                except Exception as e:
+                    console.print(f"[yellow]  ⚠️ Could not read {ep.file_path}: {e}[/yellow]")
+
+        console.print(f"[cyan]Loaded {len(code_map)} source files[/cyan]")
+
+        # Run enrichment pipeline
+        console.print("[cyan]Running AI enrichment pipeline...[/cyan]")
+        console.print(f"[dim]  • Global auth detection[/dim]")
+        console.print(f"[dim]  • Dependency graph analysis[/dim]")
+        console.print(f"[dim]  • Per-endpoint schema generation (parallel)[/dim]")
+        console.print(f"[dim]  • Security payload generation[/dim]")
+
+        # Run async enrichment
+        enriched_spec = asyncio.run(orchestrator.enrich_all(endpoints, code_map))
+
+        # Get stats
+        stats = orchestrator.get_stats()
+
+        # Write output
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(enriched_spec, f, indent=2)
+
+        # Print summary
+        path_count = len(enriched_spec.get("paths", {}))
+        operation_count = sum(len(methods) for methods in enriched_spec.get("paths", {}).values())
+        schema_count = len(enriched_spec.get("components", {}).get("schemas", {}))
+
+        console.print(f"\n[green]✓ AI-Enriched OpenAPI 3.0 spec exported: {output_file}[/green]")
+        console.print(f"  • Paths: {path_count}")
+        console.print(f"  • Operations: {operation_count}")
+        console.print(f"  • Schemas: {schema_count}")
+        console.print(f"\n[bold]AI Enrichment Statistics:[/bold]")
+        console.print(f"  • Total endpoints processed: {stats['total_endpoints']}")
+        console.print(f"  • Successfully enriched: {stats['enriched_endpoints']}")
+        console.print(f"  • Failed: {stats['failed_endpoints']}")
+        console.print(f"  • Cache hits: {stats['cache_hits']}")
+        console.print(f"  • Cache misses: {stats['cache_misses']}")
+        console.print(f"  • API calls made: {stats['total_api_calls']}")
+
+        if cache_manager:
+            cache_stats = cache_manager.get_stats()
+            hit_rate = cache_stats.get('hit_rate', 0) * 100
+            console.print(f"  • Cache hit rate: {hit_rate:.1f}%")
+            console.print(f"  • Cache entries: {cache_stats.get('entries', 0)}")
+
+        console.print(f"\n[green]✓ Ready for import into Invicti with complete payloads and auth config[/green]")
+
+    except ImportError as e:
+        console.print(f"[yellow]⚠️ AI enrichment dependencies not installed: {e}[/yellow]")
+        console.print(f"[yellow]   Run: pip install -r requirements.txt[/yellow]")
+        console.print(f"[yellow]   Falling back to basic OpenAPI export...[/yellow]")
+        export_openapi(endpoints, target, output_file, service_name)
+
+    except Exception as e:
+        console.print(f"[red]✗ AI enrichment failed: {e}[/red]")
+        if config.fallback_enabled:
+            console.print(f"[yellow]   Falling back to basic OpenAPI export...[/yellow]")
+            export_openapi(endpoints, target, output_file, service_name)
+        else:
+            raise
+
+
 # =============================================================================
 # GIT HELPER
 # =============================================================================
@@ -3246,6 +3384,11 @@ Examples:
   python main.py ./src --export-sarif           # Export SARIF for GitHub
   python main.py ./src --policy policy.yaml     # Custom security policies
   python main.py ./src --fail-on-critical       # CI gate mode
+
+  # AI-Powered Enrichment (v5.0+)
+  python main.py ./src --export-openapi --ai-enrich              # AI-enriched OpenAPI spec
+  python main.py ./src --export-openapi --ai-enrich --no-cache   # Force fresh analysis
+  ANTHROPIC_API_KEY=sk-ant-... python main.py ./src --ai-enrich # With API key
         """
     )
     
@@ -3263,6 +3406,10 @@ Examples:
                              help="Export JUnit XML for CI/CD")
     output_group.add_argument("--service-name", "-s", metavar="NAME",
                              help="Microservice identifier for output files")
+    output_group.add_argument("--ai-enrich", action="store_true",
+                             help="Enable AI-powered enrichment for OpenAPI specs (requires ANTHROPIC_API_KEY)")
+    output_group.add_argument("--no-cache", action="store_true",
+                             help="Disable caching for AI enrichment (force fresh analysis)")
     
     # Scan options
     scan_group = parser.add_argument_group("Scan Options")
@@ -3517,7 +3664,18 @@ Examples:
                 openapi_file = f"{args.service_name or 'api'}-openapi.json"
             else:
                 openapi_file = args.export_openapi
-            export_openapi(endpoints, args.target, openapi_file, args.service_name)
+
+            # Use AI-enriched export if requested
+            if args.ai_enrich:
+                export_openapi_enriched(
+                    endpoints,
+                    target,
+                    openapi_file,
+                    args.service_name,
+                    use_cache=not args.no_cache
+                )
+            else:
+                export_openapi(endpoints, target, openapi_file, args.service_name)
         
         # SARIF export
         if args.export_sarif:

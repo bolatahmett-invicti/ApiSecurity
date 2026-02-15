@@ -21,3 +21,24 @@ requests>=2.31.0
 
 # YAML parsing (optional, for config files)
 pyyaml>=6.0.1
+
+# AI Enrichment Dependencies (v5.0+)
+# -----------------------------------
+
+# Anthropic Claude SDK - For AI enrichment agents
+anthropic>=0.18.0
+
+# Async HTTP client for concurrent API calls
+httpx>=0.26.0
+
+# Token counting for prompt optimization
+tiktoken>=0.5.2
+
+# Advanced caching with SQLite
+diskcache>=5.6.3
+
+# Retry logic with exponential backoff
+tenacity>=8.2.3
+
+# JSON schema validation for OpenAPI
+jsonschema>=4.20.0
