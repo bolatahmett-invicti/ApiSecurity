@@ -15,6 +15,7 @@ import json
 import re
 from typing import Dict, Any
 from .base_agent import BaseAgent, EnrichmentContext, EnrichmentResult, AgentStatus
+from .json_parser import RobustJSONParser
 
 
 class OpenAPIEnrichmentAgent(BaseAgent):
@@ -190,52 +191,59 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
             )
 
         except json.JSONDecodeError as e:
-            self.logger.error(f"Failed to parse Claude response as JSON: {e}")
+            self.logger.error(f"Failed to parse LLM response as JSON: {e}")
             return EnrichmentResult(
                 status=AgentStatus.FAILED,
                 errors=[f"Invalid JSON response: {str(e)}"],
                 data={"raw_response": response[:500] if 'response' in locals() else None}
             )
 
+        except ValueError as e:
+            # Validation error - include the operation object for debugging
+            self.logger.error(f"Operation validation failed: {e}")
+            if 'operation_object' in locals():
+                self.logger.debug(f"Failed operation object: {json.dumps(operation_object, indent=2)[:1000]}")
+            if 'response' in locals():
+                self.logger.debug(f"Raw LLM response: {response[:1000]}")
+            return EnrichmentResult(
+                status=AgentStatus.FAILED,
+                errors=[f"Validation error: {str(e)}"],
+                data={
+                    "operation": operation_object if 'operation_object' in locals() else None,
+                    "raw_response": response[:500] if 'response' in locals() else None
+                }
+            )
+
         except Exception as e:
             self._log_error("Enrichment failed", e)
             return EnrichmentResult(
                 status=AgentStatus.FAILED,
-                errors=[str(e)]
+                errors=[str(e)],
+                data={"raw_response": response[:500] if 'response' in locals() else None}
             )
 
     def _parse_json_response(self, response: str) -> Dict[str, Any]:
         """
-        Parse JSON from Claude response, handling markdown code blocks.
+        Parse JSON from LLM response using robust parser.
+
+        This handles common LLM response issues across all providers:
+        - Markdown code blocks
+        - Comments (// and /* */)
+        - Trailing commas
+        - Missing commas (heuristic fixes)
+        - Smart quotes
+        - Leading/trailing non-JSON text
 
         Args:
-            response: Raw response from Claude
+            response: Raw response from LLM (Claude, GPT-4, Gemini, etc.)
 
         Returns:
             Parsed JSON object
 
         Raises:
-            json.JSONDecodeError: If response is not valid JSON
+            json.JSONDecodeError: If response is not valid JSON after all strategies
         """
-        # Try to extract JSON from markdown code block
-        json_match = re.search(r'```(?:json)?\n?(.*?)\n?```', response, re.DOTALL)
-        if json_match:
-            json_str = json_match.group(1)
-        else:
-            json_str = response.strip()
-
-        # Parse JSON
-        try:
-            return json.loads(json_str)
-        except json.JSONDecodeError:
-            # Try cleaning up common issues
-            json_str = json_str.strip()
-            # Remove leading/trailing text
-            if '{' in json_str:
-                json_str = json_str[json_str.find('{'):]
-            if '}' in json_str:
-                json_str = json_str[:json_str.rfind('}') + 1]
-            return json.loads(json_str)
+        return RobustJSONParser.parse(response, context="operation object")
 
     def _validate_operation_object(self, operation: Dict[str, Any]) -> None:
         """
@@ -260,23 +268,45 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
 
         # Validate parameters if present
         if "parameters" in operation:
-            if not isinstance(operation["parameters"], list):
-                raise ValueError("'parameters' must be a list")
+            params = operation["parameters"]
 
-            for i, param in enumerate(operation["parameters"]):
-                if "name" not in param:
-                    raise ValueError(f"Parameter {i} missing 'name'")
-                if "in" not in param:
-                    raise ValueError(f"Parameter {i} missing 'in' (path/query/header/cookie)")
-                if param["in"] not in ["path", "query", "header", "cookie"]:
-                    raise ValueError(f"Parameter 'in' must be path/query/header/cookie, got: {param['in']}")
+            # Handle common issues
+            if params is None or params == "":
+                self.logger.warning("parameters is null/empty, removing it")
+                del operation["parameters"]
+            elif not isinstance(params, list):
+                self.logger.error(f"'parameters' must be a list, got {type(params).__name__}: {str(params)[:200]}")
+                raise ValueError(f"'parameters' must be a list, got {type(params).__name__}")
+            else:
+                for i, param in enumerate(params):
+                    if not isinstance(param, dict):
+                        self.logger.error(f"Parameter {i} must be a dictionary, got {type(param).__name__}")
+                        raise ValueError(f"Parameter {i} must be a dictionary, got {type(param).__name__}")
+                    if "name" not in param:
+                        raise ValueError(f"Parameter {i} missing 'name'")
+                    if "in" not in param:
+                        raise ValueError(f"Parameter {i} missing 'in' (path/query/header/cookie)")
+                    if param["in"] not in ["path", "query", "header", "cookie"]:
+                        raise ValueError(f"Parameter 'in' must be path/query/header/cookie, got: {param['in']}")
 
         # Validate requestBody if present
         if "requestBody" in operation:
-            if not isinstance(operation["requestBody"], dict):
-                raise ValueError("'requestBody' must be a dictionary")
-            if "content" not in operation["requestBody"]:
-                raise ValueError("'requestBody' must have 'content'")
+            req_body = operation["requestBody"]
+
+            # Handle common issues
+            if req_body is None or req_body == "":
+                self.logger.warning("requestBody is null/empty, removing it")
+                del operation["requestBody"]
+            elif not isinstance(req_body, dict):
+                self.logger.error(f"'requestBody' must be a dictionary, got {type(req_body).__name__}: {str(req_body)[:200]}")
+                raise ValueError(f"'requestBody' must be a dictionary, got {type(req_body).__name__}")
+            elif "content" not in req_body:
+                self.logger.warning("'requestBody' missing 'content', adding default")
+                operation["requestBody"]["content"] = {
+                    "application/json": {
+                        "schema": {"type": "object"}
+                    }
+                }
 
         # Validate responses
         if not isinstance(operation["responses"], dict):

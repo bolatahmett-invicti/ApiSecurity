@@ -18,6 +18,7 @@ import json
 import re
 from typing import Dict, Any, List, Optional
 from .base_agent import BaseAgent, EnrichmentContext, EnrichmentResult, AgentStatus
+from .json_parser import RobustJSONParser
 
 
 class AuthFlowDetectorAgent(BaseAgent):
@@ -345,36 +346,26 @@ OUTPUT (JSON only):
 
     def _parse_json_response(self, response: str) -> Dict[str, Any]:
         """
-        Parse JSON from Claude response, handling markdown code blocks.
+        Parse JSON from LLM response using robust parser.
+
+        This handles common LLM response issues across all providers:
+        - Markdown code blocks
+        - Comments (// and /* */)
+        - Trailing commas
+        - Missing commas (heuristic fixes)
+        - Smart quotes
+        - Leading/trailing non-JSON text
 
         Args:
-            response: Raw response from Claude
+            response: Raw response from LLM (Claude, GPT-4, Gemini, etc.)
 
         Returns:
             Parsed JSON object
 
         Raises:
-            json.JSONDecodeError: If response is not valid JSON
+            json.JSONDecodeError: If response is not valid JSON after all strategies
         """
-        # Try to extract JSON from markdown code block
-        json_match = re.search(r'```(?:json)?\n?(.*?)\n?```', response, re.DOTALL)
-        if json_match:
-            json_str = json_match.group(1)
-        else:
-            json_str = response.strip()
-
-        # Parse JSON
-        try:
-            return json.loads(json_str)
-        except json.JSONDecodeError:
-            # Try cleaning up common issues
-            json_str = json_str.strip()
-            # Remove leading/trailing text
-            if '{' in json_str:
-                json_str = json_str[json_str.find('{'):]
-            if '}' in json_str:
-                json_str = json_str[:json_str.rfind('}') + 1]
-            return json.loads(json_str)
+        return RobustJSONParser.parse(response, context="auth config")
 
     def _validate_auth_config(self, config: Dict[str, Any]) -> None:
         """
