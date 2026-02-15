@@ -20,6 +20,12 @@ from typing import Dict, Any, List
 from .base_agent import BaseAgent, EnrichmentContext, EnrichmentResult, AgentStatus
 from .json_parser import RobustJSONParser
 
+# Import static security payload templates (COST SAVINGS: 100% for security payloads)
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from scanners.security_templates.payloads import SecurityPayloadTemplates
+
 
 class PayloadGeneratorAgent(BaseAgent):
     """
@@ -44,20 +50,21 @@ class PayloadGeneratorAgent(BaseAgent):
         return "payload_generator"
 
     def _build_system_prompt(self) -> str:
-        return """You are an expert security researcher and penetration tester specializing in API security testing.
+        return """You are an expert API testing specialist.
 
-Your task is to generate comprehensive test payloads for API endpoints to be used in DAST security scanning.
+Your task is to generate test payloads for API endpoints (VALID, EDGE CASES, and FUZZ payloads only).
+
+NOTE: Security payloads (SQL injection, XSS, etc.) are handled by static templates - you don't need to generate them.
 
 CRITICAL REQUIREMENTS:
 1. Return ONLY valid JSON (no markdown code fences, no explanations)
 2. EVERY object property MUST be followed by a comma except the last one in the object
 3. EVERY array element MUST be followed by a comma except the last one in the array
 4. All strings MUST use double quotes ("), not single quotes (')
-5. Generate payloads in 4 categories: valid, edge_cases, security, fuzz
+5. Generate payloads in 3 categories: valid, edge_cases, fuzz
 6. Ensure valid payloads match the expected schema exactly
-7. Include diverse security payloads covering OWASP Top 10
-8. Make edge cases realistic (boundary values, special characters)
-9. Fuzz payloads should test error handling robustly
+7. Make edge cases realistic (boundary values, special characters)
+8. Fuzz payloads should test error handling robustly
 
 JSON SYNTAX RULES (CRITICAL):
 - Use commas between all object properties: {"a": 1, "b": 2, "c": 3}
@@ -82,18 +89,7 @@ PAYLOAD CATEGORIES:
 - Very long strings (1000+ chars)
 - Arrays with 0 elements, 1 element, many elements
 
-**3. SECURITY PAYLOADS** (attack vectors - should be blocked):
-- **SQL Injection**: ' OR '1'='1, '; DROP TABLE users--
-- **XSS**: <script>alert('XSS')</script>, javascript:alert(1)
-- **Command Injection**: ; ls -la, && cat /etc/passwd
-- **Path Traversal**: ../../etc/passwd, ..\\..\\windows\\system32
-- **XXE**: XML entities for file access
-- **LDAP Injection**: *)(uid=*))(|(uid=*
-- **NoSQL Injection**: {"$gt": ""}, {"$ne": null}
-- **Header Injection**: \r\nSet-Cookie: admin=true
-- **SSRF**: http://169.254.169.254/latest/meta-data/
-
-**4. FUZZ PAYLOADS** (malformed data - should fail gracefully):
+**3. FUZZ PAYLOADS** (malformed data - should fail gracefully):
 - Invalid types (string instead of number, object instead of array)
 - Extra unexpected fields
 - Deeply nested objects (50+ levels)
@@ -140,7 +136,7 @@ OUTPUT FORMAT (strict JSON):
       "name": "boundary_string_length",
       "description": "Username at maximum allowed length",
       "payload": {
-        "username": "a" * 255,
+        "username": "aaaaaaaaa...(255 chars)",
         "email": "long@example.com"
       },
       "expected_status": [200, 400]
@@ -153,61 +149,6 @@ OUTPUT FORMAT (strict JSON):
         "email": "user+tag@sub.example.com"
       },
       "expected_status": [200, 400]
-    }
-  ],
-  "security": [
-    {
-      "name": "sql_injection_authentication_bypass",
-      "category": "sql_injection",
-      "description": "SQL injection in login",
-      "payload": {
-        "username": "admin' OR '1'='1",
-        "password": "anything"
-      },
-      "expected_status": [400, 401],
-      "detection": "Should reject or sanitize SQL syntax"
-    },
-    {
-      "name": "xss_script_injection",
-      "category": "xss",
-      "description": "XSS attack in user input",
-      "payload": {
-        "name": "<script>alert('XSS')</script>",
-        "bio": "<img src=x onerror=alert(1)>"
-      },
-      "expected_status": [400, 422],
-      "detection": "Should escape or reject HTML/JS"
-    },
-    {
-      "name": "command_injection",
-      "category": "command_injection",
-      "description": "Command injection attempt",
-      "payload": {
-        "filename": "test.txt; rm -rf /"
-      },
-      "expected_status": [400, 422],
-      "detection": "Should reject shell metacharacters"
-    },
-    {
-      "name": "path_traversal",
-      "category": "path_traversal",
-      "description": "Path traversal in file parameter",
-      "payload": {
-        "file": "../../etc/passwd"
-      },
-      "expected_status": [400, 403],
-      "detection": "Should block directory traversal"
-    },
-    {
-      "name": "nosql_injection",
-      "category": "nosql_injection",
-      "description": "NoSQL injection operators",
-      "payload": {
-        "username": {"$gt": ""},
-        "password": {"$ne": null}
-      },
-      "expected_status": [400, 401],
-      "detection": "Should reject MongoDB operators"
     }
   ],
   "fuzz": [
@@ -236,17 +177,9 @@ OUTPUT FORMAT (strict JSON):
       "description": "Deeply nested JSON (30 levels)",
       "payload": {"a": {"b": {"c": {"d": {"e": {"f": {"g": {"h": "deep"}}}}}}}},
       "expected_status": [400, 413]
-    },
-    {
-      "name": "very_large_string",
-      "description": "10MB string payload",
-      "payload": {
-        "data": "A" * 10000000
-      },
-      "expected_status": [400, 413]
     }
   ],
-  "summary": "Generated 15 test payloads across 4 categories for comprehensive API security testing"
+  "summary": "Generated payloads for valid/edge/fuzz testing (security payloads added from templates)"
 }
 
 BEFORE RESPONDING:
@@ -295,23 +228,17 @@ REQUEST SCHEMA:
 PAYLOAD GENERATION REQUIREMENTS:
 1. Generate at least 3 valid payloads (happy path)
 2. Generate at least 5 edge case payloads (boundary testing)
-3. Generate at least 8 security payloads covering:
-   - SQL Injection (at least 2)
-   - XSS (at least 2)
-   - Command Injection
-   - Path Traversal
-   - NoSQL Injection
-   - Any other relevant attack vectors
-4. Generate at least 4 fuzz payloads (error handling)
+3. Generate at least 4 fuzz payloads (error handling)
+
+NOTE: Security payloads (SQL injection, XSS, etc.) are generated from static templates automatically.
 
 IMPORTANT NOTES:
 - Analyze the code to understand expected field names and types
 - Make valid payloads realistic (proper emails, valid formats)
-- Security payloads should target common vulnerabilities
 - Edge cases should test boundary conditions
 - Fuzz payloads should test error handling robustly
 
-IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations."""
+IMPORTANT: Return ONLY the JSON object with 'valid', 'edge_cases', and 'fuzz' arrays. No markdown formatting, no explanations."""
 
         return prompt
 
@@ -347,12 +274,24 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
                     data={"reason": "No request body expected"}
                 )
 
-            # Call Claude
+            # Call Claude for valid/edge_cases/fuzz payloads only (NOT security!)
             self.logger.info(f"Generating payloads for {context.endpoint.method} {context.endpoint.route}")
             response = await self._call_claude(system_prompt, user_prompt)
 
-            # Parse JSON response
+            # Parse JSON response (valid, edge_cases, fuzz)
             payloads = self._parse_json_response(response)
+
+            # Generate security payloads from static templates (COST SAVINGS: $0!)
+            security_payloads = self._generate_security_payloads_from_templates(context)
+            payloads["security"] = security_payloads
+
+            self.logger.info(
+                f"Hybrid payload generation: "
+                f"{len(payloads.get('valid', []))} valid, "
+                f"{len(payloads.get('edge_cases', []))} edge cases, "
+                f"{len(security_payloads)} security (templates), "
+                f"{len(payloads.get('fuzz', []))} fuzz"
+            )
 
             # Validate payload structure
             self._validate_payloads(payloads)
@@ -366,7 +305,9 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
                     "valid_count": len(payloads.get("valid", [])),
                     "edge_case_count": len(payloads.get("edge_cases", [])),
                     "security_count": len(payloads.get("security", [])),
+                    "security_source": "static_templates",  # NEW: indicate templates used
                     "fuzz_count": len(payloads.get("fuzz", [])),
+                    "cost_savings": "100% for security payloads",
                 }
             )
 
@@ -384,6 +325,104 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
                 status=AgentStatus.FAILED,
                 errors=[str(e)]
             )
+
+    def _generate_security_payloads_from_templates(
+        self,
+        context: EnrichmentContext,
+        limit_per_category: int = 2
+    ) -> List[Dict[str, Any]]:
+        """
+        Generate security payloads from static templates (NO LLM NEEDED).
+
+        This replaces LLM generation for security payloads with deterministic templates.
+
+        Args:
+            context: EnrichmentContext with endpoint info
+            limit_per_category: Max payloads per vulnerability category (default: 2)
+
+        Returns:
+            List of security payload objects matching LLM format
+
+        Cost savings: 100% (was ~$0.015-0.02 per endpoint)
+        """
+        endpoint_info = {
+            "route": context.endpoint.route,
+            "method": context.endpoint.method,
+            "parameters": [],  # Will be populated if we have schema
+        }
+
+        # Extract parameters from config if available
+        if context.config and "parameters" in context.config:
+            endpoint_info["parameters"] = context.config["parameters"]
+
+        # Get all vulnerability categories
+        categories = SecurityPayloadTemplates.get_all_categories()
+
+        security_payloads = []
+
+        # Generate payloads for each category
+        for category in categories:
+            category_payloads = SecurityPayloadTemplates.get_payloads_by_category(category)
+
+            # Limit payloads per category to avoid overwhelming the test suite
+            for payload_data in category_payloads[:limit_per_category]:
+                # Convert template format to LLM-compatible format
+                security_payload = {
+                    "name": f"{category}_{len(security_payloads)}",
+                    "category": category,
+                    "description": payload_data["description"],
+                    "payload": payload_data["payload"],
+                    "expected_status": [400, 401, 403, 422],  # Should be rejected
+                    "detection": f"Should reject {category.replace('_', ' ')} attack",
+                    "source": "static_template"  # Mark as template-generated
+                }
+
+                # For string payloads, inject into likely field names
+                if isinstance(payload_data["payload"], str):
+                    # Infer field names from context
+                    field_name = self._infer_vulnerable_field(context, category)
+                    security_payload["payload"] = {field_name: payload_data["payload"]}
+
+                security_payloads.append(security_payload)
+
+        self.logger.debug(
+            f"Generated {len(security_payloads)} security payloads from templates "
+            f"({len(categories)} categories × {limit_per_category} payloads each)"
+        )
+
+        return security_payloads
+
+    def _infer_vulnerable_field(self, context: EnrichmentContext, category: str) -> str:
+        """
+        Infer which field name is most vulnerable for a given attack category.
+
+        Args:
+            context: EnrichmentContext
+            category: Vulnerability category (e.g., "sql_injection", "xss")
+
+        Returns:
+            Field name to inject payload into
+        """
+        # Category-specific field mappings
+        field_mappings = {
+            "sql_injection": ["username", "email", "id", "search", "query"],
+            "xss": ["name", "bio", "comment", "message", "description"],
+            "command_injection": ["filename", "file", "path", "command"],
+            "path_traversal": ["file", "path", "filename", "directory"],
+            "nosql_injection": ["username", "email", "id"],
+            "ldap_injection": ["username", "email", "cn", "uid"],
+            "header_injection": ["redirect_url", "callback", "next"],
+            "ssrf": ["url", "callback", "webhook", "image_url"],
+            "template_injection": ["template", "content", "message"],
+            "xxe": ["xml", "data", "content"],
+        }
+
+        # Get likely fields for this category
+        likely_fields = field_mappings.get(category, ["input", "data", "value"])
+
+        # TODO: Could analyze context.function_body to detect actual field names
+        # For now, use first field from mapping
+        return likely_fields[0]
 
     def _parse_json_response(self, response: str) -> Dict[str, Any]:
         """
@@ -506,6 +545,10 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
                 payloads = batch_data.get(endpoint_id)
 
                 if payloads:
+                    # Add security payloads from templates (COST SAVINGS!)
+                    security_payloads = self._generate_security_payloads_from_templates(ctx)
+                    payloads["security"] = security_payloads
+
                     # Validate payloads
                     try:
                         self._validate_payloads(payloads)
@@ -520,7 +563,9 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
                                 "valid_count": len(payloads.get("valid", [])),
                                 "edge_case_count": len(payloads.get("edge_cases", [])),
                                 "security_count": len(payloads.get("security", [])),
+                                "security_source": "static_templates",  # NEW
                                 "fuzz_count": len(payloads.get("fuzz", [])),
+                                "cost_savings": "100% for security payloads",
                             }
                         ))
                     except ValueError as e:
@@ -579,40 +624,38 @@ IMPORTANT: Return ONLY the JSON object, no markdown formatting, no explanations.
 
     def _build_batch_system_prompt(self) -> str:
         """Build system prompt for batch payload generation."""
-        return """You are an expert security researcher and penetration tester specializing in API security testing.
+        return """You are an expert API testing specialist.
 
-Your task is to generate comprehensive test payloads for MULTIPLE API endpoints in a single response.
+Your task is to generate test payloads for MULTIPLE API endpoints in a single response.
+
+NOTE: Security payloads (SQL injection, XSS, etc.) are handled by static templates - you don't need to generate them.
 
 CRITICAL REQUIREMENTS:
 1. Return ONLY valid JSON (no markdown code fences, no explanations)
 2. Process ALL endpoints provided (do not skip any)
 3. Return a JSON object where keys are endpoint IDs (METHOD /route)
-4. For each endpoint, generate payloads in 4 categories: valid, edge_cases, security, fuzz
+4. For each endpoint, generate payloads in 3 categories: valid, edge_cases, fuzz
 5. Ensure valid payloads match the expected schema exactly
-6. Include diverse security payloads covering OWASP Top 10
-7. Make edge cases realistic (boundary values, special characters)
-8. Fuzz payloads should test error handling robustly
+6. Make edge cases realistic (boundary values, special characters)
+7. Fuzz payloads should test error handling robustly
 
 OUTPUT FORMAT (strict JSON):
 {
   "POST /api/users": {
     "valid": [...],
     "edge_cases": [...],
-    "security": [...],
     "fuzz": [...],
     "summary": "Generated payloads for user creation"
   },
   "PUT /api/users/:id": {
     "valid": [...],
     "edge_cases": [...],
-    "security": [...],
     "fuzz": [...],
     "summary": "Generated payloads for user update"
   },
   "POST /api/products": {
     "valid": [...],
     "edge_cases": [...],
-    "security": [...],
     "fuzz": [...],
     "summary": "Generated payloads for product creation"
   }
@@ -621,8 +664,7 @@ OUTPUT FORMAT (strict JSON):
 PAYLOAD CATEGORIES (for each endpoint):
 1. **valid**: At least 3 happy path payloads that should succeed
 2. **edge_cases**: At least 5 boundary/special character tests
-3. **security**: At least 8 attack vectors (SQL injection, XSS, command injection, etc.)
-4. **fuzz**: At least 4 malformed data tests
+3. **fuzz**: At least 4 malformed data tests
 
 IMPORTANT: Process ALL endpoints. Return payload sets for every endpoint provided."""
 
@@ -655,21 +697,15 @@ SOURCE CODE:
 PAYLOAD GENERATION REQUIREMENTS FOR EACH ENDPOINT:
 1. At least 3 valid payloads (happy path)
 2. At least 5 edge case payloads (boundaries, special chars)
-3. At least 8 security payloads:
-   - SQL Injection (2+)
-   - XSS (2+)
-   - Command Injection
-   - Path Traversal
-   - NoSQL Injection
-   - Other relevant attacks
-4. At least 4 fuzz payloads (malformed data)
+3. At least 4 fuzz payloads (malformed data)
+
+NOTE: Security payloads (SQL injection, XSS, etc.) are generated from static templates automatically.
 
 IMPORTANT:
 - Process ALL {len(contexts)} endpoints
 - Return JSON object with keys: {', '.join(f'"{c.endpoint.method} {c.endpoint.route}"' for c in contexts[:3])}{"..." if len(contexts) > 3 else ""}
 - Analyze code to understand field names and types
-- Make security payloads realistic and diverse
-- NO markdown formatting, NO explanations, ONLY JSON"""
+- NO markdown formatting, NO explanations, ONLY JSON with 'valid', 'edge_cases', 'fuzz' arrays"""
 
         return prompt
 
@@ -720,18 +756,3 @@ IMPORTANT:
             self.logger.warning(f"Unexpected {len(extra)} endpoints in batch response: {list(extra)[:3]}")
 
         return batch_data
-                for i, payload_obj in enumerate(payloads[category]):
-                    if not isinstance(payload_obj, dict):
-                        raise ValueError(f"{category}[{i}] must be a dictionary")
-                    if "payload" not in payload_obj:
-                        raise ValueError(f"{category}[{i}] missing 'payload' field")
-                    if "name" not in payload_obj:
-                        self.logger.warning(f"{category}[{i}] missing 'name' field")
-                        payload_obj["name"] = f"{category}_{i}"
-
-        # Add summary if missing
-        if "summary" not in payloads:
-            total = sum(len(payloads.get(cat, [])) for cat in categories)
-            payloads["summary"] = f"Generated {total} test payloads across {len(categories)} categories"
-
-        self.logger.debug("Payload structure validated successfully")
