@@ -464,7 +464,8 @@ class AgentOrchestrator:
                     logger.warning(f"Status code extraction failed for {context.endpoint.route}: {e}")
 
             # PHASE 2: AST-based enrichment (type hints, decorators, docstrings)
-            if context.function_body:
+            # Only run on Python code (skip JavaScript, C#, etc.)
+            if context.function_body and self._is_python_code(context.function_body):
                 # Extract type hints from function signature
                 if self.config.deterministic_type_hints:
                     try:
@@ -476,7 +477,7 @@ class AgentOrchestrator:
                                 f"{list(type_hints.keys())}"
                             )
                     except Exception as e:
-                        logger.warning(f"Type hint extraction failed for {context.endpoint.route}: {e}")
+                        logger.debug(f"Type hint extraction skipped for {context.endpoint.route} (non-Python code)")
 
                 # Detect auth decorators
                 if self.config.deterministic_decorators:
@@ -490,7 +491,7 @@ class AgentOrchestrator:
                                     f"{[list(s.keys())[0] for s in auth_info['security']]}"
                                 )
                     except Exception as e:
-                        logger.warning(f"Decorator analysis failed for {context.endpoint.route}: {e}")
+                        logger.debug(f"Decorator analysis skipped for {context.endpoint.route} (non-Python code)")
 
                 # Extract docstring
                 if self.config.deterministic_docstrings:
@@ -504,7 +505,7 @@ class AgentOrchestrator:
                                     f"{docstring_info['summary'][:50]}..."
                                 )
                     except Exception as e:
-                        logger.warning(f"Docstring extraction failed for {context.endpoint.route}: {e}")
+                        logger.debug(f"Docstring extraction skipped for {context.endpoint.route} (non-Python code)")
 
             # Add deterministic data to context config
             if deterministic_data:
@@ -1159,6 +1160,81 @@ class AgentOrchestrator:
                 break
 
         return '\n'.join(function_lines)
+
+    @staticmethod
+    def _is_python_code(code: str) -> bool:
+        """
+        Detect if code is Python (vs JavaScript, C#, etc.) before attempting AST parsing.
+
+        Uses simple heuristics to avoid AST syntax errors on non-Python code.
+        Returns False for JavaScript/TypeScript (with curly braces, semicolons)
+        and C# code (with curly braces, C# keywords).
+        """
+        if not code or not code.strip():
+            return False
+
+        # JavaScript/TypeScript indicators (common in Node.js/Express)
+        js_indicators = [
+            'function(',  # JavaScript function
+            'const ',     # ES6 const
+            'let ',       # ES6 let
+            'var ',       # JavaScript var
+            ') {',        # Function body with brace
+            '};',         # Statement ending
+            'async function',  # Async function
+            'module.exports',  # Node.js export
+            'router.',    # Express router
+            'app.use(',   # Express middleware
+        ]
+
+        # C# indicators
+        csharp_indicators = [
+            'public ',
+            'private ',
+            'protected ',
+            ' Task<',
+            'IActionResult',
+            '[Route',
+            '[Http',
+            'namespace ',
+            'using System',
+        ]
+
+        # Count indicators
+        js_count = sum(1 for indicator in js_indicators if indicator in code)
+        csharp_count = sum(1 for indicator in csharp_indicators if indicator in code)
+
+        # Strong indicators of non-Python code
+        if js_count >= 2 or csharp_count >= 2:
+            return False
+
+        # Check for unmatched curly braces (common in JS/C#, rare in Python)
+        if code.count('{') > 0 and code.count('}') > 0:
+            # Python dicts use {}, but function bodies don't
+            # If we see function-like structures with {}, it's likely not Python
+            if any(pattern in code for pattern in ['function ', ') {', 'if (', 'for (']):
+                return False
+
+        # Python indicators
+        python_indicators = [
+            'def ',
+            'class ',
+            'import ',
+            'from ',
+            '__init__',
+            'self.',
+            '@',  # Decorators
+            ':',  # Colons for blocks
+        ]
+
+        python_count = sum(1 for indicator in python_indicators if indicator in code)
+
+        # If we see Python indicators and no strong non-Python indicators, assume Python
+        if python_count >= 1:
+            return True
+
+        # Default: assume not Python (conservative approach to avoid AST errors)
+        return False
 
     @staticmethod
     def _detect_framework_language(file_path: str) -> tuple[str, str]:
