@@ -116,6 +116,14 @@ class OrchestrationConfig:
     deterministic_decorators: bool = True  # Detect auth patterns from decorators
     deterministic_docstrings: bool = True  # Extract descriptions from docstrings
 
+    # Logic-oriented Fuzzing (LoF) — Phase 3 extension
+    # Generates constraint-violating payloads from AST-extracted business rules
+    # Cost: $0 (fully deterministic — no LLM call)
+    enable_lof: bool = True                   # Master switch (default: enabled)
+    lof_confidence_threshold: float = 0.4    # Min evidence confidence to emit a payload
+                                              # 0.4 = balanced (medium+ FP risk)
+                                              # 0.6 = conservative (low FP risk only)
+
 
 class AgentOrchestrator:
     """
@@ -512,6 +520,12 @@ class AgentOrchestrator:
                 if context.config is None:
                     context.config = {}
                 context.config["deterministic_data"] = deterministic_data
+
+            # Pass LoF configuration so PayloadGeneratorAgent can use it
+            if context.config is None:
+                context.config = {}
+            context.config["lof_confidence_threshold"] = self.config.lof_confidence_threshold
+            context.config["enable_lof"] = self.config.enable_lof
 
                 logger.debug(
                     f"Deterministic enrichment complete for {context.endpoint.route}: "

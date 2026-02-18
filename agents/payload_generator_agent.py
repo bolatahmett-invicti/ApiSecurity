@@ -26,6 +26,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from scanners.security_templates.payloads import SecurityPayloadTemplates
 
+# Import Logic-oriented Fuzzing components (COST SAVINGS: 100% — fully deterministic)
+from scanners.deterministic.constraint_extractor import ConstraintExtractor
+from scanners.logic_fuzz.logic_fuzz_generator import LogicFuzzGenerator
+
 
 class PayloadGeneratorAgent(BaseAgent):
     """
@@ -285,12 +289,17 @@ IMPORTANT: Return ONLY the JSON object with 'valid', 'edge_cases', and 'fuzz' ar
             security_payloads = self._generate_security_payloads_from_templates(context)
             payloads["security"] = security_payloads
 
+            # Generate logic-fuzz payloads — constraint-aware, fully deterministic ($0!)
+            logic_fuzz_payloads = self._generate_logic_fuzz_payloads(context)
+            payloads["logic_fuzz"] = logic_fuzz_payloads
+
             self.logger.info(
                 f"Hybrid payload generation: "
                 f"{len(payloads.get('valid', []))} valid, "
                 f"{len(payloads.get('edge_cases', []))} edge cases, "
                 f"{len(security_payloads)} security (templates), "
-                f"{len(payloads.get('fuzz', []))} fuzz"
+                f"{len(payloads.get('fuzz', []))} fuzz, "
+                f"{len(logic_fuzz_payloads)} logic_fuzz (deterministic)"
             )
 
             # Validate payload structure
@@ -305,9 +314,11 @@ IMPORTANT: Return ONLY the JSON object with 'valid', 'edge_cases', and 'fuzz' ar
                     "valid_count": len(payloads.get("valid", [])),
                     "edge_case_count": len(payloads.get("edge_cases", [])),
                     "security_count": len(payloads.get("security", [])),
-                    "security_source": "static_templates",  # NEW: indicate templates used
+                    "security_source": "static_templates",
                     "fuzz_count": len(payloads.get("fuzz", [])),
-                    "cost_savings": "100% for security payloads",
+                    "logic_fuzz_count": len(payloads.get("logic_fuzz", [])),
+                    "logic_fuzz_source": "deterministic_constraint_analysis",
+                    "cost_savings": "100% for security and logic_fuzz payloads",
                 }
             )
 
@@ -325,6 +336,66 @@ IMPORTANT: Return ONLY the JSON object with 'valid', 'edge_cases', and 'fuzz' ar
                 status=AgentStatus.FAILED,
                 errors=[str(e)]
             )
+
+    def _generate_logic_fuzz_payloads(
+        self,
+        context: EnrichmentContext,
+        confidence_threshold: float = 0.4,
+    ) -> List[Dict[str, Any]]:
+        """
+        Generate logic-aware fuzzing payloads based on extracted constraints.
+
+        Fully deterministic — no LLM call, no cost.
+        Uses ConstraintExtractor (AST + regex) + LogicFuzzGenerator.
+
+        Args:
+            context: EnrichmentContext with endpoint and source code
+            confidence_threshold: Min confidence to emit a payload (default 0.4)
+
+        Returns:
+            List of logic_fuzz payload dicts, each with confidence + fp_risk annotation
+        """
+        # Respect enable_lof flag from orchestrator config
+        if not context.config.get("enable_lof", True):
+            return []
+
+        # Allow orchestrator to override threshold via context config
+        threshold = context.config.get("lof_confidence_threshold", confidence_threshold)
+
+        source = context.function_body or context.surrounding_code or ""
+        if not source.strip():
+            self.logger.debug(
+                f"No source code for {context.endpoint.method} {context.endpoint.route} — skipping logic_fuzz"
+            )
+            return []
+
+        auth_info = context.config.get("deterministic_data", {}).get("auth_decorators", {})
+
+        try:
+            constraints = ConstraintExtractor.extract_from_code(
+                source_code=source,
+                route=context.endpoint.route,
+                auth_info=auth_info,
+            )
+
+            payloads = LogicFuzzGenerator.generate(
+                constraints=constraints,
+                endpoint_method=context.endpoint.method,
+                confidence_threshold=threshold,
+            )
+
+            low_fp = sum(1 for p in payloads if p.get("fp_risk") == "low")
+            med_fp = sum(1 for p in payloads if p.get("fp_risk") == "medium")
+            self.logger.debug(
+                f"logic_fuzz: {len(payloads)} payloads "
+                f"({low_fp} low-FP, {med_fp} medium-FP) "
+                f"for {context.endpoint.method} {context.endpoint.route}"
+            )
+            return payloads
+
+        except Exception as e:
+            self.logger.warning(f"logic_fuzz generation failed for {context.endpoint.route}: {e}")
+            return []
 
     def _generate_security_payloads_from_templates(
         self,
@@ -461,7 +532,7 @@ IMPORTANT: Return ONLY the JSON object with 'valid', 'edge_cases', and 'fuzz' ar
             raise ValueError("Payloads must be a dictionary")
 
         # Should have at least one category
-        categories = ["valid", "edge_cases", "security", "fuzz"]
+        categories = ["valid", "edge_cases", "security", "fuzz", "logic_fuzz"]
         if not any(cat in payloads for cat in categories):
             self.logger.warning("No payload categories found, adding empty defaults")
             for cat in categories:
@@ -549,6 +620,10 @@ IMPORTANT: Return ONLY the JSON object with 'valid', 'edge_cases', and 'fuzz' ar
                     security_payloads = self._generate_security_payloads_from_templates(ctx)
                     payloads["security"] = security_payloads
 
+                    # Add logic-fuzz payloads (deterministic, $0!)
+                    logic_fuzz_payloads = self._generate_logic_fuzz_payloads(ctx)
+                    payloads["logic_fuzz"] = logic_fuzz_payloads
+
                     # Validate payloads
                     try:
                         self._validate_payloads(payloads)
@@ -563,9 +638,11 @@ IMPORTANT: Return ONLY the JSON object with 'valid', 'edge_cases', and 'fuzz' ar
                                 "valid_count": len(payloads.get("valid", [])),
                                 "edge_case_count": len(payloads.get("edge_cases", [])),
                                 "security_count": len(payloads.get("security", [])),
-                                "security_source": "static_templates",  # NEW
+                                "security_source": "static_templates",
                                 "fuzz_count": len(payloads.get("fuzz", [])),
-                                "cost_savings": "100% for security payloads",
+                                "logic_fuzz_count": len(payloads.get("logic_fuzz", [])),
+                                "logic_fuzz_source": "deterministic_constraint_analysis",
+                                "cost_savings": "100% for security and logic_fuzz payloads",
                             }
                         ))
                     except ValueError as e:
