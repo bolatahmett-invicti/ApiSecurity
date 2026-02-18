@@ -527,10 +527,10 @@ class AgentOrchestrator:
             context.config["lof_confidence_threshold"] = self.config.lof_confidence_threshold
             context.config["enable_lof"] = self.config.enable_lof
 
-                logger.debug(
-                    f"Deterministic enrichment complete for {context.endpoint.route}: "
-                    f"{len(deterministic_data)} data items"
-                )
+            logger.debug(
+                f"Deterministic enrichment complete for {context.endpoint.route}: "
+                f"{len(deterministic_data)} data items"
+            )
 
         enriched_count = sum(1 for ctx in contexts if ctx.config and "deterministic_data" in ctx.config)
         logger.info(
