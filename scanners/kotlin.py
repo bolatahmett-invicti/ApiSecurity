@@ -18,6 +18,10 @@ class KotlinScanner(BaseScanner):
         return {".kt", ".kts"}
 
     @property
+    def comment_prefixes(self) -> tuple:
+        return ("//", "*")
+
+    @property
     def patterns(self) -> List[PatternDef]:
         return [
             # ===================== KTOR =====================

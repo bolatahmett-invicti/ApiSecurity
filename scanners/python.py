@@ -27,6 +27,10 @@ class PythonScanner(BaseScanner):
         return {".py"}
 
     @property
+    def comment_prefixes(self) -> tuple:
+        return ("#",)
+
+    @property
     def patterns(self) -> List[PatternDef]:
         return [
             # ===================== FLASK =====================
@@ -257,6 +261,44 @@ class PythonScanner(BaseScanner):
                 route_group=1,
             ),
 
+            # ===================== STARLETTE =====================
+            PatternDef(
+                regex=r'Route\s*\(\s*["\']([^"\']+)["\']',
+                framework="Starlette",
+                kind=EndpointKind.ENDPOINT,
+                route_group=1,
+            ),
+            PatternDef(
+                regex=r'Mount\s*\(\s*["\']([^"\']+)["\']',
+                framework="Starlette",
+                kind=EndpointKind.CONFIG,
+                route_group=1,
+                label="Mount",
+            ),
+
+            # ===================== BOTTLE =====================
+            PatternDef(
+                regex=r'@(?:app|bottle)\.(get|post|put|delete|patch)\s*\(\s*["\']([^"\']+)["\']',
+                framework="Bottle",
+                kind=EndpointKind.ENDPOINT,
+                method_group=1,
+                route_group=2,
+            ),
+            PatternDef(
+                regex=r'@(?:app|bottle)\.route\s*\(\s*["\']([^"\']+)["\']',
+                framework="Bottle",
+                kind=EndpointKind.ENDPOINT,
+                route_group=1,
+            ),
+
+            # ===================== QUART =====================
+            PatternDef(
+                regex=r'from\s+quart\s+import',
+                framework="Quart",
+                kind=EndpointKind.CONFIG,
+                label="Quart app",
+            ),
+
             # ===================== HEALTH/INFRA =====================
             PatternDef(
                 regex=r'["\']/?health(?:z|check)?["\']',
@@ -379,6 +421,43 @@ class PythonScanner(BaseScanner):
                 raw_match=match.group(0),
                 context=self.get_context(lines, line_num - 1),
                 metadata={"blueprint": name},
+            ))
+
+        # HEURISTIC 5: FastAPI include_router() prefix tracking
+        # Detect: app.include_router(routerVar, prefix="/api/v1")
+        include_re = re.compile(
+            r'include_router\s*\(\s*(\w+)\s*(?:,[^)]*prefix\s*=\s*["\']([^"\']+)["\'])?',
+        )
+        router_method_re = re.compile(
+            r'@(\w+)\.(get|post|put|delete|patch|options|head)\s*\(\s*["\']([^"\']+)["\']',
+            re.IGNORECASE,
+        )
+
+        prefixes: dict = {}
+        for m in include_re.finditer(content):
+            if m.group(2):
+                prefixes[m.group(1)] = m.group(2)
+
+        for m in router_method_re.finditer(content):
+            var = m.group(1)
+            if var not in prefixes:
+                continue
+            method = m.group(2).upper()
+            path = m.group(3)
+            prefix = prefixes[var]
+            full_route = prefix.rstrip('/') + '/' + path.lstrip('/')
+            line_num = content[:m.start()].count('\n') + 1
+            results.append(Endpoint(
+                file_path=str(file_path),
+                line_number=line_num,
+                language=self.language,
+                framework="FastAPI",
+                kind=EndpointKind.ENDPOINT,
+                method=method,
+                route=full_route,
+                raw_match=m.group(0)[:150],
+                context=self.get_context(lines, line_num - 1),
+                metadata={"router_prefix": prefix},
             ))
 
         return results

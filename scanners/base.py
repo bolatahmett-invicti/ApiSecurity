@@ -140,6 +140,11 @@ class BaseScanner(ABC):
         """List of regex patterns for detection."""
         pass
 
+    @property
+    def comment_prefixes(self) -> tuple:
+        """Single-line comment prefixes to skip. Override in subclasses."""
+        return ()
+
     def get_context(self, lines: List[str], line_num: int, size: int = 3) -> List[str]:
         """Extract context lines around a match."""
         start = max(0, line_num - size)
@@ -154,6 +159,13 @@ class BaseScanner(ABC):
             try:
                 for match in re.finditer(pattern_def.regex, content, re.MULTILINE | re.IGNORECASE):
                     line_num = content[:match.start()].count('\n') + 1
+
+                    # Skip matches inside comment lines
+                    if self.comment_prefixes and line_num <= len(lines):
+                        raw_line = lines[line_num - 1].lstrip()
+                        if any(raw_line.startswith(p) for p in self.comment_prefixes):
+                            continue
+
                     groups = match.groups()
 
                     method = "ANY"

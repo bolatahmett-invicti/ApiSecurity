@@ -18,6 +18,10 @@ class PHPScanner(BaseScanner):
         return {".php"}
 
     @property
+    def comment_prefixes(self) -> tuple:
+        return ("//", "#", "*")
+
+    @property
     def patterns(self) -> List[PatternDef]:
         return [
             # ===================== LARAVEL =====================

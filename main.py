@@ -435,6 +435,11 @@ DEFAULT_IGNORE_DIRS: Set[str] = {
     ".vscode", ".DS_Store",
     # Docs
     "docs", "doc", "_site",
+    # Test / mock directories (not production code)
+    "test", "tests", "spec", "specs", "__tests__",
+    "fixtures", "mocks", "stubs", "mock", "stub",
+    "e2e", "integration", "unit", "__mocks__",
+    "testdata", "test_data",
 }
 
 # Alias for backward compatibility
@@ -1502,13 +1507,16 @@ class PolyglotScanner:
         """Remove duplicate endpoints."""
         seen = set()
         unique = []
-        
+
+        def _normalize_route(route: str) -> str:
+            return route.rstrip('/') or '/'
+
         for ep in self.endpoints:
-            key = (ep.file_path, ep.line_number, ep.route, ep.method)
+            key = (ep.file_path, ep.line_number, _normalize_route(ep.route), ep.method)
             if key not in seen:
                 seen.add(key)
                 unique.append(ep)
-        
+
         return unique
     
     def summary(self) -> Dict[str, Any]:

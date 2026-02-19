@@ -25,6 +25,10 @@ class DotNetScanner(BaseScanner):
         return {".cs"}
 
     @property
+    def comment_prefixes(self) -> tuple:
+        return ("//", "*")
+
+    @property
     def patterns(self) -> List[PatternDef]:
         # Minimal API patterns only - Controllers handled by _deep_scan_controllers
         return [

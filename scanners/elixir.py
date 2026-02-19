@@ -18,6 +18,10 @@ class ElixirScanner(BaseScanner):
         return {".ex", ".exs"}
 
     @property
+    def comment_prefixes(self) -> tuple:
+        return ("#",)
+
+    @property
     def patterns(self) -> List[PatternDef]:
         return [
             # ===================== PHOENIX =====================

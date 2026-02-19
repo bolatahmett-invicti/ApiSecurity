@@ -18,6 +18,10 @@ class CrystalScanner(BaseScanner):
         return {".cr"}
 
     @property
+    def comment_prefixes(self) -> tuple:
+        return ("#",)
+
+    @property
     def patterns(self) -> List[PatternDef]:
         return [
             # ===================== KEMAL =====================

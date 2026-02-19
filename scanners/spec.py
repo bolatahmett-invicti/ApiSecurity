@@ -77,6 +77,9 @@ class SpecScanner(BaseScanner):
             else:
                 return []
 
+            # Resolve local-file $ref references before processing paths
+            spec = self._resolve_refs(spec, file_path.parent)
+
             # Extract paths section
             if not isinstance(spec, dict) or "paths" not in spec:
                 return []
@@ -232,6 +235,29 @@ class SpecScanner(BaseScanner):
                 ))
 
         return results
+
+    def _resolve_refs(self, spec: object, base_dir: Path) -> object:
+        """Recursively resolve local-file $ref values (not fragment or HTTP refs)."""
+        if isinstance(spec, dict):
+            if '$ref' in spec:
+                ref = spec['$ref']
+                if not ref.startswith('#') and not ref.startswith('http'):
+                    ref_path = ref.split('#')[0]
+                    ref_file = base_dir / ref_path
+                    if ref_file.exists() and ref_file.suffix.lower() in {'.json', '.yaml', '.yml'}:
+                        try:
+                            raw = ref_file.read_text(encoding='utf-8')
+                            if ref_file.suffix.lower() == '.json':
+                                return self._resolve_refs(json.loads(raw), ref_file.parent)
+                            else:
+                                import yaml
+                                return self._resolve_refs(yaml.safe_load(raw), ref_file.parent)
+                        except Exception:
+                            pass
+            return {k: self._resolve_refs(v, base_dir) for k, v in spec.items()}
+        elif isinstance(spec, list):
+            return [self._resolve_refs(item, base_dir) for item in spec]
+        return spec
 
     def _find_line_number(self, content: str, lines: List[str], route: str) -> int:
         """Find the line number where a route is defined."""

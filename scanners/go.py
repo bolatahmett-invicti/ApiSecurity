@@ -1,9 +1,11 @@
 """Go scanner: net/http, Gin, Echo, Fiber, Beego, Chi, Gorilla Mux, fasthttp, go-zero."""
 from __future__ import annotations
 
+import re
+from pathlib import Path
 from typing import List, Set
 
-from .base import BaseScanner, Language, EndpointKind, PatternDef
+from .base import BaseScanner, Language, EndpointKind, PatternDef, Endpoint
 
 
 class GoScanner(BaseScanner):
@@ -16,6 +18,10 @@ class GoScanner(BaseScanner):
     @property
     def extensions(self) -> Set[str]:
         return {".go"}
+
+    @property
+    def comment_prefixes(self) -> tuple:
+        return ("//",)
 
     @property
     def patterns(self) -> List[PatternDef]:
@@ -167,3 +173,44 @@ class GoScanner(BaseScanner):
                 label="@server",
             ),
         ]
+
+    def scan_with_heuristics(self, file_path: Path, content: str, lines: List[str]) -> List[Endpoint]:
+        """Detect Go route groups (r.Group/Mount) and produce combined routes."""
+        results = []
+
+        # varName := router.Group("/prefix") or varName = r.Mount("/prefix", ...)
+        group_re = re.compile(
+            r'(\w+)\s*:?=\s*(?:router|r|e|app|g|engine)\s*\.\s*(?:Group|Mount)\s*\(\s*["`]([^"`]+)["`]',
+        )
+        # varName.GET("/path", ...) or varName.Post("/path", ...)
+        method_re = re.compile(
+            r'(\w+)\s*\.\s*(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|Get|Post|Put|Delete|Patch|Head|Options)\s*\(\s*["`]([^"`]+)["`]',
+        )
+
+        groups: dict = {}
+        for m in group_re.finditer(content):
+            groups[m.group(1)] = m.group(2)
+
+        for m in method_re.finditer(content):
+            var = m.group(1)
+            if var not in groups:
+                continue
+            method = m.group(2).upper()
+            path = m.group(3)
+            prefix = groups[var]
+            full_route = prefix.rstrip('/') + '/' + path.lstrip('/')
+            line_num = content[:m.start()].count('\n') + 1
+            results.append(Endpoint(
+                file_path=str(file_path),
+                line_number=line_num,
+                language=self.language,
+                framework="Gin",
+                kind=EndpointKind.ENDPOINT,
+                method=method,
+                route=full_route,
+                raw_match=m.group(0)[:150],
+                context=self.get_context(lines, line_num - 1),
+                metadata={"group_prefix": prefix},
+            ))
+
+        return results
